@@ -174,6 +174,50 @@
     return 'techisland_' + classId + '_' + slot;
   }
 
+  // ─────────────────────────────────────────
+  // 房間代碼
+  // 為什麼需要：如果用「班級＋存檔槽」當房間識別，兩位老師都選「智班槽1」就會撞在一起，
+  // 兩班學生會連到同一場遊戲、資料互相蓋掉。改用每場獨立的 6 位數代碼就不會撞。
+  // ─────────────────────────────────────────
+  function randomCode() {
+    return String(Math.floor(100000 + Math.random() * 900000));
+  }
+
+  /** 老師端：開一個房間，回傳代碼 */
+  function createRoom(info) {
+    var code = randomCode();
+    if (mode !== 'firebase' || !db) {
+      // 本機模式：代碼只用來當 BroadcastChannel 的名字
+      return Promise.resolve(code);
+    }
+    var ref = db.collection('rooms').doc(code);
+    return ref.get().then(function (doc) {
+      // 代碼撞到還在用的房間就換一組（6 位數有 90 萬組，實務上幾乎不會發生）
+      if (doc.exists && Date.now() - (doc.data().createdAt || 0) < 6 * 3600 * 1000) {
+        return createRoom(info);
+      }
+      return ref.set({
+        gameId: info.gameId,
+        classId: info.classId,
+        slot: info.slot,
+        groups: info.groups,
+        createdAt: Date.now()
+      }).then(function () { return code; });
+    });
+  }
+
+  /** 平板端：用代碼查房間 */
+  function findRoom(code) {
+    if (mode !== 'firebase' || !db) {
+      // 本機模式：沒有雲端可查，直接用代碼當房間 id（同一台電腦多分頁測試用）
+      return Promise.resolve({ gameId: 'local_' + code, local: true });
+    }
+    return db.collection('rooms').doc(String(code)).get().then(function (doc) {
+      if (!doc.exists) return null;
+      return doc.data();
+    });
+  }
+
   global.STORE = {
     CLASSES: CLASSES, SLOTS: SLOTS,
     listSaves: listSaves, save: saveLocal, load: loadLocal,
@@ -182,6 +226,7 @@
     setMode: setMode, getMode: getMode, makeGameId: makeGameId,
     pushState: pushState, watchState: watchState,
     initChannel: initChannel, onLocalState: onLocalState, broadcastState: broadcastState,
+    createRoom: createRoom, findRoom: findRoom,
     sendAction: sendAction, watchActions: watchActions, clearAction: clearAction,
     drainLocalQueue: drainLocalQueue
   };

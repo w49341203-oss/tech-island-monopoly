@@ -11,6 +11,7 @@
   var state = null;
   var cfg = { classId: '智', slot: 1, chapters: [], groups: 9, maxRounds: 30,
               allowMerge: true, allowSabotage: true, solo: false, speed: 1, autoPilot: true };
+  var roomCode = null;          // 這一場的房間代碼（投影給學生輸入）
   var online = {};              // gid -> 最後一次收到該組訊息的時間
   var ONLINE_TIMEOUT = 25000;   // 25 秒沒消息就視為沒有平板，改由電腦代打
   var timer = null, paused = false, busy = false, lobbyPump = null, gamePump = null;
@@ -105,25 +106,7 @@
       seed: Date.now() % 2147483647
     });
     state.cfg = { allowMerge: cfg.allowMerge, allowSabotage: cfg.allowSabotage, solo: solo };
-    var gameId = S.makeGameId(cfg.classId, cfg.slot);
-    S.initChannel(gameId);                     // 同一台電腦多分頁一律先接上
-
-    if (!solo && S.firebaseReady()) {
-      msg('連線到 Firebase…', '');
-      S.initFirebase().then(function () {
-        S.setMode('firebase', gameId);
-        S.watchActions(function (a) { handleAction(a); S.clearAction(a.gid); });
-        pushRemote();
-        goLobby();
-      }).catch(function (e) {
-        msg('Firebase 連線失敗，改用本機模式：' + e.message, 'err');
-        S.setMode('local', gameId);
-        goLobby();
-      });
-    } else {
-      S.setMode('local', gameId);
-      goLobby();
-    }
+    openRoom(solo);
   }
 
   function doLoad() {
@@ -133,9 +116,43 @@
     cfg.chapters = st.chapters || [];
     cfg.solo = (st.cfg && st.cfg.solo) || false;
     Q.load(cfg.chapters).then(function () {
-      msg('讀取成功，第 ' + st.round + ' 輪', 'ok');
-      startGame();
+      msg('讀取成功，第 ' + st.round + ' 輪，正在開房間…', 'ok');
+      openRoom(cfg.solo);            // 續玩也要開新房間，學生才連得進來
     }).catch(function (e) { msg('題庫載入失敗：' + e.message, 'err'); });
+  }
+
+  /**
+   * 開房間：產生一組 6 位數代碼投影給學生輸入。
+   * 為什麼要代碼：如果用「班級＋存檔槽」當房間識別，兩位老師都選「智班槽1」就會撞在一起。
+   */
+  function openRoom(solo) {
+    var gameId = S.makeGameId(cfg.classId, cfg.slot);
+
+    function finish(code) {
+      roomCode = code;
+      S.initChannel(code);                  // 同一台電腦多分頁用代碼當頻道名
+      goLobby();
+    }
+
+    if (!solo && S.firebaseReady()) {
+      msg('連線中…', '');
+      S.initFirebase().then(function () {
+        S.setMode('firebase', gameId);
+        S.watchActions(function (a) { handleAction(a); S.clearAction(a.gid); });
+        return S.createRoom({ gameId: gameId, classId: cfg.classId,
+                              slot: cfg.slot, groups: cfg.groups });
+      }).then(function (code) {
+        pushRemote();
+        finish(code);
+      }).catch(function (e) {
+        msg('雲端連線失敗，改用本機模式：' + e.message, 'err');
+        S.setMode('local', gameId);
+        S.createRoom({}).then(finish);
+      });
+    } else {
+      S.setMode('local', gameId);
+      S.createRoom({}).then(finish);
+    }
   }
 
   // ═══════════════════════════════════════
@@ -144,6 +161,8 @@
   function goLobby() {
     $('setup').classList.add('hidden');
     $('lobby').classList.remove('hidden');
+    $('roomCode').textContent = roomCode || '------';
+    $('roomUrl').textContent = location.href.replace(/teacher\.html.*$/, 'player.html');
     renderLobby();
     pushRemote();
     clearInterval(lobbyPump);
@@ -233,6 +252,7 @@
     bindBar();
     bindCellClick();
     updateHUD();
+    $('hudCode').textContent = roomCode ? '房間代碼 ' + roomCode : '';
     clearInterval(gamePump);
     gamePump = setInterval(function () {
       var q = S.drainLocalQueue();

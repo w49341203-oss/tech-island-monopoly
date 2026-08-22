@@ -8,7 +8,7 @@
   var B = window.BOARD, E = window.ENGINE, S = window.STORE, CARD = window.CARDS;
   var $ = function (id) { return document.getElementById(id); };
 
-  var my = { classId: '智', slot: 1, gid: null };
+  var my = { code: '', gid: null, gameId: null };
   var state = null;
   var answered = false, lastRound = -1, lastPhase = '';
   var selectedCard = null, hintLevel = 0;
@@ -17,58 +17,76 @@
   // 加入
   // ═══════════════════════════════════════
   function buildJoin() {
-    S.CLASSES.forEach(function (c) {
-      var b = chip(c + '班', c === my.classId, function () {
-        my.classId = c; markOne($('jClass'), b);
-      });
-      $('jClass').appendChild(b);
-    });
-    S.SLOTS.forEach(function (s) {
-      var b = chip('槽 ' + s, s === my.slot, function () { my.slot = s; markOne($('jSlot'), b); });
-      $('jSlot').appendChild(b);
-    });
     for (var i = 1; i <= 10; i++) (function (n) {
       var b = chip('第 ' + n + ' 組', false, function () { my.gid = 'g' + n; markOne($('jGroup'), b); });
       $('jGroup').appendChild(b);
     })(i);
 
-    $('btnJoin').onclick = function () {
-      if (!my.gid) { pmsg('joinMsg', '請先選你們是第幾組', 'err'); return; }
-      var gameId = S.makeGameId(my.classId, my.slot);
-      S.initChannel(gameId);              // 同一台電腦多分頁
-      S.onLocalState(onState);
-      localStorage.setItem('techisland:me', JSON.stringify(my));
+    var codeInput = $('jCode');
+    codeInput.addEventListener('input', function () {
+      this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+    });
 
-      if (S.firebaseReady()) {
-        pmsg('joinMsg', '連線中…', '');
-        S.initFirebase().then(function () {
-          S.setMode('firebase', gameId);
-          S.watchState(onState);
-          send({ type: 'hello' });
-          pmsg('joinMsg', '已連上老師端（雲端），等待開始…', 'ok');
-          heartbeat();
-        }).catch(function (e) {
-          S.setMode('local', gameId);
-          pmsg('joinMsg', '雲端連線失敗，改用本機模式：' + e.message, 'err');
-          send({ type: 'hello' });
-          heartbeat();
-        });
-      } else {
-        S.setMode('local', gameId);
-        pmsg('joinMsg', '已加入（本機模式），等待老師端…', 'ok');
-        send({ type: 'hello' });
-        heartbeat();
-      }
-      // 先讀本機存檔頂著（老師端存過的話），再等老師端的即時廣播
-      var st = S.load(my.classId, my.slot);
-      if (st) onState(st);
-    };
+    $('btnJoin').onclick = doJoin;
+    codeInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') doJoin(); });
 
-    // 記住上次的選擇
+    // 記住上次輸入的代碼與組別，重新整理不用再打一次
     try {
       var saved = JSON.parse(localStorage.getItem('techisland:me') || 'null');
-      if (saved) { my = saved; }
+      if (saved) {
+        my.code = saved.code || '';
+        codeInput.value = my.code;
+        if (saved.gid) {
+          my.gid = saved.gid;
+          var idx = parseInt(saved.gid.slice(1), 10) - 1;
+          var chips = $('jGroup').children;
+          if (chips[idx]) markOne($('jGroup'), chips[idx]);
+        }
+      }
     } catch (e) {}
+  }
+
+  function doJoin() {
+    var code = ($('jCode').value || '').trim();
+    if (code.length !== 6) { pmsg('joinMsg', '請輸入白板上的 6 位數房間代碼', 'err'); return; }
+    if (!my.gid) { pmsg('joinMsg', '請選你們是第幾組', 'err'); return; }
+    my.code = code;
+    localStorage.setItem('techisland:me', JSON.stringify({ code: code, gid: my.gid }));
+
+    S.initChannel(code);                    // 同一台電腦多分頁用代碼當頻道
+    S.onLocalState(onState);
+
+    if (!S.firebaseReady()) {
+      S.setMode('local', 'local_' + code);
+      pmsg('joinMsg', '已加入（本機模式），等待老師端…', 'ok');
+      send({ type: 'hello' });
+      heartbeat();
+      return;
+    }
+
+    pmsg('joinMsg', '連線中…', '');
+    S.initFirebase().then(function () {
+      // ⚠️ 一定要先切到雲端模式，findRoom 才會真的去查 Firestore。
+      // 否則它會走本機分支回傳一個假房間，畫面顯示「已連上」但其實根本沒連到。
+      S.setMode('firebase', null);
+      return S.findRoom(code);
+    }).then(function (room) {
+      if (!room) {
+        pmsg('joinMsg', '找不到這個房間，請確認白板上的代碼（老師要先按「開新遊戲」）', 'err');
+        return;
+      }
+      my.gameId = room.gameId;
+      S.setMode('firebase', room.gameId);
+      S.watchState(onState);
+      send({ type: 'hello' });
+      heartbeat();
+      pmsg('joinMsg', '已連上老師端，等待開始…', 'ok');
+    }).catch(function (e) {
+      S.setMode('local', 'local_' + code);
+      pmsg('joinMsg', '雲端連線失敗，改用本機模式：' + e.message, 'err');
+      send({ type: 'hello' });
+      heartbeat();
+    });
   }
 
   function chip(text, on, fn) {

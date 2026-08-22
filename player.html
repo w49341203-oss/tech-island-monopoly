@@ -15,8 +15,11 @@
 <div id="join" class="player-wrap">
   <div class="pl-card">
     <h3>加入遊戲</h3>
-    <div class="row"><label>老師開的是哪一班？</label><div id="jClass" class="chips wrap"></div></div>
-    <div class="row"><label>存檔槽</label><div id="jSlot" class="chips"></div></div>
+    <div class="row">
+      <label>輸入白板上的房間代碼</label>
+      <input id="jCode" class="code-input" type="text" inputmode="numeric"
+             maxlength="6" placeholder="------" autocomplete="off">
+    </div>
     <div class="row"><label>你們是第幾組？</label><div id="jGroup" class="chips wrap"></div></div>
     <button id="btnJoin" class="primary big-btn">加入</button>
     <div class="pl-msg" id="joinMsg"></div>
