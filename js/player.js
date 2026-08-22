@@ -9,6 +9,19 @@
   var $ = function (id) { return document.getElementById(id); };
 
   var my = { code: '', gid: null, gameId: null };
+
+  /**
+   * 這台平板的識別碼（存在瀏覽器裡，重新整理也不會變）。
+   * 用來讓老師端分辨「同一組的兩台裝置」，一組只認第一台。
+   */
+  var myDev = (function () {
+    try {
+      var v = localStorage.getItem('techisland:dev');
+      if (!v) { v = 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+                localStorage.setItem('techisland:dev', v); }
+      return v;
+    } catch (e) { return 'd' + Math.random().toString(36).slice(2, 10); }
+  })();
   var state = null;
   var answered = false, lastRound = -1, lastPhase = '';
   var selectedCard = null, hintLevel = 0;
@@ -87,7 +100,10 @@
       }
       room = r;
       S.setMode('firebase', r.gameId);
-      showGroupPicker('找到了！這一場有 ' + (r.groups || 9) + ' 組');
+      // 先讀一次現在的狀態，才知道哪幾組已經有平板了
+      S.loadCloud(code).then(function (st) {
+        showGroupPicker('找到了！這一場有 ' + (r.groups || 9) + ' 組', st && st.seats);
+      }).catch(function () { showGroupPicker('找到了！這一場有 ' + (r.groups || 9) + ' 組'); });
     }).catch(function (e) {
       $('btnFind').disabled = false;
       pmsg('joinMsg', '連線失敗：' + e.message, 'err');
@@ -95,7 +111,7 @@
   }
 
   /** 第二步：只列出這一場實際開的組別，避免選到不存在的組 */
-  function showGroupPicker(info) {
+  function showGroupPicker(info, seats) {
     $('step1').classList.add('hidden');
     $('step2').classList.remove('hidden');
     $('foundInfo').textContent = info;
@@ -106,13 +122,22 @@
     box.innerHTML = '';
     my.gid = null;
     $('btnJoin').disabled = true;
+    seats = seats || {};
 
     for (var i = 1; i <= n; i++) (function (k) {
-      var b = chip('第 ' + k + ' 組', false, function () {
+      var s = seats['g' + k];
+      // 已經被別台平板佔走的組別不能選（超過 3 分鐘沒動靜的視為空出來）
+      var taken = s && s.dev && s.dev !== myDev && (Date.now() - (s.at || 0) < 180000);
+      var b = chip('第 ' + k + ' 組' + (taken ? '（已有平板）' : ''), false, function () {
+        if (taken) {
+          pmsg('joinMsg', '第 ' + k + ' 組已經有一台平板了，請選別組', 'err');
+          return;
+        }
         my.gid = 'g' + k;
         markOne(box, b);
         $('btnJoin').disabled = false;
       });
+      if (taken) { b.style.opacity = '.45'; b.style.cursor = 'not-allowed'; }
       box.appendChild(b);
     })(i);
   }
@@ -150,6 +175,7 @@
       }
       return Promise.resolve();
     }
+    action = Object.assign({ dev: myDev }, action);
     return S.sendAction(my.gid, action).catch(function (e) {
       console.warn('[send] ' + action.type + ' 失敗：' + e.message);
       var box = document.getElementById('pick').classList.contains('hidden') ? 'handMsg' : 'pickMsg';
@@ -193,9 +219,17 @@
       picking = null;
       answered = false;
     }
-    // 忽略晚到的舊狀態，否則畫面會倒退（選好角色又跳回選角、資產變回舊值）
+    // 忽略晚到的舊狀態，否則畫面會倒退（選好角色又跳回選角、資產變回舊值）。
+    // 但如果連續好幾次都被擋掉，代表序號對不上（例如老師端重開過），
+    // 這時要放棄比對接受新狀態，否則這台平板會永遠停在舊畫面。
     if (typeof st._seq === 'number') {
-      if (st._seq < lastSeq) return;
+      if (st._seq < lastSeq) {
+        seqDrops++;
+        if (seqDrops < 8) return;
+        seqDrops = 0;                  // 卡太久了，重新同步
+      } else {
+        seqDrops = 0;
+      }
       lastSeq = st._seq;
     }
     state = st;
@@ -206,6 +240,17 @@
     if (!my.gid) return;
     // 上一節是 9 組、這一節老師只開 6 組時，記著自己是第 8 組的平板會找不到自己。
     // 以前是無聲 return，那台平板整節課停在「正在回到遊戲…」，學生完全不知道怎麼辦。
+    // 這一組的座位被別台平板佔著（例如兩台同時選了第 1 組），我就要退出來
+    var seat = state.seats && state.seats[my.gid];
+    if (seat && seat.dev && seat.dev !== myDev) {
+      show('join');
+      $('step1').classList.remove('hidden');
+      $('step2').classList.add('hidden');
+      pmsg('joinMsg', '第 ' + my.gid.slice(1) + ' 組已經有另一台平板在用了，請改選別組', 'err');
+      try { localStorage.removeItem('techisland:me'); } catch (e) {}
+      my.gid = null;
+      return;
+    }
     if (!state.players[my.gid]) {
       show('join');
       pmsg('joinMsg', '這一場沒有第 ' + my.gid.slice(1) + ' 組（老師這次開的組數比較少），請重新選組別', 'err');
@@ -556,6 +601,7 @@
   // ═══════════════════════════════════════
   // 地圖：可以用手指拖曳的真地圖 + 清單兩個分頁
   // ═══════════════════════════════════════
+  var seqDrops = 0;                 // 連續被序號擋掉幾次（太多次就重新同步）
   var lastQid = '';                 // 上一題的題號，用來判斷是不是換了新題目
   var mapView = 'map';
   var mapReady = false;
@@ -841,6 +887,11 @@
           if (answered || me.frozen > 0) return;
           answered = true;
           [].forEach.call(box.children, function (x) { x.disabled = true; });
+          // 立刻鎖住提示，不要等下一次畫面更新才鎖
+          ['btnHint', 'btnHint2'].forEach(function (id) {
+            var hb = $(id);
+            if (hb) { hb.disabled = true; hb.style.opacity = '.4'; hb.onclick = null; }
+          });
           b.classList.add('sel');
           send({ type: 'answer', choice: k, timeMs: Date.now() - qStart });
           $('qLeft').textContent = '已送出，等其他組…';
@@ -862,11 +913,21 @@
       pmsg('hintBox', '📡 感應卡：這一題的正確答案是 ' + me.buff.peek, 'ok');
     }
 
-    $('btnHint').onclick = function () { doHint(0); };
-    $('btnHint2').onclick = function () { doHint(hintLevel < 1 ? 1 : 2); };
+    // 已經作答就把提示鎖起來：提示要花錢，答完再買也沒用，
+    // 而且學生很容易在等其他組時不小心點到，白白扣錢。
+    var lockHint = answered || me.frozen > 0;
+    [['btnHint', 0], ['btnHint2', hintLevel < 1 ? 1 : 2]].forEach(function (x) {
+      var b = $(x[0]);
+      if (!b) return;
+      b.disabled = lockHint;
+      b.style.opacity = lockHint ? '.4' : '';
+      b.onclick = lockHint ? null : function () { doHint(x[1]); };
+    });
   }
 
   function doHint(level) {
+    if (answered) { pmsg('hintBox', '已經作答了，提示買了也沒用', 'err'); return; }
+    if (state.phase !== 'question') { pmsg('hintBox', '現在不是作答時間', 'err'); return; }
     var q = state.question;
     if (!q || !q.hints || !q.hints[level]) { pmsg('hintBox', '這題沒有更多提示了', 'err'); return; }
     var cost = E.CFG.hintCost[level];
@@ -1022,6 +1083,11 @@
     var el = $('phaseBanner');
     if (!el) return;
     clearInterval(bannerTimer);
+    if (state.paused) {
+      el.className = 'phase-banner';
+      el.textContent = '⏸ 老師暫停中　請看白板';
+      return;
+    }
     if (state.phase === 'ended') {
       el.className = 'phase-banner';
       el.textContent = '🏆 本節結束　看白板上的排名';
@@ -1040,6 +1106,7 @@
         el.textContent = '☕ 休息中　等老師開始下一輪';
       } else {
         var tickBreak = function () {
+          if (state.breakUntil == null) { el.textContent = '☕ 休息中'; return; }
           var s = Math.max(0, Math.ceil((state.breakUntil - Date.now()) / 1000));
           // 倒數到 0 還沒收到新狀態，代表這台平板暫時沒收到老師端的訊息。
           // 卡在「0 秒」會讓學生以為當機，講明白在等什麼比較好。

@@ -45,12 +45,16 @@
   };
 
   var GODS = [
-    { id: 'order',  name: '訂單之神', emoji: '📈', desc: '踩到別人的地完全不用付過路費' },
-    { id: 'grant',  name: '補助之神', emoji: '🎁', desc: '每輪送卡片、買地半價還附贈蓋一層、蓋房多一級' },
-    { id: 'build',  name: '建廠之神', emoji: '🏗️', desc: '每經過自己的地自動升一級' },
-    { id: 'stock',  name: '庫存之神', emoji: '📉', desc: '買地必流標、手上卡片掉一半' },
-    { id: 'fx',     name: '匯損之神', emoji: '💸', desc: '每輪扣 $1,000、付過路費加倍' }
+    { id: 'order',  name: '訂單之神', emoji: '📈', good: true,  desc: '踩到別人的地完全不用付過路費' },
+    { id: 'grant',  name: '補助之神', emoji: '🎁', good: true,  desc: '每輪送卡片、買地半價還附贈蓋一層、蓋房多一級' },
+    { id: 'build',  name: '建廠之神', emoji: '🏗️', good: true,  desc: '每經過自己的地自動升一級' },
+    { id: 'stock',  name: '庫存之神', emoji: '📉', good: false, desc: '買地必流標、手上卡片掉一半' },
+    { id: 'fx',     name: '匯損之神', emoji: '💸', good: false, desc: '每輪扣 $1,000、付過路費加倍' }
   ];
+  function godById(id) {
+    for (var i = 0; i < GODS.length; i++) if (GODS[i].id === id) return GODS[i];
+    return null;
+  }
 
   function rnd(state) {
     // 可重現的亂數（存檔續玩時序列一致）
@@ -85,12 +89,16 @@
       turnIndex: 0,
       question: null,
       answers: {},
-      board: { owner: {}, level: {}, barrier: {}, radiation: {}, quakeColor: null },
+      board: { owner: {}, level: {}, barrier: {}, radiation: {}, quakeColor: null, gods: {} },
       pool: 0,
       lastCardPlayed: null,
       usedQuestions: [],
       log: []
     };
+    // 神明住在格子上，學生遠遠就看得到那一格是哪一尊、值不值得走過去
+    B.CELLS.forEach(function (c, i) {
+      if (c.type === 'god') state.board.gods[i] = pick(state, GODS).id;
+    });
     var starts = B.randomStarts(n, function () { return rnd(state); });
     for (var i = 0; i < n; i++) {
       var gid = 'g' + (i + 1);
@@ -247,6 +255,14 @@
     }
     acts.sort(function (x, y) { return x.timeMs - y.timeMs; });
     state.order = acts.map(function (a) { return a.gid; });
+    // 用了瞬移卡的人，就算這題答錯也要讓他移動（卡都花掉了），排在最後
+    for (var g2 in state.players) {
+      var p2 = state.players[g2];
+      if (p2.buff && p2.buff.warpTo != null && p2.frozen <= 0 &&
+          state.order.indexOf(g2) < 0) {
+        state.order.push(g2);
+      }
+    }
     state.turnIndex = 0;
     state.phase = state.order.length ? 'moving' : 'settle';
     return { order: state.order, answer: ans };
@@ -376,11 +392,15 @@
         break;
       }
       case 'god': {
-        var g = pick(state, GODS);
+        // 遇到的是「住在這一格」的那一尊（畫面上早就看得到）。
+        // 附身之後換一尊新的住進來，下一個踩到的人遇到的就不一樣。
+        state.board.gods = state.board.gods || {};
+        var g = godById(state.board.gods[p.pos]) || pick(state, GODS);
+        state.board.gods[p.pos] = pick(state, GODS).id;
         p.god = g.id; p.godTurns = CFG.godTurns;
         if (g.id === 'stock') p.cards = p.cards.slice(0, Math.ceil(p.cards.length / 2));
         if (g.id === 'grant' && p.cards.length < CFG.handLimit) p.cards.push({ id: pick(state, CARD.CARDS).id });
-        out.events.push({ type: 'god', id: g.id, name: g.name });
+        out.events.push({ type: 'god', id: g.id, name: g.name, good: !!g.good });
         log(state, g.emoji + ' ' + p.name + ' 被' + g.name + '附身 ' + CFG.godTurns + ' 輪', 'god');
         break;
       }
@@ -408,7 +428,26 @@
         }
         break;
       }
-      case 'jail': case 'hosp': case 'fork': case 'airport': case 'mountain':
+      case 'jail':
+        // 只是停在這一格＝路過探監，不罰。
+        // （真的被關是踩到「稽查」那一格，事件是 jail，兩者不能共用同一個名稱，
+        //   否則白板會顯示「停 1 輪」但實際上沒有關到人。）
+        out.events.push({ type: 'visit' });
+        log(state, '👀 ' + p.name + ' 路過探監，沒事', 'info');
+        break;
+      case 'hosp': {
+        // 住院：這一輪不能行動（跟被關一樣，只是原因不同）
+        if (removeCard(p, 'pardon')) {
+          out.events.push({ type: 'pardon' });
+          log(state, '🎫 ' + p.name + ' 用免罪卡出院了', 'good');
+        } else {
+          p.frozen = Math.max(p.frozen, 1);
+          out.events.push({ type: 'hospital' });
+          log(state, '🏥 ' + p.name + ' 送醫住院，停 1 輪', 'bad');
+        }
+        break;
+      }
+      case 'fork': case 'airport': case 'mountain':
         out.events.push({ type: cell.type });
         break;
     }
@@ -660,8 +699,11 @@
       }
       case 'teleport': {
         if (!target || target.cell == null) return { ok: false, msg: '要指定一格' };
-        p.pos = target.cell; p.prev = -1;
-        r.landAgain = true;
+        // 不立刻移動：記下目的地，等這一輪輪到他行動時才傳送過去並結算那一格。
+        // 這樣才會走完整的落地流程（可以買地、付過路費、觸發事件），
+        // 而且這一輪不用再擲骰 —— 瞬移就是他這一輪的移動。
+        p.buff.warpTo = target.cell;
+        r.warpTo = target.cell;
         break;
       }
       case 'transfer': {
@@ -814,9 +856,13 @@
             var c = ((p.pos + d) % B.RING + B.RING) % B.RING;
             if (state.board.level[c] > 0) { state.board.level[c]--; hit.push(c); }
           }
+          // 被炸到要送醫：直接移到花蓮慈濟醫院並住院一輪。
+          // 原本只是原地停一輪，醫院那一格等於沒有存在意義。
+          p.pos = B.HOSP; p.prev = -1; p.stepsLeft = 0;
           p.frozen = Math.max(p.frozen, 1);
-          events.push({ gid: gid, type: 'virusBoom', cells: hit });
-          log(state, '💥 ' + p.name + ' 身上的勒索病毒爆炸！周圍 ' + hit.length + ' 座廠房降級，本人停機一輪', 'big');
+          events.push({ gid: gid, type: 'virusBoom', cells: hit, toHospital: true });
+          log(state, '💥 ' + p.name + ' 身上的勒索病毒爆炸！周圍 ' + hit.length +
+                     ' 座廠房降級，本人送醫住院一輪', 'big');
         }
       }
       // 同盟倒數
@@ -865,7 +911,7 @@
   }
 
   global.ENGINE = {
-    CFG: CFG, GODS: GODS, NEWS: NEWS, publicState: publicState,
+    CFG: CFG, GODS: GODS, godById: godById, NEWS: NEWS, publicState: publicState,
     createGame: createGame, pickCharacter: pickCharacter,
     startRound: startRound, submitAnswer: submitAnswer, reveal: reveal,
     currentGid: currentGid, nextOptions: nextOptions, rollDice: rollDice, setSteps: setSteps,

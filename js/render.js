@@ -84,6 +84,54 @@
   }
 
   /** 預先檢查哪些角色有立繪，沒有的用色塊佔位（Codex 還沒交完時也能玩） */
+  // 特殊格子的圖示（沒有列到的格子就不畫圖，例如山路）
+  var TILE_ART = {
+    bank: 'bank', shop: 'shop', hosp: 'hosp', jail: 'jail', audit: 'audit',
+    tax: 'tax', chest: 'chest', packet: 'packet', subsidy: 'subsidy',
+    pool: 'pool', patent: 'patent', news: 'news', airport: 'airport', fork: 'fork'
+  };
+  var ART_OK = {};                 // 哪些圖真的載得到（載不到就維持原本的空格子）
+
+  function tileUrl(t) { return 'images/tiles/tile_' + TILE_ART[t] + '.png'; }
+  function iconUrl(n) { return 'images/icons/icon_' + n + '.png'; }
+
+  function preloadArt() {
+    var jobs = [];
+    Object.keys(TILE_ART).forEach(function (t) {
+      jobs.push(new Promise(function (res) {
+        var im = new Image();
+        im.onload = function () { ART_OK['tile:' + t] = true; res(); };
+        im.onerror = function () { ART_OK['tile:' + t] = false; res(); };
+        im.src = tileUrl(t);
+      }));
+    });
+    ['virus', 'frozen', 'shield'].forEach(function (n) {
+      jobs.push(new Promise(function (res) {
+        var im = new Image();
+        im.onload = function () { ART_OK['icon:' + n] = true; res(); };
+        im.onerror = function () { ART_OK['icon:' + n] = false; res(); };
+        im.src = iconUrl(n);
+      }));
+    });
+    return Promise.all(jobs);
+  }
+
+  /** 神明立繪的檔案位置 */
+  function godUrl(id) { return 'images/gods/god_' + id + '.png'; }
+
+  var GOD_OK = {};                 // 哪幾尊的圖真的載得到（載不到就退回用符號）
+  function preloadGods() {
+    if (!global.ENGINE) return Promise.resolve();
+    return Promise.all(global.ENGINE.GODS.map(function (g) {
+      return new Promise(function (res) {
+        var im = new Image();
+        im.onload = function () { GOD_OK[g.id] = true; res(); };
+        im.onerror = function () { GOD_OK[g.id] = false; res(); };
+        im.src = godUrl(g.id);
+      });
+    }));
+  }
+
   function preloadAvatars(chars) {
     return Promise.all(chars.map(function (c) {
       return new Promise(function (res) {
@@ -121,7 +169,7 @@
 
     cam = el('g', { id: 'cam' });
     svg.appendChild(cam);
-    ['terrain', 'roads', 'cells', 'buildings', 'pieces', 'labels'].forEach(function (n) {
+    ['terrain', 'roads', 'cells', 'buildings', 'pieces', 'labels', 'marks'].forEach(function (n) {
       layers[n] = el('g', { id: 'L-' + n });
       // 只有格子本身要能點；其他層（名稱標籤、廠房、角色）都放行，
       // 否則手指點在名字上就抓不到底下是哪一格。
@@ -173,6 +221,17 @@
       var lv = (state && state.board.level[i]) || 0;
       if (lv > 0) layers.buildings.appendChild(drawBuilding(p.x, p.y - 16, lv, color));
 
+      // 特殊格子的小圖：讓學生一眼看出這一格是什麼，不用讀字
+      if (TILE_ART[c.type] && ART_OK['tile:' + c.type]) {
+        var TS = 104;
+        var ti = el('image', {
+          x: p.x - TS / 2, y: p.y - TS + 14, width: TS, height: TS,
+          preserveAspectRatio: 'xMidYMax meet'
+        });
+        href(ti, tileUrl(c.type));
+        layers.buildings.appendChild(ti);
+      }
+
       // 地主符號：買下這塊地的科學家，他的符號就蓋在地上，一眼看得出是誰的
       var ownerGid = state && state.board.owner[i];
       var ownerCh = null;
@@ -193,6 +252,54 @@
         badge.style.pointerEvents = 'none';
         badge.textContent = ownerCh.emoji;
         layers.cells.appendChild(badge);
+      }
+
+      // 神明住在這一格：畫出來，學生遠遠就知道走過去會遇到什麼
+      if (c.type === 'god' && state && state.board.gods) {
+        var godId = state.board.gods[i];
+        var god = godId && global.ENGINE ? global.ENGINE.godById(godId) : null;
+        if (god) {
+          var GH = 190, GW = GH * 512 / 768;        // 神明立繪高度（跟角色一樣是 512x768）
+          // 腳下的光環：好神金色、壞神紫色，遠遠就分得出來
+          layers.buildings.appendChild(el('ellipse', {
+            cx: p.x, cy: p.y - 4, rx: 56, ry: 26,
+            fill: god.good ? '#ffd24a' : '#a855f7', 'fill-opacity': .55
+          }));
+          layers.buildings.appendChild(el('ellipse', {
+            cx: p.x, cy: p.y - 4, rx: 56, ry: 26, fill: 'none',
+            stroke: god.good ? '#f5a623' : '#7e22ce', 'stroke-width': 6
+          }));
+          if (GOD_OK[god.id]) {
+            var gimg = el('image', {
+              x: p.x - GW / 2, y: p.y - GH - 2, width: GW, height: GH,
+              preserveAspectRatio: 'xMidYMax meet'
+            });
+            href(gimg, godUrl(god.id));
+            layers.buildings.appendChild(gimg);
+          } else {
+            // 圖還沒放進來就先用符號頂著，畫面不會空掉
+            layers.buildings.appendChild(el('circle', {
+              cx: p.x, cy: p.y - 70, r: 40,
+              fill: god.good ? '#fff8dc' : '#3b2a4a',
+              stroke: god.good ? '#f5a623' : '#9333ea', 'stroke-width': 7
+            }));
+            var gt = el('text', { x: p.x, y: p.y - 53, 'text-anchor': 'middle', 'font-size': 46 });
+            gt.textContent = god.emoji;
+            layers.buildings.appendChild(gt);
+          }
+          // 名稱牌：不用猜這一尊是誰
+          layers.buildings.appendChild(el('rect', {
+            x: p.x - 92, y: p.y + 10, width: 184, height: 44, rx: 14,
+            fill: god.good ? '#fff3b0' : '#3b2a4a',
+            stroke: god.good ? '#a35a00' : '#a855f7', 'stroke-width': 5
+          }));
+          var gn = el('text', {
+            x: p.x, y: p.y + 41, 'text-anchor': 'middle', 'font-size': 30, 'font-weight': 900,
+            fill: god.good ? '#4a2c00' : '#f0d0ff'
+          });
+          gn.textContent = god.name;
+          layers.buildings.appendChild(gn);
+        }
       }
 
       // 標籤（畫在最上層，不會被前排廠房蓋住）
@@ -246,6 +353,7 @@
   // ── 棋子（角色立繪 + 走路動畫）──
   function drawPlayers(state) {
     layers.pieces.innerHTML = '';
+    layers.marks.innerHTML = '';
     sprites = {};
     Object.keys(state.players).forEach(function (gid) {
       var p = state.players[gid];
@@ -267,11 +375,98 @@
       var badge = el('circle', { r: 26, fill: ch ? ch.color : '#94a3b8', stroke: '#fff', 'stroke-width': 5 });
       var num = el('text', { 'text-anchor': 'middle', 'font-size': 30, 'font-weight': 900, fill: '#fff' });
       num.textContent = p.num;
-      g.appendChild(shadow); g.appendChild(ph); g.appendChild(img); g.appendChild(badge); g.appendChild(num);
+      // 頭上的狀態標記：身上有炸彈、被神明附身，全班都要看得到
+      var marks = el('g', { id: 'marks-' + gid });
+      layers.marks.appendChild(marks);        // 掛在最上層，不會被地名標籤蓋住
+      g.appendChild(shadow); g.appendChild(ph); g.appendChild(img);
+      g.appendChild(badge); g.appendChild(num);
       layers.pieces.appendChild(g);
       sprites[gid] = { g: g, shadow: shadow, img: img, ph: ph, badge: badge, num: num,
-                       ch: ch, frame: 0, timer: null, w: w, useImg: useImg };
+                       marks: marks, ch: ch, frame: 0, timer: null, w: w, useImg: useImg };
+      drawMarks(gid, p);
       placePiece(gid, p.pos, 0);
+    });
+  }
+
+  /**
+   * 角色身上的狀態標記（炸彈、神明附身、停機）。
+   * 沒有這個的話，誰身上有炸彈、誰被壞神附身，全班都看不出來，
+   * 這些機制等於白做，老師也很難講解現在的局勢。
+   *
+   * 座標是「以角色腳下為原點」的相對座標，實際位置由 setPieceXY 統一平移，
+   * 標記才會跟著角色一起走。
+   */
+  function drawMarks(gid, p) {
+    var s = sprites[gid];
+    if (!s || !s.marks) return;
+    s.marks.innerHTML = '';
+    var items = [];
+
+    if (p.virus > 0) {
+      items.push({ emoji: '💣', text: p.virus, icon: ART_OK['icon:virus'] ? iconUrl('virus') : null,
+                   bg: '#7f1d1d', ring: '#ff6b6b', fg: '#ffe4e4' });
+    }
+    // 手上有絕緣卡＝下一次被攻擊會自動擋掉，這是很重要的資訊，要看得到
+    if (p.cards && p.cards.some(function (c) { return c.id === 'insulate'; })) {
+      items.push({ emoji: '🛡️', text: '', icon: ART_OK['icon:shield'] ? iconUrl('shield') : null,
+                   bg: '#0b3a5e', ring: '#7dd3fc', fg: '#e0f2fe' });
+    }
+    if (p.god) {
+      var god = global.ENGINE ? global.ENGINE.godById(p.god) : null;
+      if (god) {
+        items.push({ emoji: god.emoji, text: (p.godTurns || 0),
+                     img: GOD_OK[god.id] ? godUrl(god.id) : null,
+                     bg: god.good ? '#fff8dc' : '#3b2a4a',
+                     ring: god.good ? '#f5a623' : '#a855f7',
+                     fg: god.good ? '#8a5a00' : '#f0d0ff' });
+      }
+    }
+    if (p.frozen > 0) {
+      items.push({ emoji: '⛔', text: '', icon: ART_OK['icon:frozen'] ? iconUrl('frozen') : null,
+                   bg: '#334155', ring: '#cbd5e1', fg: '#fff' });
+    }
+    if (items.length === 0) return;
+
+    // 掛在角色左肩，由上往下排（右上角是組別號碼，不要打架）
+    var mx = -s.w / 2 + 4;
+    items.forEach(function (it, i) {
+      var my = -CHAR_H + 42 + i * 84;
+      s.marks.appendChild(el('circle', { cx: mx, cy: my, r: 36, fill: it.bg,
+                                         stroke: it.ring, 'stroke-width': 6 }));
+      if (it.icon) {
+        // 狀態圖示本來就是方形小圖，直接填滿圓框就好
+        var isz = 60;
+        var ii = el('image', { x: mx - isz / 2, y: my - isz / 2, width: isz, height: isz,
+                               preserveAspectRatio: 'xMidYMid meet' });
+        href(ii, it.icon);
+        s.marks.appendChild(ii);
+      } else if (it.img) {
+        // 全身立繪縮到 70px 看不清楚，所以裁出頭部塞進圓框
+        var cid = 'clip-mark-' + gid + '-' + i;
+        var cp = el('clipPath', { id: cid });
+        cp.appendChild(el('circle', { cx: mx, cy: my, r: 33 }));
+        s.marks.appendChild(cp);
+        var IW = 170, IH = IW * 768 / 512;
+        var mi = el('image', {
+          x: mx - IW / 2, y: my - IH * 0.20, width: IW, height: IH,
+          preserveAspectRatio: 'xMidYMin meet', 'clip-path': 'url(#' + cid + ')'
+        });
+        href(mi, it.img);
+        s.marks.appendChild(mi);
+      } else {
+        var t1 = el('text', { x: mx, y: my + 13, 'text-anchor': 'middle', 'font-size': 38 });
+        t1.textContent = it.emoji;
+        s.marks.appendChild(t1);
+      }
+      if (it.text !== '') {
+        // 剩幾輪：畫成小圓標貼在右下角
+        s.marks.appendChild(el('circle', { cx: mx + 26, cy: my + 26, r: 18,
+                                           fill: '#0b1220', stroke: '#fff', 'stroke-width': 4 }));
+        var t2 = el('text', { x: mx + 26, y: my + 34, 'text-anchor': 'middle',
+                              'font-size': 24, 'font-weight': 900, fill: '#fff' });
+        t2.textContent = it.text;
+        s.marks.appendChild(t2);
+      }
     });
   }
 
@@ -292,6 +487,7 @@
       var pt2 = s.ph.querySelector('text');
       if (pt2) { pt2.setAttribute('x', 0); pt2.setAttribute('y', 16); }
     }
+    if (s.marks) s.marks.setAttribute('transform', 'translate(' + x + ',' + (y - lift) + ')');
     s.badge.setAttribute('cx', x + s.w / 2 - 8); s.badge.setAttribute('cy', y - CHAR_H + 36 - lift);
     s.num.setAttribute('x', x + s.w / 2 - 8); s.num.setAttribute('y', y - CHAR_H + 46 - lift);
     s.x = x; s.y = y;
@@ -438,7 +634,8 @@
     focusOn: focusOn, camTo: camTo, setZoomOut: setZoomOut, isZoomOut: isZoomOut,
     initMinimap: initMinimap, updateMinimap: updateMinimap,
     preloadAvatars: preloadAvatars, hasAvatar: hasAvatar, avatarUrl: avatarUrl,
-    setSpeed: setSpeed, setView: setView, mapBounds: mapBounds,
+    preloadGods: preloadGods, preloadArt: preloadArt,
+    setSpeed: setSpeed, setView: setView, mapBounds: mapBounds, drawMarks: drawMarks,
     flashCell: flashCell, POS: POS, VW: VW, VH: VH, el: el, shade: shade
   };
 })(typeof window !== 'undefined' ? window : globalThis);

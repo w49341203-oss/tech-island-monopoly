@@ -180,6 +180,7 @@
     st.order = st.order || [];
     st.itemReady = {};
     st.pendingCards = [];
+    st.seats = {};                 // 續玩時座位重新認領（上次那幾台平板不一定還在）
     Object.keys(st.players || {}).forEach(function (g) {
       var p = st.players[g];
       p.buff = p.buff || {};
@@ -248,6 +249,7 @@
     sessionOver = false;
     clearPhaseTimers();
     online = {}; everOnline = {}; greeted = {}; lastActionAt = {};   // 新的一場重新認人
+    if (state) state.seats = {};                                     // 座位也要重新認領
     var code = state.code;
     var gameId = S.makeGameId(code);
 
@@ -400,6 +402,8 @@
     $('setup').classList.add('hidden');
     $('game').classList.remove('hidden');
     status('載入角色立繪…');
+    R.preloadGods();
+    R.preloadArt();
     R.preloadAvatars(window.CHARACTERS).then(function (r) {
       if (r.have < r.total) {
         status('提醒：' + (r.total - r.have) + ' 位角色還沒有立繪，先用色塊代替');
@@ -435,12 +439,42 @@
   }
 
   var autoPaused = false;
+  var pausedLeft = null;        // 暫停當下，各個倒數還剩多少毫秒
+
+  /**
+   * 把暫停狀態同步給平板，並凍結／解凍倒數。
+   * 平板上的秒數是用「結束時間戳」自己算的，老師按暫停時如果不動那個時間戳，
+   * 平板會繼續倒數到 0 然後卡住 —— 這就是「我已經按暫停，那組還在跑秒」的原因。
+   */
+  function applyPause() {
+    if (!state) return;
+    state.paused = autoPaused;
+    if (autoPaused) {
+      pausedLeft = {
+        item: state.itemUntil ? Math.max(0, state.itemUntil - Date.now()) : null,
+        brk:  state.breakUntil ? Math.max(0, state.breakUntil - Date.now()) : null,
+        dec:  (state.decide && state.decide.until) ? Math.max(0, state.decide.until - Date.now()) : null
+      };
+      // 暫停時把結束時間設成 null，平板就不會再倒數（改顯示「暫停中」）
+      if (state.itemUntil) state.itemUntil = null;
+      if (state.breakUntil) state.breakUntil = null;
+      if (state.decide && state.decide.until) state.decide.until = null;
+    } else if (pausedLeft) {
+      var now = Date.now();
+      if (pausedLeft.item != null) state.itemUntil = now + pausedLeft.item;
+      if (pausedLeft.brk != null) state.breakUntil = now + pausedLeft.brk;
+      if (pausedLeft.dec != null && state.decide) state.decide.until = now + pausedLeft.dec;
+      pausedLeft = null;
+    }
+    pushRemote();
+  }
 
   function bindBar() {
     $('btnPause').onclick = function () {
       autoPaused = !autoPaused;
       $('btnPause').textContent = autoPaused ? '▶ 繼續' : '⏸ 暫停';
-      status(autoPaused ? '已暫停（這一輪跑完會停在這裡）' : '繼續自動進行');
+      status(autoPaused ? '已暫停（平板上也會顯示暫停中）' : '繼續自動進行');
+      applyPause();
       if (!autoPaused && !busy) runRound();
     };
     $('btnRank').onclick = toggleRank;
@@ -1047,6 +1081,25 @@
     if (!a || !a.gid) return;
     // 收到不屬於這一場的組別代號就丟掉（以前會直接當掉整個白板）
     if (!state || !state.players || !state.players[a.gid]) return;
+    // ── 座位鎖：一組只認一台平板 ──
+    // 兩台裝置同時選同一組時，第一台先認領，之後別台送來的動作一律忽略，
+    // 否則兩台會互相蓋掉對方的操作，白板也不知道該聽誰的。
+    if (!a.bot && a.dev) {
+      state.seats = state.seats || {};
+      var seat = state.seats[a.gid];
+      var IDLE = 180000;                   // 3 分鐘沒動靜就算空出來（平板壞掉可以換一台接手）
+      if (!seat || !seat.dev || seat.dev === a.dev || (Date.now() - (seat.at || 0) > IDLE)) {
+        if (!seat || seat.dev !== a.dev) {
+          state.seats[a.gid] = { dev: a.dev, at: Date.now() };
+          pushRemote();                    // 立刻讓其他平板知道這一組被佔了
+        } else {
+          state.seats[a.gid].at = Date.now();
+        }
+      } else {
+        return;                            // 不是這一組的擁有者，整筆丟掉
+      }
+    }
+
     if (!a.bot) {
       online[a.gid] = Date.now();          // 有訊息＝這組有平板在線上
       everOnline[a.gid] = true;            // 整場記著：這組是有平板的真人組
@@ -1270,6 +1323,25 @@
 
   function doTurn(gid) {
     var p = state.players[gid];
+
+    // 用了瞬移卡：這一輪不擲骰，直接傳送到目的地並結算那一格
+    //（原本是打出卡片的當下就把人移過去，卻沒有跑落地流程，
+    //  結果那一輪還是照樣擲骰再走一次 —— 等於白用一張卡。）
+    if (p.buff && p.buff.warpTo != null) {
+      var to = p.buff.warpTo;
+      delete p.buff.warpTo;
+      p.pos = to; p.prev = -1; p.stepsLeft = 0;
+      SOUND.play('card');
+      R.drawBoard(state); R.drawPlayers(state);
+      R.placePiece(gid, to, 0);
+      R.focusOn(gid, state);
+      toast('🌀 ' + p.num + '組 瞬移到 ' + B.CELLS[to].name, 2200);
+      SPEAK.say(SPEAK.groupSay(p) + '，瞬移到' + B.CELLS[to].name);
+      pushRemote();
+      return new Promise(function (res) { setTimeout(res, 900); })
+        .then(function () { return settleLanding(gid); });
+    }
+
     return rollDiceAnim(gid)
       .then(function () { return walkAll(gid); })
       .then(function () { return settleLanding(gid); });
@@ -1373,6 +1445,7 @@
       case 'rent': case 'tax': case 'radiation': return 'pay';
       case 'pool': case 'rp': case 'card': case 'bounce': return 'income';
       case 'jail': return 'jail';
+      case 'hospital': return 'hospital';
       case 'license': case 'pardon': return 'block';
       case 'god': return (ev.bad ? 'godBad' : 'godGood');
       case 'news': return 'card';
@@ -1393,12 +1466,15 @@
                         '給' + SPEAK.groupSay(state.players[ev.owner]));
       }
       if (ev.type === 'jail') SPEAK.say(SPEAK.groupSay(p) + '，被押去檢調約談所，停一輪');
+      if (ev.type === 'hospital') SPEAK.say(SPEAK.groupSay(p) + '，送醫住院，停一輪');
       if (ev.type === 'god') SPEAK.say(SPEAK.groupSay(p) + '，被' + ev.name + '附身');
       if (ev.type === 'rent') lines.push('付過路費 $' + ev.amount.toLocaleString() + ' 給 ' + state.players[ev.owner].name);
       if (ev.type === 'rp') lines.push('研發點數 +' + ev.amount);
       if (ev.type === 'tax') lines.push('繳營所稅 $' + ev.amount.toLocaleString());
       if (ev.type === 'pool') lines.push('領走補助池 $' + ev.amount.toLocaleString());
       if (ev.type === 'jail') lines.push('被押去檢調約談所，停 1 輪');
+      if (ev.type === 'visit') lines.push('路過探監（沒事，不用停）');
+      if (ev.type === 'hospital') lines.push('送醫住院，停 1 輪');
       if (ev.type === 'pardon') lines.push('用免罪卡躲過稽查（自動觸發）');
       if (ev.type === 'god') lines.push('被' + ev.name + '附身 3 輪');
       if (ev.type === 'news') lines.push(ev.text);
@@ -1460,7 +1536,12 @@
     var interest = r.events.filter(function (e) { return e.type === 'interest' && e.amount > 0; });
     if (interest.length) toast('🏦 銀行發放存款利息（' + interest.length + ' 組）', 2000);
     r.events.forEach(function (e) {
-      if (e.type === 'virusBoom') { SOUND.play('boom'); toast('💥 ' + state.players[e.gid].name + ' 身上的病毒爆炸！' + e.cells.length + ' 座廠房降級', 3200); }
+      if (e.type === 'virusBoom') {
+        SOUND.play('boom');
+        toast('💥 ' + state.players[e.gid].name + ' 身上的病毒爆炸！' + e.cells.length +
+              ' 座廠房降級，本人送醫住院一輪', 3600);
+        SPEAK.say(SPEAK.groupSay(state.players[e.gid]) + '，身上的病毒爆炸，送醫住院一輪', true);
+      }
       if (e.type === 'charCard') toast('🎴 ' + state.players[e.gid].name + ' 獲得角色專屬卡', 1600);
     });
     autoSave();
@@ -1536,6 +1617,8 @@
     hideAllPanels();
     sessionOver = false;                  // 放掉旗標，才能再開新的一場
     autoPaused = false;
+    pausedLeft = null;
+    if (state) state.paused = false;
     busy = false;
     roomCode = null;
     $('hudRank').classList.add('hidden');
