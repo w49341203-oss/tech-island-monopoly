@@ -13,9 +13,14 @@
               allowMerge: true, allowSabotage: true, solo: false, speed: 1, autoPilot: true,
               decideSec: 8, itemSec: 30 };
   var greeted = {};             // 哪幾組已經響過「連進來」的提示音
+  var everOnline = {};          // 哪幾組「整場曾經」連上過平板（斷線也算數）
+  var lastActionAt = {};        // 每組最後處理過的動作時間戳（防止同一筆被執行兩次）
   var roomCode = null;          // 這一場的房間代碼（投影給學生輸入）
   var online = {};              // gid -> 最後一次收到該組訊息的時間
-  var ONLINE_TIMEOUT = 50000;   // 50 秒沒消息就視為沒有平板，改由電腦代打（平板每 20 秒回報一次）
+  // 平板每 15 秒回報一次。放到 120 秒代表可以連漏 7 次才判定離線 ——
+  // 學生把平板放下、iPad 鎖屏時定時器會被凍結，抓太緊會誤判成「這組沒平板」，
+  // 電腦就會代打出一張沒人選過的牌。
+  var ONLINE_TIMEOUT = 120000;
   var timer = null, paused = false, busy = false, lobbyPump = null, gamePump = null;
 
   // 各階段的倒數計時器都登記在這裡。按「結束本節」時要能一次全部停掉，
@@ -230,6 +235,7 @@
   function openRoom(solo) {
     sessionOver = false;
     clearPhaseTimers();
+    online = {}; everOnline = {}; greeted = {}; lastActionAt = {};   // 新的一場重新認人
     var code = state.code;
     var gameId = S.makeGameId(code);
 
@@ -482,7 +488,9 @@
   function pushRemote() {
     // 序號：平板同時從雲端和同機分頁收狀態，晚到的舊狀態如果覆蓋新的，
     // 畫面會倒退（例如選好角色又跳回選角）。加序號讓平板能分辨新舊。
-    state._seq = (state._seq || 0) + 1;
+    // 用時間當序號基準：萬一老師不小心開了兩個分頁，兩邊的序號才比得出先後，
+    // 不會讓平板整批丟掉其中一邊的狀態（畫面就會卡在舊的那一份）。
+    state._seq = Math.max((state._seq || 0) + 1, Date.now());
     window.__pushCalls = (window.__pushCalls || 0) + 1;
     window.__st = state;                       // 診斷用
     // 送出去的是「公開版」狀態：不含正確答案，防止學生開主控台偷看
@@ -506,12 +514,15 @@
         var sig = JSON.stringify(pub);
         Object.keys(vol).forEach(function (k) { pub[k] = vol[k]; });
         if (sig === lastPushSig) return;
-        lastPushSig = sig;
 
         window.__pushWrites = (window.__pushWrites || 0) + 1;
-        S.pushState(pub).then(function () {
-          window.__pushOk = (window.__pushOk || 0) + 1;
-        }, function (e) { window.__pushErr = e.message; });
+        S.pushState(pub).then(function (ok) {
+          // 只有真的寫進去才記住簽章。
+          // 以前不管成不成功都先記起來，網路瞬斷的那一次如果剛好是「題目出現」，
+          // 全班就整輪看不到題目，而且永遠不會補送。
+          if (ok) { lastPushSig = sig; window.__pushOk = (window.__pushOk || 0) + 1; }
+          else { window.__pushErr = '寫入被拒或失敗'; }
+        });
       }, 400);
     }
   }
@@ -523,6 +534,11 @@
   function botPlayCards() {
     Object.keys(state.players).forEach(function (gid) {
       if (!isBot(gid)) return;
+      // 只要這一組整場曾經連上過平板，就永遠不幫他們出牌。
+      // 平板只要漏兩次心跳（分頁切到背景、網路卡一下）就會被判定離線，
+      // 這時電腦代打會出一張學生沒選過的牌，學生會完全不知道發生什麼事。
+      // 少出一張牌沒關係，出了一張沒人選的牌才是災難。
+      if (everOnline[gid] && !cfg.solo) return;
       var p = state.players[gid];
       if (!p.cards.length) return;
       if (Math.random() < 0.45) return;          // 不是每輪都出，留一點變化
@@ -704,6 +720,8 @@
         clearInterval(iv);
         box.classList.add('hidden');
         delete state.breakUntil;
+        state.phase = 'waiting';
+        pushRemote();          // 立刻告訴平板休息結束，不要等下一次心跳才更新
         SOUND.play('click');
         resolve();
       }
@@ -747,6 +765,7 @@
     state.phase = 'item';
     state.itemUntil = Date.now() + sec * 1000;
     state.itemReady = {};
+    state.pendingCards = [];      // 防呆：上一輪如果有殘留，不要帶到這一輪才播
     Object.keys(state.players).forEach(function (g) { state.players[g].playedThisRound = 0; });
     SOUND.play('itemPhase');
     botPlayCards();                       // 沒有平板的組由電腦幫忙出牌
@@ -781,6 +800,11 @@
           clearInterval(iv);
           box.classList.add('hidden');
           delete state.itemUntil;
+          // 這一段是在播放效果動畫（每張 2.6 秒，九張可能播 20 秒以上）。
+          // 階段要換掉，否則這期間學生點的牌會被排進佇列、拖到「下一輪」才公布——
+          // 那一輪學生根本沒碰平板，白板卻說他用了卡。
+          state.phase = 'cast';
+          pushRemote();        // 立刻告訴平板道具時間結束
           castQueuedCards().then(resolve);
         }
       }, 1000));
@@ -855,7 +879,7 @@
 
   function castResultText(r, def, item) {
     if (!r) return '';
-    if (r.blocked) return '🛡️ 被對方的絕緣卡擋下來了！';
+    if (r.blocked) return '🛡️ 被對方的絕緣卡擋下來了！（絕緣卡是自動觸發，不用學生點）';
     if (!r.ok) return '⚠️ ' + (r.msg || '沒有生效');
 
     // 有具體數字的，報數字最清楚
@@ -953,6 +977,7 @@
   function botAnswer(left, total) {
     Object.keys(state.players).forEach(function (gid) {
       if (!isBot(gid)) return;
+      if (everOnline[gid] && !cfg.solo) return;   // 有平板的組不代答，讓學生自己來
       if (state.answers[gid] || state.players[gid].frozen > 0) return;
       if (Math.random() < 0.28) {
         var q = state.question;
@@ -972,7 +997,16 @@
     if (!a || !a.gid) return;
     // 收到不屬於這一場的組別代號就丟掉（以前會直接當掉整個白板）
     if (!state || !state.players || !state.players[a.gid]) return;
-    if (!a.bot) online[a.gid] = Date.now();   // 有訊息＝這組有平板在線上（電腦代打不算）
+    if (!a.bot) {
+      online[a.gid] = Date.now();          // 有訊息＝這組有平板在線上
+      everOnline[a.gid] = true;            // 整場記著：這組是有平板的真人組
+      // 平板網路瞬斷重連時，Firestore 會把還沒刪掉的動作重新送一次。
+      // 同一筆時間戳只認第一次，否則同一張牌會被打出兩次。
+      if (a.at) {
+        if (lastActionAt[a.gid] >= a.at) return;
+        lastActionAt[a.gid] = a.at;
+      }
+    }
     switch (a.type) {
       case 'answer': E.submitAnswer(state, a.gid, a.choice, a.timeMs); break;
       case 'hint': E.buyHint(state, a.gid, a.level); break;
@@ -985,6 +1019,10 @@
         var cdef = CARD.get(a.cardId, true);
         var isChar = pl.cards.some(function (c) { return c.id === a.cardId && c.char; });
         if (!E.hasCard(pl, a.cardId)) break;
+
+        // 道具時間已經結束（正在公布效果、或倒數已過）就不再收牌
+        if (state.phase === 'cast') break;
+        if (state.phase === 'item' && state.itemUntil && Date.now() > state.itemUntil + 1500) break;
 
         // 道具階段：先排隊，等階段結束再依「出牌先後」一張一張播放。
         // 這樣全班看得到誰用了什麼、發生什麼事，也不會有人搶快佔便宜。
@@ -1276,12 +1314,12 @@
       if (ev.type === 'tax') lines.push('繳營所稅 $' + ev.amount.toLocaleString());
       if (ev.type === 'pool') lines.push('領走補助池 $' + ev.amount.toLocaleString());
       if (ev.type === 'jail') lines.push('被押去檢調約談所，停 1 輪');
-      if (ev.type === 'pardon') lines.push('用免罪卡躲過稽查');
+      if (ev.type === 'pardon') lines.push('用免罪卡躲過稽查（自動觸發）');
       if (ev.type === 'god') lines.push('被' + ev.name + '附身 3 輪');
       if (ev.type === 'news') lines.push(ev.text);
       if (ev.type === 'card') lines.push('抽到一張卡片');
-      if (ev.type === 'license') lines.push('用技術授權卡免付過路費');
-      if (ev.type === 'bounce') lines.push('彈回卡把 $' + ev.amount.toLocaleString() + ' 拿回來');
+      if (ev.type === 'license') lines.push('用技術授權卡免付過路費（自動觸發）');
+      if (ev.type === 'bounce') lines.push('彈回卡把 $' + ev.amount.toLocaleString() + ' 拿回來（自動觸發）');
       if (ev.type === 'radiation') lines.push('踩到輻射區，扣 $' + ev.amount.toLocaleString());
       if (ev.type === 'shop') lines.push('進入創投商店（第 ' + p.num + ' 組購買中…）');
       if (ev.type === 'bank') lines.push('來到銀行，可以存提款或申請貸款');
@@ -1289,13 +1327,14 @@
 
     // 有沒有需要這一組自己決定的事？
     var hasChoice = false;
+    var reallyBot = isBot(gid) && !(everOnline[gid] && !cfg.solo);
     if (out.canBuy) {
-      if (isBot(gid)) {
+      if (reallyBot) {
         if (p.cash - out.buyPrice > 15000 && E.buyLand(state, gid, p.pos).ok) lines.push('買下 ' + cell.name);
       } else { hasChoice = true; lines.push('可以買下 ' + cell.name + '（$' + out.buyPrice.toLocaleString() + '）'); }
     }
     if (out.canBuild) {
-      if (isBot(gid)) {
+      if (reallyBot) {
         var r = E.build(state, gid, p.pos, 99);
         if (r.ok) lines.push('蓋到 ' + B.LEVEL_NAME[r.level]);
       } else { hasChoice = true; lines.push('可以蓋廠（每級 $' + out.upgradeCost.toLocaleString() + '）'); }

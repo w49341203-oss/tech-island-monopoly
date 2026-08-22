@@ -162,19 +162,34 @@
     payload.hostAt = Date.now();
     return db.collection('games').doc(gameId)
       .set(payload)
+      .then(function () { return true; })
       .catch(function (e) {
         console.warn('[STORE] 寫入失敗：', e.message);
         // 靜靜失敗最可怕：白板照跑、平板卻停住，老師完全不知道。
         if (onWriteError) onWriteError(e);
+        return false;
       });
   }
 
   /** 平板端：監聽遊戲狀態 */
+  var onConnLost = null;
+  function setConnHandler(fn) { onConnLost = fn; }
+
   function watchState(cb) {
+    // 沒有先取消舊的就再掛一個，會變成同一份狀態收兩次，
+    // 也等於雲端讀取次數加倍（免費額度會少一半）。
+    if (unsub) { try { unsub(); } catch (e) {} unsub = null; }
     if (mode !== 'firebase' || !db) return function () {};
-    unsub = db.collection('games').doc(gameId).onSnapshot(function (doc) {
-      if (doc.exists) cb(doc.data());
-    });
+    unsub = db.collection('games').doc(gameId).onSnapshot(
+      function (doc) { if (doc.exists) cb(doc.data()); },
+      function (err) {
+        // 沒有這一段的話，監聽一旦出錯就永遠停掉：那台平板畫面靜止、
+        // 學生以為當機，其他台卻一切正常（「一組有題目、一組沒有」）。
+        console.warn('[STORE] 狀態監聽中斷：', err && err.message);
+        if (onConnLost) onConnLost(err);
+        setTimeout(function () { watchState(cb); }, 3000);   // 自己重連
+      }
+    );
     return unsub;
   }
 
@@ -196,13 +211,38 @@
 
   /** 老師端：監聽平板送來的動作 */
   function watchActions(cb) {
+    if (actionUnsub) { try { actionUnsub(); } catch (e) {} actionUnsub = null; }
     if (mode !== 'firebase' || !db) return function () {};
-    actionUnsub = db.collection('games').doc(gameId).collection('actions')
-      .onSnapshot(function (snap) {
-        snap.docChanges().forEach(function (ch) {
-          if (ch.type === 'added' || ch.type === 'modified') cb(ch.doc.data());
-        });
+
+    // Firestore 剛掛上監聽時，會把集合裡「已經存在的文件」全部當成新增送過來。
+    // 上一場沒清乾淨的動作如果被當成新動作執行，白板上就會出現
+    // 「學生沒有碰平板，卻有人出了一張牌」。所以第一批一律不執行，只清掉。
+    var first = true;
+    var STALE_MS = 5 * 60 * 1000;          // 五分鐘前的動作一定是上一場留下來的
+    var since = Date.now();
+    var ref = db.collection('games').doc(gameId).collection('actions');
+    actionUnsub = ref.onSnapshot(function (snap) {
+      if (first) {
+        first = false;
+        snap.docs.forEach(function (doc) { doc.ref.delete().catch(function () {}); });
+        return;
+      }
+      snap.docChanges().forEach(function (ch) {
+        if (ch.type !== 'added' && ch.type !== 'modified') return;
+        var data = ch.doc.data();
+        // 第二層保險：萬一第一批是從本機快取來的空清單，殘留文件會出現在第二批。
+        // 太舊的一律當成上一場的垃圾，刪掉不執行。
+        if (data && data.at && data.at < since - STALE_MS) {
+          ch.doc.ref.delete().catch(function () {});
+          return;
+        }
+        cb(data);
       });
+    }, function (err) {
+      console.warn('[STORE] 動作監聽中斷：', err && err.message);
+      if (onConnLost) onConnLost(err);
+      setTimeout(function () { watchActions(cb); }, 3000);   // 自己重連
+    });
     return actionUnsub;
   }
 
@@ -319,6 +359,7 @@
     listSaves: listSaves, save: saveLocal, load: loadLocal,
     deleteSave: deleteSave, resetAll: resetAll, loadCloud: loadCloud,
     firebaseReady: firebaseReady, initFirebase: initFirebase, uid: uid,
+    setConnHandler: setConnHandler,
     setWriteErrorHandler: setWriteErrorHandler,
     setMode: setMode, getMode: getMode, makeGameId: makeGameId,
     pushState: pushState, watchState: watchState,

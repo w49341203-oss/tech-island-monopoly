@@ -36,7 +36,7 @@
     virusFuse: 5,            // 病毒倒數
     virusRadius: 2,          // 爆炸範圍（前後各 N 格）
     godTurns: 3,
-    charCardEvery: 5,        // 每 5 輪發一張角色專屬卡
+    charCardEvery: 10,       // 每 10 輪發一張角色專屬卡（5 輪太密，手牌累積到用不完）
     handLimit: 8,
     shopShelf: 10,
     answerSec: 15,
@@ -841,7 +841,7 @@
           }
         }
       }
-      // 角色專屬卡：每 5 輪發一張
+      // 角色專屬卡：每 10 輪發一張
       if (state.round % CFG.charCardEvery === 0 && p.charId && p.cards.length < CFG.handLimit) {
         var c = global.charById(p.charId);
         p.cards.push({ id: c.card, char: true });

@@ -162,9 +162,18 @@
   var hbTimer = null;
   function heartbeat() {
     clearInterval(hbTimer);
-    // 心跳每次都是一筆雲端寫入，9 台平板一節課就好幾千筆。
-    // 拉長到 20 秒，老師端的判定逾時是 50 秒，漏掉一次也不會被誤判成離線。
-    hbTimer = setInterval(function () { send({ type: 'hello' }); }, 20000);
+    // 心跳每次都是一筆雲端寫入，不能太密；但太稀疏又會被誤判成「這組沒有平板」，
+    // 老師端就會叫電腦代打，出一張學生沒選過的牌。
+    // 折衷：15 秒一次，老師端逾時放寬到 120 秒（可以連漏 7 次）。
+    hbTimer = setInterval(function () { send({ type: 'hello' }); }, 15000);
+    // 平板被放下、切到別的 App、或 iPad 鎖屏時，瀏覽器會把定時器凍結，
+    // 心跳就斷了。切回前景時立刻補報到一次，避免被當成離線。
+    if (!window.__visBound) {
+      window.__visBound = true;
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden && my.gid) send({ type: 'hello' });
+      });
+    }
   }
 
   // ═══════════════════════════════════════
@@ -192,12 +201,24 @@
     state = st;
     window.__ps = st;                 // 診斷用：可在主控台檢查平板收到的狀態
     window.__psAt = Date.now();
-    if (!my.gid || !state.players[my.gid]) return;
+    if (!my.gid) return;
+    // 上一節是 9 組、這一節老師只開 6 組時，記著自己是第 8 組的平板會找不到自己。
+    // 以前是無聲 return，那台平板整節課停在「正在回到遊戲…」，學生完全不知道怎麼辦。
+    if (!state.players[my.gid]) {
+      show('join');
+      pmsg('joinMsg', '這一場沒有第 ' + my.gid.slice(1) + ' 組（老師這次開的組數比較少），請重新選組別', 'err');
+      try { localStorage.removeItem('techisland:me'); } catch (e) {}
+      my.gid = null;
+      return;
+    }
     var me = state.players[my.gid];
 
     if (!me.charId) { showPick(); return; }
 
-    if (changed('screen', 'play')) { show('play'); resetSig(); sig.screen = 'play'; }
+    // 這裡以前用簽章擋住重複呼叫，結果只要進過一次選角畫面就再也回不到遊戲畫面
+    //（那台平板整節課停在選角，題目當然不會出現）。show() 只是切 class，直接每次呼叫。
+    if (sig.screen !== 'play') { resetSig(); sig.screen = 'play'; }
+    show('play');
 
     // 上方資訊：數字變了才更新（純文字，重畫不影響操作）
     guard('上方資訊', function () { renderTop(me); });
@@ -217,7 +238,17 @@
     if (changed('bank', B.CELLS[me.pos].type === 'bank' ? 'yes' : 'no')) guard('銀行', function () { renderBank(me); });
 
     if (state.phase === 'question') {
-      if (state.round !== lastRound) {
+      // 地圖／戰況是整片蓋住畫面的面板，題目出來時一定要收掉，
+      // 否則那台平板整片還是地圖，學生會說「我這邊沒有出現題目」。
+      var mp = $('mapPanel');
+      if (mp && !mp.classList.contains('hidden')) {
+        mp.classList.add('hidden');
+        var mi = $('mapInfo'); if (mi) mi.classList.add('hidden');
+      }
+      // 用題號判斷是不是新的一題（預測卡會在同一輪換題，用輪次判斷會漏掉）
+      var qid = state.question ? String(state.question.id) : '';
+      if (qid !== lastQid) {
+        lastQid = qid;
         answered = false; hintLevel = 0; $('hintBox').textContent = '';
       }
       guard('題目', function () { renderQuestion(me); });
@@ -454,6 +485,7 @@
   // ═══════════════════════════════════════
   // 地圖：可以用手指拖曳的真地圖 + 清單兩個分頁
   // ═══════════════════════════════════════
+  var lastQid = '';                 // 上一題的題號，用來判斷是不是換了新題目
   var mapView = 'map';
   var mapReady = false;
   var mv = { x: 0, y: 0, k: 0.6 };
@@ -721,8 +753,11 @@
     $('qCard').classList.remove('hidden');
     $('qRound').textContent = state.round;
 
-    if ($('qText').dataset.qid !== String(q.id)) {
-      $('qText').dataset.qid = String(q.id);
+    // 識別字串要帶上輪次：同一題在不同輪再次出現時，按鈕必須重建，
+    // 否則會沿用上一輪結束時被鎖住的按鈕，學生點不下去。
+    var qkey = String(q.id) + '|' + state.round;
+    if ($('qText').dataset.qid !== qkey) {
+      $('qText').dataset.qid = qkey;
       $('qText').textContent = q.text;
       qStart = Date.now();
       var box = $('qOpts');
@@ -741,6 +776,9 @@
         };
         box.appendChild(b);
       });
+      // 學生多半捲到下面在看手牌，新題目出現要主動捲回來，不然等於沒看到
+      try { $('qCard').scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+      catch (e) { window.scrollTo(0, 0); }
     }
     if (me.frozen > 0) {
       $('qLeft').textContent = '停機中，這輪不能作答';
@@ -870,6 +908,13 @@
       el.textContent = '🏆 本節結束　看白板上的排名';
       return;
     }
+    // 遊戲還沒真正開始（第 0 輪）就不要顯示休息／時間到之類的訊息，
+    // 學生剛進來看到「時間到，正在等老師端」會以為壞掉了。
+    if (state.phase === 'break' && !(state.round > 0)) {
+      el.className = 'phase-banner';
+      el.textContent = '⏳ 等待老師開始';
+      return;
+    }
     if (state.phase === 'break') {
       el.className = 'phase-banner';
       if (state.breakUntil == null) {
@@ -877,14 +922,17 @@
       } else {
         var tickBreak = function () {
           var s = Math.max(0, Math.ceil((state.breakUntil - Date.now()) / 1000));
-          el.textContent = '☕ 休息中　' + s + ' 秒後開始下一輪';
+          // 倒數到 0 還沒收到新狀態，代表這台平板暫時沒收到老師端的訊息。
+          // 卡在「0 秒」會讓學生以為當機，講明白在等什麼比較好。
+          el.textContent = s > 0 ? ('☕ 休息中　' + s + ' 秒後開始下一輪')
+                                 : '☕ 時間到，正在等老師端…';
         };
         tickBreak();
         bannerTimer = setInterval(tickBreak, 500);
       }
       return;
     }
-    if (state.phase === 'item' && state.itemUntil == null) {
+    if (state.phase === 'cast' || (state.phase === 'item' && state.itemUntil == null)) {
       el.className = 'phase-banner';
       el.textContent = '📣 正在公布各組的道具效果…';
       return;
@@ -982,6 +1030,16 @@
       pmsg('handMsg', '現在是休息時間，下一輪開始的「道具時間」才能出牌', 'err');
       return;
     }
+    // 公布效果的動畫還在播，這時出的牌會被排到「下一輪」才生效，
+    // 學生會覺得莫名其妙（下一輪沒碰平板卻公布他用了卡）。直接擋掉。
+    if (state.phase === 'cast') {
+      pmsg('handMsg', '正在公布這一輪的道具效果，請等下一輪再出牌', 'err');
+      return;
+    }
+    if (state.phase === 'item' && state.itemUntil != null && Date.now() > state.itemUntil) {
+      pmsg('handMsg', '道具時間結束了，下一輪再出牌', 'err');
+      return;
+    }
     if (def.timing === 'onQuestion' && state.phase !== 'question') {
       pmsg('handMsg', '「' + def.name + '」要在作答時間使用', 'err');
       return;
@@ -1049,6 +1107,8 @@
     }).join('') + '<button class="opt-btn" style="margin-top:6px" data-cancel="1">取消</button>';
     box.querySelectorAll('[data-t]').forEach(function (b) {
       b.onclick = function () {
+        if (b.disabled) return;
+        box.querySelectorAll('button').forEach(function (x) { x.disabled = true; });
         send({ type: 'card', cardId: cardId, target: options[+b.dataset.t].value });
         box.innerHTML = state.phase === 'item'
           ? '✅ 已出牌，等道具時間結束後公布效果'
