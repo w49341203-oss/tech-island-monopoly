@@ -1,6 +1,6 @@
 /* 科技島大富翁 — Firebase 設定
  *
- * 專案：tech-island-monopoly（2026-08-22 由 Helen 建立，獨立於 hh-2e4b8，
+ * 專案：tech-island-monopoly（2026-08-22 建立，與其他專案分開，
  * 完全不會影響煉金學園與我的科技業之路）
  *
  * ⚠️ 這段設定本來就設計為可公開（Google 官方說明），放在 GitHub 上沒關係。

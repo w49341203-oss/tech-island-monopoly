@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>科技島大富翁 — 老師端</title>
-<link rel="stylesheet" href="css/style.css?v=20260822-1325">
+<link rel="stylesheet" href="css/style.css?v=20260822-1519">
 </head>
 <body class="teacher">
 
@@ -17,13 +17,15 @@
     <h1>科技島大富翁 <span class="ver">v1.1</span></h1>
 
     <div class="row">
-      <label>班級</label>
-      <div id="classPicker" class="chips"></div>
-    </div>
-
-    <div class="row">
-      <label>存檔槽</label>
-      <div id="slotPicker" class="chips"></div>
+      <label>接續舊場次</label>
+      <div id="savePicker" class="chips wrap"></div>
+      <div class="inline" style="margin-top:8px">
+        <span>換一台電腦？輸入上次的編號</span>
+        <input id="codeInput" class="code-input" maxlength="6" inputmode="numeric"
+               autocomplete="off" placeholder="6 位數">
+        <button id="btnLoadCode" class="mini">接續這一場</button>
+      </div>
+      <div class="hint" id="saveHint">開新遊戲會自動產生一組編號，投影給學生輸入</div>
     </div>
 
     <div class="row">
@@ -53,6 +55,13 @@
           <option value="30" selected>30 輪</option>
           <option value="40">40 輪</option>
         </select>
+        <span>決定時間</span>
+        <select id="decideSec">
+          <option value="5">5 秒</option>
+          <option value="8" selected>8 秒</option>
+          <option value="12">12 秒</option>
+          <option value="20">20 秒</option>
+        </select>
         <span>動畫速度</span>
         <select id="animSpeed">
           <option value="1" selected>正常</option>
@@ -67,7 +76,6 @@
 
     <div class="setup-actions">
       <button id="btnNew" class="big primary">開新遊戲</button>
-      <button id="btnLoad" class="big">讀取存檔</button>
       <button id="btnSolo" class="big ghost">單機試玩（不用平板）</button>
     </div>
     <div id="setupMsg" class="msg"></div>
@@ -77,11 +85,11 @@
 <!-- ══ 選角等待畫面 ══ -->
 <div id="lobby" class="screen lobby hidden">
   <div class="room-code">
-    <div class="rc-label">請各組在平板上輸入房間代碼</div>
+    <div class="rc-label">請各組在平板上輸入這一場的編號</div>
     <div class="rc-code" id="roomCode">------</div>
     <div class="rc-url" id="roomUrl"></div>
   </div>
-  <h2>然後選擇你們的科學家</h2>
+  <h2 id="lobbyTitle">然後選擇你們的科學家</h2>
   <div id="lobbyGrid" class="lobby-grid"></div>
   <div class="lobby-actions">
     <button id="btnStart" class="big primary" disabled>全部選好了，開始遊戲</button>
@@ -99,13 +107,29 @@
     <div class="hud-round" id="hudRound">第 1 輪 / 30</div>
 
     <div class="hud-question hidden" id="hudQuestion">
-      <div class="q-timer"><div class="q-bar" id="qBar"></div><span id="qSec">10</span></div>
+      <div class="q-timer"><div class="q-bar" id="qBar"></div><span id="qSec">15</span></div>
       <div class="q-text" id="qText"></div>
       <div class="q-options" id="qOptions"></div>
       <div class="q-lights" id="qLights"></div>
     </div>
 
     <div class="hud-order hidden" id="hudOrder"></div>
+
+    <!-- 道具效果依序播放 -->
+    <div class="hud-cast hidden" id="hudCast">
+      <div class="cast-no" id="castNo"></div>
+      <div class="cast-who" id="castWho"></div>
+      <div class="cast-card" id="castCard"></div>
+      <div class="cast-desc" id="castDesc"></div>
+      <div class="cast-result" id="castResult"></div>
+    </div>
+
+    <div class="hud-item-phase hidden" id="hudItemPhase">
+      <div class="ip-title">🎴 道具時間</div>
+      <div class="ip-sec" id="ipSec">30</div>
+      <div class="ip-hint" id="ipHint">各組可以在平板上使用卡片與道具</div>
+      <div class="ip-log" id="ipLog"></div>
+    </div>
 
     <svg class="hud-minimap" id="minimap" viewBox="0 0 300 340"><g id="mmG"></g></svg>
 
@@ -133,8 +157,7 @@
 
   <!-- 老師控制列（滑鼠移到底部才出現，不干擾投影） -->
   <div class="teacher-bar">
-    <button id="btnNext" class="primary">▶ 開始這一輪</button>
-    <button id="btnPause">⏸ 暫停講解</button>
+    <button id="btnPause" class="primary">⏸ 暫停</button>
     <button id="btnRank">📊 排行榜</button>
     <button id="btnZoom">🗺️ 全島</button>
     <button id="btnSave">💾 存檔</button>
@@ -147,14 +170,14 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260822-1325"></script>
-<script src="js/board.js?v=20260822-1325"></script>
-<script src="js/characters.js?v=20260822-1325"></script>
-<script src="js/cards.js?v=20260822-1325"></script>
-<script src="js/questions.js?v=20260822-1325"></script>
-<script src="js/engine.js?v=20260822-1325"></script>
-<script src="js/render.js?v=20260822-1325"></script>
-<script src="js/store.js?v=20260822-1325"></script>
-<script src="js/teacher.js?v=20260822-1325"></script>
+<script src="js/firebase-config.js?v=20260822-1519"></script>
+<script src="js/board.js?v=20260822-1519"></script>
+<script src="js/characters.js?v=20260822-1519"></script>
+<script src="js/cards.js?v=20260822-1519"></script>
+<script src="js/questions.js?v=20260822-1519"></script>
+<script src="js/engine.js?v=20260822-1519"></script>
+<script src="js/render.js?v=20260822-1519"></script>
+<script src="js/store.js?v=20260822-1519"></script>
+<script src="js/teacher.js?v=20260822-1519"></script>
 </body>
 </html>

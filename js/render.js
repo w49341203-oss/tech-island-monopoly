@@ -21,6 +21,10 @@
               'C242 644,256 714,278 766 C294 798,318 794,336 756 ' +
               'C366 686,394 594,406 494 C418 390,414 286,394 198 C376 130,348 86,300 78 Z';
 
+  // 鏡頭放大倍率。因為鏡頭會跟著角色跑，不需要把整座島塞進畫面，
+  // 所以拉近一點讓格子變大、遠處的白板也看得清楚。
+  var ZOOM = 1.45;
+
   var POS = {};          // 格子座標
   var AVAIL = {};        // 哪些角色的立繪真的存在（沒有的用色塊佔位）
   var svg, cam, layers = {}, sprites = {}, minimap = {};
@@ -119,6 +123,9 @@
     svg.appendChild(cam);
     ['terrain', 'roads', 'cells', 'buildings', 'pieces', 'labels'].forEach(function (n) {
       layers[n] = el('g', { id: 'L-' + n });
+      // 只有格子本身要能點；其他層（名稱標籤、廠房、角色）都放行，
+      // 否則手指點在名字上就抓不到底下是哪一格。
+      if (n !== 'cells') layers[n].style.pointerEvents = 'none';
       cam.appendChild(layers[n]);
     });
 
@@ -166,9 +173,31 @@
       var lv = (state && state.board.level[i]) || 0;
       if (lv > 0) layers.buildings.appendChild(drawBuilding(p.x, p.y - 16, lv, color));
 
+      // 地主符號：買下這塊地的科學家，他的符號就蓋在地上，一眼看得出是誰的
+      var ownerGid = state && state.board.owner[i];
+      var ownerCh = null;
+      if (ownerGid && state.players[ownerGid] && state.players[ownerGid].charId) {
+        ownerCh = global.charById(state.players[ownerGid].charId);
+      }
+      if (ownerCh) {
+        var ring = el('circle', {
+          cx: p.x - CELL_RX * 0.52, cy: p.y + CELL_RY * 0.34, r: 30,
+          fill: ownerCh.color, stroke: '#fff', 'stroke-width': 5
+        });
+        ring.style.pointerEvents = 'none';
+        layers.cells.appendChild(ring);
+        var badge = el('text', {
+          x: p.x - CELL_RX * 0.52, y: p.y + CELL_RY * 0.34 + 13,
+          'text-anchor': 'middle', 'font-size': 32
+        });
+        badge.style.pointerEvents = 'none';
+        badge.textContent = ownerCh.emoji;
+        layers.cells.appendChild(badge);
+      }
+
       // 標籤（畫在最上層，不會被前排廠房蓋住）
       var left = p.x < VW * 1.3;
-      var txt = c.name;
+      var txt = (ownerCh ? ownerCh.emoji + ' ' : '') + c.name;
       var w = txt.length * 34 + 22;
       layers.labels.appendChild(el('rect', {
         x: left ? p.x - 88 - w : p.x + 88, y: p.y - 26,
@@ -328,10 +357,35 @@
   }
 
   // ── 鏡頭 ──
+  var lastCam = null;                 // 記住鏡頭停在哪，按完「全島」才回得來
   function camTo(x, y) {
+    lastCam = { x: x, y: y };
     if (zoomOut) return;
-    cam.setAttribute('transform', 'translate(' + (VW / 2 - x) + ',' + (VH / 2 - y) + ')');
-    if (minimap.view) { minimap.view.setAttribute('x', x - VW / 2); minimap.view.setAttribute('y', y - VH / 2); }
+    cam.setAttribute('transform',
+      'translate(' + (VW / 2 - x * ZOOM) + ',' + (VH / 2 - y * ZOOM) + ') scale(' + ZOOM + ')');
+    // 小地圖上的取景框也要跟著縮小，才對得上實際看得到的範圍
+    if (minimap.view) {
+      minimap.view.setAttribute('x', x - VW / (2 * ZOOM));
+      minimap.view.setAttribute('y', y - VH / (2 * ZOOM));
+    }
+  }
+
+  /** 平板看地圖用：自由指定中心點與縮放（不受鏡頭跟隨影響） */
+  function setView(cx, cy, k) {
+    k = k || 1;
+    zoomOut = false;
+    cam.setAttribute('transform',
+      'translate(' + (VW / 2 - cx * k) + ',' + (VH / 2 - cy * k) + ') scale(' + k + ')');
+  }
+
+  /** 整張地圖的範圍（平板拖曳時用來擋住，免得滑到外太空） */
+  function mapBounds() {
+    var xs = [], ys = [];
+    Object.keys(POS).forEach(function (i) { xs.push(POS[i].x); ys.push(POS[i].y); });
+    return {
+      x1: Math.min.apply(null, xs) - 200, x2: Math.max.apply(null, xs) + 200,
+      y1: Math.min.apply(null, ys) - 200, y2: Math.max.apply(null, ys) + 200
+    };
   }
   function focusOn(gid, state) {
     followGid = gid;
@@ -344,6 +398,8 @@
       var w = 620 * SX, h = 880 * SX * SQ;
       var k = Math.min(VW / w, VH / h) * 0.94;
       cam.setAttribute('transform', 'translate(' + (VW - w * k) / 2 + ',' + (VH - h * k) / 2 + ') scale(' + k + ')');
+    } else if (lastCam) {
+      camTo(lastCam.x, lastCam.y);     // 關掉全島檢視就立刻回到剛才跟著的角色身上
     }
     return zoomOut;
   }
@@ -361,7 +417,7 @@
     inner.appendChild(el('path', { d: TRACK, transform: M, fill: 'none', stroke: '#fff', 'stroke-width': 20, 'stroke-opacity': .6 }));
     minimap.dots = el('g', {});
     inner.appendChild(minimap.dots);
-    minimap.view = el('rect', { width: VW, height: VH, fill: 'none', stroke: '#fbbf24', 'stroke-width': 22 });
+    minimap.view = el('rect', { width: VW / ZOOM, height: VH / ZOOM, fill: 'none', stroke: '#fbbf24', 'stroke-width': 22 });
     inner.appendChild(minimap.view);
     g.appendChild(inner);
   }
@@ -382,7 +438,7 @@
     focusOn: focusOn, camTo: camTo, setZoomOut: setZoomOut, isZoomOut: isZoomOut,
     initMinimap: initMinimap, updateMinimap: updateMinimap,
     preloadAvatars: preloadAvatars, hasAvatar: hasAvatar, avatarUrl: avatarUrl,
-    setSpeed: setSpeed,
+    setSpeed: setSpeed, setView: setView, mapBounds: mapBounds,
     flashCell: flashCell, POS: POS, VW: VW, VH: VH, el: el, shade: shade
   };
 })(typeof window !== 'undefined' ? window : globalThis);

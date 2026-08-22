@@ -39,8 +39,8 @@
     charCardEvery: 5,        // 每 5 輪發一張角色專屬卡
     handLimit: 8,
     shopShelf: 10,
-    answerSec: 10,
-    answerSecHard: 15,
+    answerSec: 15,
+    answerSecHard: 20,
     maxRounds: 30
   };
 
@@ -71,8 +71,10 @@
     var n = opts.groups || 9;
     var state = {
       version: 1,
-      classId: opts.classId || '智',
-      slot: opts.slot || 1,
+      // 這一場的識別碼：平板用它分辨「換了新的一場」，把舊遊戲的畫面狀態整個重置
+      nonce: opts.nonce || (Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36)),
+      code: opts.code || '',        // 這一場的 6 位數編號（＝學生輸入的房間代碼＝存檔名字）
+      label: opts.label || '',      // 老師自己取的名字（例如「七年三班」），可留空
       seed: opts.seed || 20260822,
       round: 0,
       maxRounds: opts.maxRounds || CFG.maxRounds,
@@ -118,10 +120,13 @@
     if (!c) return { ok: false, msg: '找不到這位科學家' };
     state.players[gid].charId = charId;
     state.players[gid].name = '第 ' + state.players[gid].num + ' 組 · ' + c.name;
-    // 開局手牌：四大道具隨機 3 張 + 1 張自己的專屬卡
+    // 開局手牌：四大道具中隨機抽 3「種」（每種一張、不重複）+ 1 張自己的專屬卡
+    // 用抽走的方式取樣，才不會出現同一種道具好幾張
     var tools = CARD.TOOLS.slice();
     var hand = [];
-    for (var i = 0; i < 3; i++) hand.push({ id: tools[Math.floor(rnd(state) * tools.length)].id });
+    for (var i = 0; i < 3; i++) {
+      hand.push({ id: tools.splice(Math.floor(rnd(state) * tools.length), 1)[0].id });
+    }
     hand.push({ id: c.card, char: true });
     state.players[gid].cards = hand;
     return { ok: true };
@@ -262,6 +267,15 @@
     var p = state.players[gid];
     var d1 = 1 + Math.floor(rnd(state) * 6), d2 = 1 + Math.floor(rnd(state) * 6);
     var total = d1 + d2;
+    // 良率控制器：這一輪用自己指定的點數
+    if (p.buff.fixedDice) {
+      total = p.buff.fixedDice;
+      delete p.buff.fixedDice;
+      d1 = Math.min(6, Math.max(1, Math.floor(total / 2)));
+      d2 = total - d1;
+      p.stepsLeft = total;
+      return { d1: d1, d2: d2, total: total, fixed: true };
+    }
     if (p.buff.twindice) { total += 1 + Math.floor(rnd(state) * 6) + 1 + Math.floor(rnd(state) * 6); delete p.buff.twindice; }
     if (p.buff.overheat) { total *= 2; delete p.buff.overheat; }
     if (p.buff.engine > 0) { total += 2; }
@@ -573,6 +587,20 @@
     if (!def) return { ok: false, msg: '沒有這張卡' };
     if (!hasCard(p, cardId)) return { ok: false, msg: '手上沒有這張卡' };
 
+    // 遊戲還沒開始（選角、等待階段）不能出牌——防止學生在大廳就互丟道具
+    // 只擋選角／等待開始的階段。道具階段時 round 可能還是 0（第一輪還沒開始），
+    // 不能用 round 判斷，否則第一輪的道具時間會出不了牌。
+    if (state.phase === 'setup') {
+      return { ok: false, msg: '遊戲開始後才能使用卡片和道具' };
+    }
+    if (state.phase === 'ended') return { ok: false, msg: '這一節已經結束了' };
+    // 答題專用卡（感應卡、預測卡）只能在作答時間使用
+    if (def.timing === 'onQuestion' && state.phase !== 'question') {
+      return { ok: false, msg: '「' + def.name + '」要在作答時間使用' };
+    }
+    // 其餘卡片隨時都能出：學生在等別組行動時就能規劃出牌，不佔用自己的回合時間。
+    // 骰前生效的卡（過熱／雙骰／逆轉／引擎／良率控制器）會存成 buff，輪到自己骰時自動套用。
+
     var tp = (target && target.gid) ? state.players[target.gid] : null;
     // 歐姆的絕緣卡：擋下對手對你使用的卡
     if (tp && tp.gid !== gid && hasCard(tp, 'insulate')) {
@@ -692,8 +720,19 @@
         tp.virus = CFG.virusFuse;
         break;
       }
-      case 'dice': r.chooseSteps = true; break;
-      case 'induct': r.peekAnswer = state.question ? state.question.answer : null; break;
+      case 'dice': {
+        // 良率控制器：平板送出時要一起帶 steps（2~12），下次輪到自己就用這個點數
+        var st = target && target.steps;
+        if (!st || st < 2 || st > 12) return { ok: false, msg: '請選擇 2～12 的點數' };
+        p.buff.fixedDice = st;
+        r.fixedDice = st;
+        break;
+      }
+      case 'induct': {
+        r.peekAnswer = state.question ? state.question.answer : null;
+        p.buff.peek = r.peekAnswer;      // 存進狀態，該組的平板才顯示得出來
+        break;
+      }
       case 'predict': r.rerollQuestion = true; break;
       case 'copycard': {
         if (!state.lastCardPlayed) return { ok: false, msg: '目前還沒有人打出過卡片' };
@@ -780,7 +819,7 @@
       // 引擎卡倒數
       if (p.buff.engine > 0) { p.buff.engine--; if (!p.buff.engine) delete p.buff.engine; }
       // 一次性 buff 清除
-      ['surge', 'pierce', 'brownout', 'observe'].forEach(function (b) { delete p.buff[b]; });
+      ['surge', 'pierce', 'brownout', 'observe', 'peek'].forEach(function (b) { delete p.buff[b]; });
 
       // 貸款到期：現金不足就自動賣掉最便宜的廠抵債
       if (p.loan > 0 && state.round >= p.loanDue) {
@@ -813,8 +852,15 @@
     return { events: events, ended: state.phase === 'ended' };
   }
 
+  /** 給平板看的公開狀態：把正確答案拿掉，防止學生開瀏覽器主控台偷看 */
+  function publicState(state) {
+    var pub = JSON.parse(JSON.stringify(state));
+    if (pub.question) delete pub.question.answer;
+    return pub;
+  }
+
   global.ENGINE = {
-    CFG: CFG, GODS: GODS, NEWS: NEWS,
+    CFG: CFG, GODS: GODS, NEWS: NEWS, publicState: publicState,
     createGame: createGame, pickCharacter: pickCharacter,
     startRound: startRound, submitAnswer: submitAnswer, reveal: reveal,
     currentGid: currentGid, nextOptions: nextOptions, rollDice: rollDice, setSteps: setSteps,

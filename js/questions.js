@@ -24,8 +24,8 @@
     { file: 'final-10', label: '總複習（跨章）' }
   ];
 
-  // 難度 → 作答秒數
-  var SECONDS = { basic: 10, concept: 10, calc: 15 };
+  // 難度 → 作答秒數（2026-08-22 調整：10 秒太趕，一般題改 15 秒、計算題 20 秒）
+  var SECONDS = { basic: 15, concept: 15, calc: 20 };
 
   var bank = [];        // 已載入的題目
   var loaded = [];      // 已載入哪些章節
@@ -112,7 +112,7 @@
       chapter: q.chapter,
       section: q.section,
       imageUrl: q.imageUrl || null,
-      seconds: SECONDS[q.difficulty] || 10
+      seconds: SECONDS[q.difficulty] || 15
     };
   }
 

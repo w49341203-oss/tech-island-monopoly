@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>科技島大富翁 — 我的平板</title>
-<link rel="stylesheet" href="css/style.css?v=20260822-1325">
+<link rel="stylesheet" href="css/style.css?v=20260822-1519">
 </head>
 <body class="player">
 
@@ -30,7 +30,7 @@
     <!-- 第一步：輸入代碼 -->
     <div id="step1">
       <div class="row">
-        <label>輸入白板上的房間代碼</label>
+        <label>輸入白板上的 6 位數編號</label>
         <input id="jCode" class="code-input" type="text" inputmode="numeric"
                maxlength="6" placeholder="------" autocomplete="off">
       </div>
@@ -61,6 +61,44 @@
 
 <!-- ══ 遊戲中 ══ -->
 <div id="play" class="player-wrap hidden">
+
+  <div class="phase-banner" id="phaseBanner">⏳ 等待開始</div>
+
+  <div class="top-tools">
+    <button id="btnMap">🗺️ 查看地圖</button>
+    <button id="btnRankP">📊 戰況</button>
+  </div>
+
+  <!-- 地圖一覽（點按鈕才開） -->
+  <div class="map-panel hidden" id="mapPanel">
+    <div class="mp-head">
+      <div class="mp-tabs">
+        <button class="mp-t on" id="tabMap">🗺️ 地圖</button>
+        <button class="mp-t" id="tabList">📋 清單</button>
+      </div>
+      <div class="mp-filters hidden" id="mapFilters">
+        <button class="mp-f on" data-f="all">全部</button>
+        <button class="mp-f" data-f="land">只看土地</button>
+        <button class="mp-f" data-f="mine">我的地</button>
+        <button class="mp-f" data-f="free">還沒人買</button>
+      </div>
+      <button id="btnMapClose" class="mp-close">✕</button>
+    </div>
+
+    <div class="mp-canvas" id="mapCanvas">
+      <svg id="pMapSvg"></svg>
+      <div class="mp-tip" id="mapTip">用手指拖曳可以看地圖的其他地方，點格子看詳細資料</div>
+      <div class="mp-zoom">
+        <button id="mpZoomIn">＋</button>
+        <button id="mpZoomOut">－</button>
+        <button id="mpWhole">全島</button>
+        <button id="mpMe">找我</button>
+      </div>
+      <div class="mp-info hidden" id="mapInfo"></div>
+    </div>
+
+    <div class="mp-list hidden" id="mapList"></div>
+  </div>
 
   <div class="pl-top">
     <button id="btnLeave" class="leave-btn" title="離開這一組">⇦</button>
@@ -101,6 +139,9 @@
   <div class="pl-card">
     <h3>🎴 我的手牌（<span id="handCount">0</span>/8）</h3>
     <div class="hand" id="handList"></div>
+    <button id="btnItemDone" class="hidden" style="width:100%;margin-top:10px;background:#334155">
+      ✓ 這輪不出牌了
+    </button>
     <div class="pl-msg" id="handMsg"></div>
   </div>
 
@@ -126,12 +167,13 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260822-1325"></script>
-<script src="js/board.js?v=20260822-1325"></script>
-<script src="js/characters.js?v=20260822-1325"></script>
-<script src="js/cards.js?v=20260822-1325"></script>
-<script src="js/engine.js?v=20260822-1325"></script>
-<script src="js/store.js?v=20260822-1325"></script>
-<script src="js/player.js?v=20260822-1325"></script>
+<script src="js/firebase-config.js?v=20260822-1519"></script>
+<script src="js/board.js?v=20260822-1519"></script>
+<script src="js/render.js?v=20260822-1519"></script>
+<script src="js/characters.js?v=20260822-1519"></script>
+<script src="js/cards.js?v=20260822-1519"></script>
+<script src="js/engine.js?v=20260822-1519"></script>
+<script src="js/store.js?v=20260822-1519"></script>
+<script src="js/player.js?v=20260822-1519"></script>
 </body>
 </html>

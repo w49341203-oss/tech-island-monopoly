@@ -54,7 +54,7 @@
   /** 第一步：用代碼查房間，拿到這一場實際開了幾組 */
   function doFind() {
     var code = ($('jCode').value || '').trim();
-    if (code.length !== 6) { pmsg('joinMsg', '請輸入白板上的 6 位數房間代碼', 'err'); return; }
+    if (code.length !== 6) { pmsg('joinMsg', '請輸入白板上的 6 位數編號', 'err'); return; }
     my.code = code;
     S.initChannel(code);                    // 同一台電腦多分頁用代碼當頻道
     S.onLocalState(onState);
@@ -76,13 +76,18 @@
     }).then(function (r) {
       $('btnFind').disabled = false;
       if (!r) {
-        pmsg('joinMsg', '找不到這個房間。請再確認一次白板上的代碼，' +
+        pmsg('joinMsg', '找不到這個編號。請再確認一次白板上的數字，' +
                         '也要確認老師已經按下「開新遊戲」了', 'err');
+        return;
+      }
+      if (r.live === false) {
+        pmsg('joinMsg', '編號 ' + code + ' 是之前的舊場次，老師現在沒有開著。' +
+                        '請確認白板上顯示的編號。', 'err');
         return;
       }
       room = r;
       S.setMode('firebase', r.gameId);
-      showGroupPicker('找到房間了！這一場有 ' + (r.groups || 9) + ' 組');
+      showGroupPicker('找到了！這一場有 ' + (r.groups || 9) + ' 組');
     }).catch(function (e) {
       $('btnFind').disabled = false;
       pmsg('joinMsg', '連線失敗：' + e.message, 'err');
@@ -139,7 +144,10 @@
   /** 送出動作給老師端。失敗一定要顯示出來，不然學生按了沒反應卻不知道為什麼 */
   function send(action) {
     if (!my.gid) {
-      pmsg('joinMsg', '還沒選組別，無法送出', 'err');
+      // 心跳是背景自動送的，還沒選組別時不該跳錯誤訊息嚇到學生
+      if (action && action.type !== 'hello') {
+        pmsg('joinMsg', '還沒選組別，無法送出', 'err');
+      }
       return Promise.resolve();
     }
     return S.sendAction(my.gid, action).catch(function (e) {
@@ -154,21 +162,36 @@
   var hbTimer = null;
   function heartbeat() {
     clearInterval(hbTimer);
-    hbTimer = setInterval(function () { send({ type: 'hello' }); }, 10000);
+    // 心跳每次都是一筆雲端寫入，9 台平板一節課就好幾千筆。
+    // 拉長到 20 秒，老師端的判定逾時是 50 秒，漏掉一次也不會被誤判成離線。
+    hbTimer = setInterval(function () { send({ type: 'hello' }); }, 20000);
   }
 
   // ═══════════════════════════════════════
   // 收到老師端狀態
   // ═══════════════════════════════════════
-  var lastSeq = -1;
+  var lastSeq = -1, lastNonce = null;
   function onState(st) {
     if (!st || !st.players) return;
+    // 換了新的一場遊戲（識別碼不同）就整個重置。
+    // 沒有這一段的話，上一場遊戲留在雲端／本機的舊狀態會跟新遊戲互相蓋來蓋去，
+    // 造成畫面一直跳（一下選角、一下選好）。
+    if (st.nonce && st.nonce !== lastNonce) {
+      lastNonce = st.nonce;
+      lastSeq = -1;
+      resetSig();
+      pickSent = false;
+      picking = null;
+      answered = false;
+    }
     // 忽略晚到的舊狀態，否則畫面會倒退（選好角色又跳回選角、資產變回舊值）
     if (typeof st._seq === 'number') {
       if (st._seq < lastSeq) return;
       lastSeq = st._seq;
     }
     state = st;
+    window.__ps = st;                 // 診斷用：可在主控台檢查平板收到的狀態
+    window.__psAt = Date.now();
     if (!my.gid || !state.players[my.gid]) return;
     var me = state.players[my.gid];
 
@@ -177,40 +200,62 @@
     if (changed('screen', 'play')) { show('play'); resetSig(); sig.screen = 'play'; }
 
     // 上方資訊：數字變了才更新（純文字，重畫不影響操作）
-    renderTop(me);
+    guard('上方資訊', function () { renderTop(me); });
 
     // 手牌：只有手牌內容變了才重建，否則正在點的卡片會被換掉
-    if (changed('hand', me.cards.map(function (c) { return c.id + (c.char ? '*' : ''); }).join(','))) {
-      renderHand(me);
+    if (changed('hand', me.cards.map(function (c) { return c.id + (c.char ? '*' : ''); }).join(',') +
+                        '|' + (me.playedThisRound || 0))) {
+      guard('手牌', function () { renderHand(me); });
     }
     // 資產：地產或等級變了才重建
     if (changed('assets', E.landsOf(state, my.gid).map(function (i) {
           return i + ':' + (state.board.level[i] || 0);
         }).join(','))) {
-      renderAssets(me);
+      guard('資產', function () { renderAssets(me); });
     }
     // 銀行按鈕：只有「在不在銀行格」變了才更新
-    if (changed('bank', B.CELLS[me.pos].type === 'bank' ? 'yes' : 'no')) renderBank(me);
+    if (changed('bank', B.CELLS[me.pos].type === 'bank' ? 'yes' : 'no')) guard('銀行', function () { renderBank(me); });
 
     if (state.phase === 'question') {
       if (state.round !== lastRound) {
         answered = false; hintLevel = 0; $('hintBox').textContent = '';
       }
-      renderQuestion(me);
-    } else if (changed('qcard', 'hide')) {
-      $('qCard').classList.add('hidden');
+      guard('題目', function () { renderQuestion(me); });
+      sig.qcard = 'show';
+    } else {
+      if (changed('qcard', 'hide')) {
+        $('qCard').classList.add('hidden');
+        // 作答時間過了就把按鈕鎖住，避免學生以為還能改答案
+        [].forEach.call($('qOpts').children, function (b) { b.disabled = true; });
+      }
     }
-    if (state.phase === 'question') sig.qcard = 'show';
+    guard('階段提示', function () { renderPhaseBanner(); });
 
     // 行動選項：輪到誰、在哪一格、還剩幾步 —— 這些變了才重建
     if (changed('action', state.phase + '|' + E.currentGid(state) + '|' + me.pos + '|' +
                           (me.stepsLeft || 0) + '|' + (state.board.owner[me.pos] || '-') + '|' +
-                          (state.board.level[me.pos] || 0))) {
-      renderAction(me);
+                          (state.board.level[me.pos] || 0) + '|' +
+                          (state.decide ? state.decide.gid : '-') + '|' + me.cash)) {
+      guard('行動選項', function () { renderAction(me); });
     }
     lastRound = state.round;
     lastPhase = state.phase;
   }
+
+  /**
+   * 把每一段畫面更新包起來。
+   * 之前發生過：某一段重畫時拋錯，後面所有段落跟著不執行，
+   * 學生看到的就是「卡片點了沒反應」。包起來之後最多只有那一小塊沒更新。
+   */
+  function guard(where, fn) {
+    try { fn(); } catch (e) {
+      if (!guard.seen[where]) {
+        guard.seen[where] = 1;
+        console.error('[科技島] ' + where + ' 更新失敗：', e);
+      }
+    }
+  }
+  guard.seen = {};
 
   function show(which) {
     ['rejoin', 'join', 'pick', 'play'].forEach(function (id) {
@@ -287,12 +332,278 @@
   // ═══════════════════════════════════════
   // 上方資訊
   // ═══════════════════════════════════════
+  // ── 地圖一覽：學生要能查地價、誰的地、蓋幾級、過路費多少 ──
+  var mapFilter = 'all';
+  function bindItemDone() {
+    var b = $('btnItemDone');
+    if (!b || b._bound) return;
+    b._bound = true;
+    b.onclick = function () {
+      send({ type: 'itemDone' });
+      b.disabled = true;
+      b.textContent = '✓ 已表示不出牌，等其他組';
+    };
+  }
+
+  function bindMapButtons() {
+    bindItemDone();
+    var b = $('btnMap');
+    if (!b || b._bound) return;
+    b._bound = true;
+    b.onclick = function () { $('mapPanel').classList.remove('hidden'); showMapView('map'); };
+    $('btnMapClose').onclick = function () { $('mapPanel').classList.add('hidden'); };
+    $('tabMap').onclick = function () { showMapView('map'); };
+    $('tabList').onclick = function () { showMapView('list'); };
+    $('mpZoomIn').onclick = function () { zoomMap(1.45); };
+    $('mpZoomOut').onclick = function () { zoomMap(1 / 1.45); };
+    $('mpWhole').onclick = function () { fitWholeMap(); };
+    $('mpMe').onclick = function () { focusMapOnMe(); };
+    [].forEach.call(document.querySelectorAll('.mp-f'), function (f) {
+      f.onclick = function () {
+        mapFilter = f.dataset.f;
+        [].forEach.call(document.querySelectorAll('.mp-f'), function (x) { x.classList.remove('on'); });
+        f.classList.add('on');
+        renderMap();
+      };
+    });
+    $('btnRankP').onclick = function () {
+      var rows = E.ranking(state).map(function (x, i) {
+        var p = state.players[x.gid];
+        return '<div class="mp-row' + (x.gid === my.gid ? ' mine' : '') + '">' +
+               '<b style="min-width:26px">' + (i + 1) + '</b>' +
+               '<span class="mp-name">' + p.name + '</span>' +
+               '<span class="mp-right"><b>$' + x.wealth.toLocaleString() + '</b><br>' +
+               '現金 $' + p.cash.toLocaleString() + '　地 ' + E.landsOf(state, x.gid).length + ' 塊</span></div>';
+      }).join('');
+      $('mapPanel').classList.remove('hidden');
+      showMapView('list');
+      $('mapList').innerHTML = rows;
+      $('mapFilters').classList.add('hidden');
+      $('tabList').classList.remove('on');
+    };
+  }
+
+  // ═══════════════════════════════════════
+  // 地圖：可以用手指拖曳的真地圖 + 清單兩個分頁
+  // ═══════════════════════════════════════
+  var mapView = 'map';
+  var mapReady = false;
+  var mv = { x: 0, y: 0, k: 0.6 };
+
+  function showMapView(v) {
+    mapView = v;
+    var isMap = (v === 'map');
+    $('mapCanvas').classList.toggle('hidden', !isMap);
+    $('mapList').classList.toggle('hidden', isMap);
+    $('mapFilters').classList.toggle('hidden', isMap);
+    $('tabMap').classList.toggle('on', isMap);
+    $('tabList').classList.toggle('on', !isMap);
+    if (isMap) renderMapCanvas(); else renderMap();
+  }
+
+  /** 整張地圖剛好塞滿畫面時的縮放倍率 */
+  function fitK() {
+    var bd = window.RENDER.mapBounds();
+    return Math.min(window.RENDER.VW / (bd.x2 - bd.x1),
+                    window.RENDER.VH / (bd.y2 - bd.y1)) * 0.95;
+  }
+
+  function clampMapView() {
+    var bd = window.RENDER.mapBounds();
+    var halfW = window.RENDER.VW / (2 * mv.k), halfH = window.RENDER.VH / (2 * mv.k);
+    // 地圖比畫面小的時候就置中，比畫面大的時候才限制不要滑出去
+    mv.x = (bd.x2 - bd.x1 <= halfW * 2) ? (bd.x1 + bd.x2) / 2
+         : Math.min(Math.max(mv.x, bd.x1 + halfW), bd.x2 - halfW);
+    mv.y = (bd.y2 - bd.y1 <= halfH * 2) ? (bd.y1 + bd.y2) / 2
+         : Math.min(Math.max(mv.y, bd.y1 + halfH), bd.y2 - halfH);
+  }
+
+  function applyMapView() {
+    clampMapView();
+    window.RENDER.setView(mv.x, mv.y, mv.k);
+  }
+
+  function zoomMap(f) {
+    mv.k = Math.min(Math.max(mv.k * f, fitK()), 2.4);
+    applyMapView();
+  }
+
+  function fitWholeMap() {
+    var bd = window.RENDER.mapBounds();
+    mv.x = (bd.x1 + bd.x2) / 2; mv.y = (bd.y1 + bd.y2) / 2; mv.k = fitK();
+    applyMapView();
+  }
+
+  function focusMapOnMe() {
+    var me = state && state.players[my.gid];
+    var pos = me && window.RENDER.POS[me.pos];
+    if (!pos) return;
+    mv.x = pos.x; mv.y = pos.y; mv.k = Math.max(1.1, fitK());
+    applyMapView();
+    showCellCard(me.pos);
+  }
+
+  function renderMapCanvas() {
+    if (!state) return;
+    var svg = $('pMapSvg');
+    if (!mapReady) {
+      window.RENDER.init(svg);
+      bindMapDrag(svg);
+      mapReady = true;
+      window.RENDER.drawBoard(state);
+      fitWholeMap();
+    } else {
+      window.RENDER.drawBoard(state);
+      applyMapView();
+    }
+    drawMapPieces();
+    var tip = $('mapTip');
+    if (tip) { tip.style.opacity = '1'; setTimeout(function () { tip.style.opacity = '0'; }, 4000); }
+  }
+
+  /** 各組現在站在哪裡（用角色符號標，不載入立繪，平板才不會卡） */
+  function drawMapPieces() {
+    var svg = $('pMapSvg'), cam = svg.querySelector('#cam');
+    if (!cam) return;
+    var g = svg.querySelector('#pPieces');
+    if (!g) { g = window.RENDER.el('g', { id: 'pPieces' }); cam.appendChild(g); }
+    g.style.pointerEvents = 'none';
+    g.innerHTML = '';
+    Object.keys(state.players).forEach(function (gid) {
+      var p = state.players[gid], pos = window.RENDER.POS[p.pos];
+      if (!pos || !p.charId) return;
+      var ch = window.charById(p.charId);
+      var isMe = (gid === my.gid);
+      g.appendChild(window.RENDER.el('circle', {
+        cx: pos.x, cy: pos.y - 78, r: 48, fill: ch.color,
+        stroke: isMe ? '#fbbf24' : '#ffffff', 'stroke-width': isMe ? 13 : 7
+      }));
+      var t = window.RENDER.el('text', {
+        x: pos.x, y: pos.y - 60, 'text-anchor': 'middle', 'font-size': 48
+      });
+      t.textContent = ch.emoji;
+      g.appendChild(t);
+      var n = window.RENDER.el('text', {
+        x: pos.x, y: pos.y - 138, 'text-anchor': 'middle',
+        'font-size': 40, 'font-weight': 800, fill: '#0b1220',
+        stroke: '#ffffff', 'stroke-width': 8, 'paint-order': 'stroke'
+      });
+      n.textContent = p.num + '組';
+      g.appendChild(n);
+    });
+  }
+
+  function bindMapDrag(svg) {
+    var drag = null;
+    svg.addEventListener('pointerdown', function (e) {
+      drag = { x: e.clientX, y: e.clientY, cx: mv.x, cy: mv.y, moved: 0 };
+      try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    svg.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var r = svg.getBoundingClientRect();
+      if (!r.width) return;
+      var unit = (window.RENDER.VW / r.width) / mv.k;   // 螢幕 1 px 等於地圖幾單位
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      drag.moved = Math.max(drag.moved, Math.abs(dx) + Math.abs(dy));
+      mv.x = drag.cx - dx * unit;
+      mv.y = drag.cy - dy * unit;
+      applyMapView();
+    });
+    function finish(e) {
+      var tap = drag && drag.moved < 10;
+      drag = null;
+      if (!tap) return;
+      var t = document.elementFromPoint(e.clientX, e.clientY);
+      var idx = t && t.getAttribute && t.getAttribute('data-cell');
+      if (idx != null) showCellCard(+idx);
+      else $('mapInfo').classList.add('hidden');
+    }
+    svg.addEventListener('pointerup', finish);
+    svg.addEventListener('pointercancel', function () { drag = null; });
+  }
+
+  /** 點一格，右下角跳出這一格的詳細資料 */
+  function showCellCard(i) {
+    var c = B.CELLS[i], box = $('mapInfo');
+    var owner = state.board.owner[i], lv = state.board.level[i] || 0;
+    var html = '<b>' + i + '　' + c.name + '</b>' +
+               (c.place ? '　<span style="color:#93a4bb">' + c.place + '</span>' : '') + '<br>';
+    if (c.type === 'land') {
+      var rent = B.baseRent(i, lv, E.hasFullColor(state, i));
+      if (owner) {
+        var ch = state.players[owner].charId ? window.charById(state.players[owner].charId) : null;
+        html += '地主：' + (ch ? ch.emoji + ' ' : '') + state.players[owner].name +
+                (owner === my.gid ? '（我的地）' : '') + '<br>' +
+                B.LEVEL_NAME[lv] + '　過路費 <b>$' + rent.toLocaleString() + '</b>';
+      } else {
+        html += '還沒人買　售價 <b>$' + c.price.toLocaleString() + '</b><br>' +
+                '空地租 $' + Math.round(c.price * B.RENT_RATE).toLocaleString();
+      }
+    } else {
+      html += cellDesc(c);
+    }
+    box.innerHTML = html;
+    box.classList.remove('hidden');
+  }
+
+  function renderMap() {
+    var rows = [];
+    B.CELLS.forEach(function (c, i) {
+      var owner = state.board.owner[i];
+      var lv = state.board.level[i] || 0;
+      var isMine = owner === my.gid;
+
+      if (mapFilter === 'land' && c.type !== 'land') return;
+      if (mapFilter === 'mine' && !isMine) return;
+      if (mapFilter === 'free' && (c.type !== 'land' || owner)) return;
+
+      var right, dot;
+      if (c.type === 'land') {
+        var rent = B.baseRent(i, lv, E.hasFullColor(state, i));
+        dot = B.COLORS[c.color].hex;
+        right = owner
+          ? '<b>過路費 $' + rent.toLocaleString() + '</b><br>' +
+            state.players[owner].name + '　' + B.LEVEL_NAME[lv]
+          : '<b>售價 $' + c.price.toLocaleString() + '</b><br>還沒人買　空地租 $' +
+            Math.round(c.price * B.RENT_RATE).toLocaleString();
+      } else {
+        dot = '#64748b';
+        right = '<span style="color:#93a4bb">' + cellDesc(c) + '</span>';
+      }
+      rows.push('<div class="mp-row' + (isMine ? ' mine' : '') +
+        (c.type === 'land' && !owner ? ' free' : '') + '">' +
+        '<span class="mp-dot" style="background:' + dot + '"></span>' +
+        '<span style="min-width:26px;color:#64748b">' + i + '</span>' +
+        '<span><span class="mp-name">' + c.name + '</span>' +
+        '<br><span class="mp-place">' + (c.place || '') + '</span></span>' +
+        '<span class="mp-right">' + right + '</span></div>');
+    });
+    $('mapList').innerHTML = rows.join('') ||
+      '<div class="pl-msg" style="padding:20px;text-align:center">沒有符合的格子</div>';
+  }
+
+  function cellDesc(c) {
+    var m = {
+      shop: '創投商店：用點數買卡', bank: '銀行：存提款、貸款',
+      subsidy: '國科會補助 +40 點', chest: '寶箱 +100 點', packet: '點數包 +60 點',
+      patent: '專利局：抽一張卡', news: '新聞快報：隨機事件',
+      god: '產業風向：神明附身 3 輪', tax: '國稅局：繳總資產 5%',
+      pool: '政府補助池：領走累積稅金', audit: '稽查：直接送檢調',
+      jail: '檢調約談所：停 1 輪', hosp: '醫院：停 1 輪',
+      airport: '桃園機場：可飛海外廠', fork: '岔路口：可選方向',
+      mountain: '山區'
+    };
+    return m[c.type] || '';
+  }
+
   function bindLeave() {
+    bindMapButtons();
     var b = $('btnLeave');
     if (!b || b._bound) return;
     b._bound = true;
     b.onclick = function () {
-      if (!confirm('要離開這一組嗎？\n（離開後要重新輸入房間代碼）')) return;
+      if (!confirm('要離開這一組嗎？\n（離開後要重新輸入編號）')) return;
       localStorage.removeItem('techisland:me');
       location.reload();
     };
@@ -370,6 +681,10 @@
       $('qLeft').textContent = '快作答！答對才能骰骰子';
     }
 
+    if (me.buff && me.buff.peek) {
+      pmsg('hintBox', '📡 感應卡：這一題的正確答案是 ' + me.buff.peek, 'ok');
+    }
+
     $('btnHint').onclick = function () { doHint(0); };
     $('btnHint2').onclick = function () { doHint(hintLevel < 1 ? 1 : 2); };
   }
@@ -388,7 +703,8 @@
   // 輪到我行動時的選項
   // ═══════════════════════════════════════
   function renderAction(me) {
-    var isMyTurn = state.phase === 'moving' && E.currentGid(state) === my.gid;
+    var waitingMe = state.decide && state.decide.gid === my.gid;
+    var isMyTurn = (state.phase === 'moving' && E.currentGid(state) === my.gid) || waitingMe;
     var card = $('actCard'), body = $('actBody');
     var cell = B.CELLS[me.pos];
     var html = [];
@@ -396,10 +712,12 @@
     if (!isMyTurn) {
       // 不是我的回合，但仍可看資訊
       card.classList.add('hidden');
+      stopDecideTimer();
       return;
     }
     card.classList.remove('hidden');
     $('actTitle').textContent = '輪到你了 · ' + cell.name;
+    if (waitingMe) startDecideTimer(state.decide.until); else stopDecideTimer();
 
     // 岔路
     var opts = E.nextOptions(state, my.gid);
@@ -448,6 +766,10 @@
       }).join('') + '</div>');
     }
     if (!html.length) html.push('<div class="pl-msg">這一格沒有可以做的事，等老師端播完就換下一組</div>');
+    if (waitingMe) {
+      html.push('<button class="opt-btn" data-act="skip" style="background:#334155">' +
+                '✓ 我決定好了（換下一組）</button>');
+    }
 
     body.innerHTML = html.join('');
     body.querySelectorAll('[data-fork]').forEach(function (b) {
@@ -460,12 +782,73 @@
         if (a === 'build1') send({ type: 'build', times: 1 });
         if (a === 'buildall') send({ type: 'build', times: 99 });
         if (a === 'merge') send({ type: 'merge' });
+        if (a === 'skip') send({ type: 'skip' });
         b.disabled = true;
       };
     });
     body.querySelectorAll('[data-shop]').forEach(function (b) {
       b.onclick = function () { send({ type: 'shop', cardId: b.dataset.shop }); b.style.opacity = .4; };
     });
+  }
+
+  /** 最上方的階段提示：現在是道具時間？答題時間？還是別組在行動？ */
+  var bannerTimer = null;
+  function renderPhaseBanner() {
+    var el = $('phaseBanner');
+    if (!el) return;
+    clearInterval(bannerTimer);
+    if (state.phase === 'item' && state.itemUntil == null) {
+      el.className = 'phase-banner';
+      el.textContent = '📣 正在公布各組的道具效果…';
+      return;
+    }
+    var doneBtn = $('btnItemDone');
+    if (doneBtn) {
+      var showDone = state.phase === 'item' && state.itemUntil != null;
+      doneBtn.classList.toggle('hidden', !showDone);
+      if (showDone && !(state.itemReady && state.itemReady[my.gid])) {
+        doneBtn.disabled = false;
+        doneBtn.textContent = '✓ 這輪不出牌了';
+      }
+    }
+    if (state.phase === 'item') {
+      el.className = 'phase-banner item';
+      var tick = function () {
+        var left = Math.max(0, Math.ceil((state.itemUntil - Date.now()) / 1000));
+        el.textContent = '🎴 道具時間　' + left + ' 秒　（本輪還可出 ' +
+          Math.max(0, 2 - (state.players[my.gid].playedThisRound || 0)) + ' 張）';
+        if (left <= 0) clearInterval(bannerTimer);
+      };
+      tick(); bannerTimer = setInterval(tick, 500);
+    } else if (state.phase === 'question') {
+      el.className = 'phase-banner q';
+      el.textContent = '✏️ 答題時間　答對才能骰骰子';
+    } else if (state.phase === 'moving') {
+      var cur = E.currentGid(state);
+      el.className = 'phase-banner';
+      el.textContent = cur === my.gid ? '🎲 輪到你行動' :
+        '⏳ ' + (state.players[cur] ? state.players[cur].name : '別組') + ' 行動中';
+    } else {
+      el.className = 'phase-banner';
+      el.textContent = '⏳ 等待下一輪';
+    }
+  }
+
+  // ── 決定時間倒數：讓學生知道還剩幾秒 ──
+  var decideTimer = null;
+  function startDecideTimer(until) {
+    stopDecideTimer();
+    function tick() {
+      var left = Math.max(0, Math.ceil((until - Date.now()) / 1000));
+      $('actTitle').textContent = '輪到你了 · ' +
+        B.CELLS[state.players[my.gid].pos].name + '　⏱ ' + left + ' 秒';
+      if (left <= 0) stopDecideTimer();
+    }
+    tick();
+    decideTimer = setInterval(tick, 300);
+  }
+  function stopDecideTimer() {
+    if (decideTimer) { clearInterval(decideTimer); decideTimer = null; }
   }
 
   /** 商店貨架：由狀態種子決定，每次進去都不一樣但老師端與平板一致 */
@@ -479,7 +862,13 @@
   // 手牌
   // ═══════════════════════════════════════
   function renderHand(me) {
-    $('handCount').textContent = me.cards.length;
+    // 注意：下面這行會整段重寫 h3，所以 handCount 這個 span 要一起帶著 id 重建，
+    // 否則第二次進來就找不到節點、整個函式當場拋錯，學生會變成點卡片沒反應。
+    var used = me.playedThisRound || 0;
+    var h3 = $('handList').parentNode.querySelector('h3');
+    if (h3) h3.innerHTML = '🎴 我的手牌（<span id="handCount">' + me.cards.length + '</span>/8）　' +
+      '<span style="font-size:13px;color:' + (used >= 2 ? '#f87171' : '#93a4bb') + '">' +
+      '本輪已出 ' + used + '/2 張</span>';
     var box = $('handList');
     box.innerHTML = '';
     me.cards.forEach(function (c, i) {
@@ -498,8 +887,32 @@
   }
 
   function selectCard(i, def, card) {
+    if (!state || state.phase === 'setup') {
+      pmsg('handMsg', '遊戲開始後才能使用卡片和道具', 'err');
+      return;
+    }
+    if (def.timing === 'onQuestion' && state.phase !== 'question') {
+      pmsg('handMsg', '「' + def.name + '」要在作答時間使用', 'err');
+      return;
+    }
+    if ((state.players[my.gid].playedThisRound || 0) >= 2) {
+      pmsg('handMsg', '這一輪已經出過 2 張了，下一輪再出', 'err');
+      return;
+    }
+    if (def.when === '自動觸發') {
+      pmsg('handMsg', '「' + def.name + '」會在需要的時候自動生效，不用主動使用', '');
+      return;
+    }
     selectedCard = i;
-    renderHand(state.players[my.gid]);
+    guard('手牌', function () { renderHand(state.players[my.gid]); });
+    // 良率控制器：要先選點數（2～12）
+    if (card.id === 'dice') {
+      pickTarget('這一輪要走幾步？（道具時間結束後公布）',
+        [2,3,4,5,6,7,8,9,10,11,12].map(function (n) {
+          return { label: n + ' 步', value: { steps: n } };
+        }), card.id);
+      return;
+    }
     if (!def.needTarget) {
       pmsg('handMsg', '要使用「' + def.name + '」嗎？' + def.desc, '');
       askConfirm(function () { send({ type: 'card', cardId: card.id }); selectedCard = null; });
@@ -523,7 +936,12 @@
       }), card.id);
     } else if (def.needTarget === 'cell') {
       pickTarget('選一格', B.CELLS.map(function (c2, i2) {
-        return { label: i2 + ' ' + c2.name, value: { cell: i2 } };
+        var owner = state.board.owner[i2];
+        var extra = c2.type === 'land'
+          ? '（' + (owner ? state.players[owner].name + ' ' + B.LEVEL_NAME[state.board.level[i2] || 0]
+                          : '無人 $' + c2.price.toLocaleString()) + '）'
+          : '';
+        return { label: i2 + ' ' + c2.name + extra, value: { cell: i2 } };
       }), card.id);
     } else if (def.needTarget === 'color') {
       pickTarget('選一個園區', Object.keys(B.COLORS).map(function (k) {
@@ -541,7 +959,9 @@
     box.querySelectorAll('[data-t]').forEach(function (b) {
       b.onclick = function () {
         send({ type: 'card', cardId: cardId, target: options[+b.dataset.t].value });
-        box.innerHTML = '已送出';
+        box.innerHTML = state.phase === 'item'
+          ? '✅ 已出牌，等道具時間結束後公布效果'
+          : '已送出';
         selectedCard = null;
       };
     });
@@ -553,7 +973,12 @@
     var box = $('handMsg');
     var b = document.createElement('button');
     b.className = 'opt-btn'; b.style.marginTop = '8px'; b.textContent = '確定使用';
-    b.onclick = function () { fn(); box.innerHTML = '已送出'; };
+    b.onclick = function () {
+      fn();
+      box.innerHTML = state.phase === 'item'
+        ? '✅ 已出牌，等道具時間結束後公布效果'
+        : '已送出';
+    };
     box.appendChild(b);
   }
 
@@ -579,16 +1004,28 @@
       : '要停在銀行格（雲林、基隆）才能存提款與申請貸款';
     ['btnDeposit', 'btnWithdraw', 'btnLoan', 'btnRepay'].forEach(function (id) { $(id).disabled = !atBank; });
 
-    $('btnDeposit').onclick = function () { amountPrompt('要存多少？', me.cash, function (v) { send({ type: 'deposit', amount: v }); }); };
-    $('btnWithdraw').onclick = function () { amountPrompt('要提多少？', me.bank, function (v) { send({ type: 'withdraw', amount: v }); }); };
+    // ⚠️ 按下當下才讀取最新餘額。原本把 me 綁死在閉包裡，
+    //    畫面幾輪沒重畫的話會用到舊的餘額上限。
+    $('btnDeposit').onclick = function () {
+      var p = state.players[my.gid];
+      amountPrompt('要存多少？', p.cash, function (v) { send({ type: 'deposit', amount: v }); });
+    };
+    $('btnWithdraw').onclick = function () {
+      var p = state.players[my.gid];
+      amountPrompt('要提多少？', p.bank, function (v) { send({ type: 'withdraw', amount: v }); });
+    };
     $('btnLoan').onclick = function () {
+      var p = state.players[my.gid];
       var cap = 0;
       E.landsOf(state, my.gid).forEach(function (i) { cap += B.landValue(i, state.board.level[i] || 0); });
-      cap = Math.floor(cap * 0.5) - me.loan;
+      cap = Math.floor(cap * 0.5) - p.loan;
       amountPrompt('要借多少？（上限 $' + Math.max(0, cap).toLocaleString() + '，手續費 10%）', Math.max(0, cap),
         function (v) { send({ type: 'loan', amount: v }); });
     };
-    $('btnRepay').onclick = function () { amountPrompt('要還多少？', Math.min(me.loan, me.cash + me.bank), function (v) { send({ type: 'repay', amount: v }); }); };
+    $('btnRepay').onclick = function () {
+      var p = state.players[my.gid];
+      amountPrompt('要還多少？', Math.min(p.loan, p.cash + p.bank), function (v) { send({ type: 'repay', amount: v }); });
+    };
   }
 
   function amountPrompt(title, max, fn) {
@@ -612,7 +1049,7 @@
     my.code = saved.code;
     my.gid = saved.gid;
     show('rejoin');
-    $('rejoinInfo').textContent = '房間 ' + saved.code + '　第 ' + saved.gid.slice(1) + ' 組';
+    $('rejoinInfo').textContent = '編號 ' + saved.code + '　第 ' + saved.gid.slice(1) + ' 組';
 
     $('btnCancelRejoin').onclick = function () {
       localStorage.removeItem('techisland:me');
@@ -635,7 +1072,7 @@
       ok();
       // 本機模式收不到就退回輸入畫面
       setTimeout(function () {
-        if (!state) { show('join'); pmsg('joinMsg', '連不到老師端，請重新輸入代碼', 'err'); }
+        if (!state) { show('join'); pmsg('joinMsg', '連不到老師端，請重新輸入編號', 'err'); }
       }, 4000);
       return true;
     }
@@ -644,10 +1081,10 @@
       S.setMode('firebase', null);
       return S.findRoom(saved.code);
     }).then(function (r) {
-      if (!r) {
+      if (!r || r.live === false) {
         show('join');
         $('jCode').value = saved.code;
-        pmsg('joinMsg', '原本的房間已經關閉了，請輸入新的代碼', 'err');
+        pmsg('joinMsg', '上一場已經結束了，請輸入白板上的新編號', 'err');
         return;
       }
       room = r;
