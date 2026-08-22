@@ -593,6 +593,11 @@
     if (state.phase === 'setup') {
       return { ok: false, msg: '遊戲開始後才能使用卡片和道具' };
     }
+    // 輪間休息時不能出牌：這時出的牌會跳過「排隊依序播放」直接生效，
+    // 變成誰手快誰佔便宜，也讓白板上看不到效果。
+    if (state.phase === 'break') {
+      return { ok: false, msg: '休息時間不能出牌，等下一輪的道具時間' };
+    }
     if (state.phase === 'ended') return { ok: false, msg: '這一節已經結束了' };
     // 答題專用卡（感應卡、預測卡）只能在作答時間使用
     if (def.timing === 'onQuestion' && state.phase !== 'question') {

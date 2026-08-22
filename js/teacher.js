@@ -9,9 +9,10 @@
       R = window.RENDER, S = window.STORE, CARD = window.CARDS;
 
   var state = null;
-  var cfg = { chapters: [], groups: 9, maxRounds: 30,
+  var cfg = { chapters: [], groups: 9, maxRounds: 30, breakSec: 60,
               allowMerge: true, allowSabotage: true, solo: false, speed: 1, autoPilot: true,
               decideSec: 8, itemSec: 30 };
+  var greeted = {};             // 哪幾組已經響過「連進來」的提示音
   var roomCode = null;          // 這一場的房間代碼（投影給學生輸入）
   var online = {};              // gid -> 最後一次收到該組訊息的時間
   var ONLINE_TIMEOUT = 50000;   // 50 秒沒消息就視為沒有平板，改由電腦代打（平板每 20 秒回報一次）
@@ -40,6 +41,7 @@
       $('chapterPicker').appendChild(b);
     });
 
+    $('breakSec').onchange = function () { cfg.breakSec = +this.value; };
     $('decideSec').onchange = function () { cfg.decideSec = +this.value; };
     $('animSpeed').onchange = function () { cfg.speed = +this.value; R.setSpeed(cfg.speed); };
     $('groupCount').onchange = function () { cfg.groups = +this.value; };
@@ -271,9 +273,35 @@
       if (q.length) { q.forEach(handleAction); renderLobby(); }
       pushRemote();                     // 定期廣播，晚加入的平板才收得到
     }, 700);
+    bindMute();
+    BGM.play('lobby');
     $('btnAutoPick').onclick = autoPick;
     $('btnStart').onclick = function () { goFullscreen(); startGame(); };
     if (cfg.solo) autoPick();
+  }
+
+  function bindMute() {
+    var b = $('btnMute');
+    if (!b || b._bound) return;
+    b._bound = true;
+    function paint() { b.textContent = SOUND.isEnabled() ? '🔊' : '🔇'; }
+    paint();
+    b.onclick = function () {
+      var on = !SOUND.isEnabled();
+      SOUND.setEnabled(on);
+      BGM.setEnabled(on);
+      if (on) BGM.play(bgmForPhase()); else BGM.stop();
+      paint();
+    };
+  }
+
+  /** 現在該放哪一首 */
+  function bgmForPhase() {
+    if (!state) return 'lobby';
+    if (state.phase === 'ended') return 'win';
+    if (state.phase === 'question') return 'quiz';
+    if (!$('game') || $('game').classList.contains('hidden')) return 'lobby';
+    return 'game';
   }
 
   function renderLobby() {
@@ -616,7 +644,74 @@
     busy = true;
     $('hudOrder').classList.add('hidden');
     $('hudRank').classList.add('hidden');
-    itemPhase().then(nextRound);
+    roundBreak().then(itemPhase).then(nextRound);
+  }
+
+  /**
+   * 輪與輪之間的休息。
+   * 上課實測太趕——學生還在看白板發生什麼事，下一輪就開始了。
+   * 預設倒數 60 秒，老師也可以設成「手動」，講解完再按下一輪。
+   * 倒數中隨時可以按「開始下一輪」提早進入，不用等完。
+   */
+  function roundBreak() {
+    if (state.round === 0) return Promise.resolve();     // 第一輪不用休息，直接開始
+    var sec = cfg.breakSec == null ? 60 : cfg.breakSec;
+    var manual = (sec === 0);
+
+    var box = $('hudBreak');
+    $('bkTitle').textContent = '第 ' + state.round + ' 輪結束';
+    $('bkRank').innerHTML = E.ranking(state).slice(0, 5).map(function (x, i) {
+      var p = state.players[x.gid];
+      return '<div class="bk-p' + (i === 0 ? ' top' : '') + '">' +
+             (i === 0 ? '🥇 ' : (i + 1) + '. ') + p.name +
+             '　$' + x.wealth.toLocaleString() + '</div>';
+    }).join('');
+
+    // 平板上也要看得到現在在休息，不然學生會以為當機了
+    state.phase = 'break';
+    state.breakUntil = manual ? null : (Date.now() + sec * 1000);
+    pushRemote();
+
+    box.classList.remove('hidden');
+    status(manual ? '休息中（等老師按下一輪）' : '休息 ' + sec + ' 秒');
+
+    return new Promise(function (resolve) {
+      var left = sec, iv = null, done = false;
+
+      function finish() {
+        if (done) return;
+        done = true;
+        clearInterval(iv);
+        box.classList.add('hidden');
+        delete state.breakUntil;
+        SOUND.play('click');
+        resolve();
+      }
+
+      $('btnNextRound').onclick = finish;
+
+      if (manual) {
+        $('bkSec').textContent = '等老師按「開始下一輪」';
+        $('bkSec').classList.add('manual');
+        $('bkHint').textContent = '可以趁現在講解上一題，學生也能看地圖';
+        // 手動模式也要持續處理平板送來的動作（例如查看地圖、銀行操作）
+        iv = setInterval(function () { pumpActions(); pushRemote(); }, 900);
+        return;
+      }
+
+      $('bkSec').classList.remove('manual');
+      $('bkSec').textContent = left;
+      $('bkHint').textContent = '休息一下，時間到會自動開始（想提早開始就按下面的按鈕）';
+      iv = setInterval(function () {
+        pumpActions();
+        if (autoPaused) return;
+        left--;
+        $('bkSec').textContent = Math.max(0, left);
+        if (left <= 5 && left > 0) SOUND.play('tickFast');
+        pushRemote();
+        if (left <= 0) finish();
+      }, 1000);
+    });
   }
 
   /** 道具階段：固定秒數，各組在平板上出牌，白板顯示倒數與誰用了什麼 */
@@ -632,6 +727,7 @@
     state.itemUntil = Date.now() + sec * 1000;
     state.itemReady = {};
     Object.keys(state.players).forEach(function (g) { state.players[g].playedThisRound = 0; });
+    SOUND.play('itemPhase');
     botPlayCards();                       // 沒有平板的組由電腦幫忙出牌
     pushRemote();
     status('道具時間　' + sec + ' 秒');
@@ -705,6 +801,7 @@
         $('castCard').textContent = def.emoji + ' ' + def.name;
         $('castDesc').textContent = def.desc;
         $('castResult').textContent = castResultText(r, def, item);
+        SOUND.play(cardSound(def, r));
         box.classList.remove('hidden');
 
         R.drawBoard(state); R.drawPlayers(state); R.updateMinimap(state);
@@ -722,6 +819,19 @@
    * 除了有實際金額的幾張之外，一律直接用卡片自己的說明文字——
    * 這樣以後改卡片效果時，白板上的字會自動跟著對，不會變成錯的舊說明。
    */
+  /** 哪一種卡配哪一種聲音（破壞類要聽得出來被打到了） */
+  function cardSound(def, r) {
+    if (r && r.blocked) return 'block';
+    if (def.id === 'quake') return 'quake';
+    if (def.id === 'equalize') return 'equalize';
+    if (def.id === 'virus' || def.id === 'demolish' || def.id === 'blackout' ||
+        def.id === 'brownout' || def.id === 'radiate' || def.id === 'transfer' ||
+        def.id === 'compress' || def.id === 'apple') return 'hit';
+    if (def.id === 'massprod') return 'build';
+    if (def.id === 'bailout' || def.id === 'poach') return 'income';
+    return 'card';
+  }
+
   function castResultText(r, def, item) {
     if (!r) return '';
     if (r.blocked) return '🛡️ 被對方的絕緣卡擋下來了！';
@@ -746,6 +856,8 @@
 
   function nextRound() {
     if (state.phase === 'ended' || state.round >= state.maxRounds) { endSession(); return; }
+    SOUND.play('round');
+    BGM.play('game');
     busy = true;
 
     // 依當前玩家所在地價決定難度（越貴的地出越難的題）
@@ -787,16 +899,20 @@
     $('qSec').textContent = left;
     $('qBar').style.width = '100%';
     status('作答中…（' + total + ' 秒）');
+    SOUND.play('question');
+    BGM.play('quiz');
 
     clearInterval(timer);
     timer = setInterval(function () {
       left--;
       $('qSec').textContent = Math.max(0, left);
       $('qBar').style.width = (left / total * 100) + '%';
+      // 最後 5 秒滴答變急促，全班會自然安靜下來看白板
+      if (left > 0) SOUND.play(left <= 5 ? 'tickFast' : 'tick');
       botAnswer(left, total);
       pumpActions();
       renderLights();
-      if (left <= 0) { clearInterval(timer); doReveal(); }
+      if (left <= 0) { clearInterval(timer); SOUND.play('timeUp'); doReveal(); }
     }, 1000);
   }
 
@@ -881,13 +997,13 @@
       }
       case 'buy': {
         var rb = E.buyLand(state, a.gid, state.players[a.gid].pos);
-        if (rb.ok) toast(state.players[a.gid].num + '組 買下 ' + B.CELLS[state.players[a.gid].pos].name, 2000);
+        if (rb.ok) { SOUND.play('buy'); toast(state.players[a.gid].num + '組 買下 ' + B.CELLS[state.players[a.gid].pos].name, 2000); }
         markDecided(a.gid);
         break;
       }
       case 'build': {
         var rr = E.build(state, a.gid, state.players[a.gid].pos, a.times);
-        if (rr.ok) toast(state.players[a.gid].num + '組 蓋到 ' + B.LEVEL_NAME[rr.level], 2000);
+        if (rr.ok) { SOUND.play('build'); toast(state.players[a.gid].num + '組 蓋到 ' + B.LEVEL_NAME[rr.level], 2000); }
         markDecided(a.gid);
         break;
       }
@@ -912,7 +1028,10 @@
       case 'shop': E.buyFromShop(state, a.gid, a.cardId); break;   // 買卡不結束決定，可以連買
       case 'fork': pendingFork = a.cell; break;
       case 'pick': E.pickCharacter(state, a.gid, a.charId); renderLobby(); break;
-      case 'hello': break;            // 只是報到，記錄上線就好
+      case 'hello':
+        // 第一次報到時響一聲，老師就知道又有一組平板連進來了
+        if (!greeted[a.gid]) { greeted[a.gid] = 1; SOUND.play('join'); }
+        break;
     }
     pushRemote();
   }
@@ -930,6 +1049,10 @@
       else if (a) { cls += a.correct ? ' correct' : ' wrong'; mark = (a.correct ? '⭕' : '❌') + a.choice; }
       return '<div class="' + cls + '">' + mark + ' ' + p.num + '</div>';
     }).join('');
+    var anyRight = Object.keys(state.answers).some(function (g) {
+      return state.answers[g] && state.answers[g].correct;
+    });
+    SOUND.play(anyRight ? 'right' : 'wrong');
     status('揭曉！正解 ' + r.answer);
 
     setTimeout(function () {
@@ -1017,10 +1140,12 @@
       var r = E.rollDice(state, gid);
       var box = $('hudDice'), sum = $('diceSum');
       box.classList.remove('hidden'); sum.classList.add('hidden');
+      SOUND.play('dice');
       var t0 = performance.now(), DUR = 700, done = false, safety;
       function finish() {
         if (done) return;
         done = true; clearTimeout(safety);
+        SOUND.play('diceStop');
         drawDie($('die1'), 130, 120, 96, r.d1, 0);
         drawDie($('die2'), 290, 120, 96, r.d2, 0);
         sum.textContent = r.fixed ? ('🎲 良率控制器指定 ' + r.total + ' 點')
@@ -1071,10 +1196,11 @@
         });
       }
       var from = r.moved ? p.prev : p.pos;
+      SOUND.play('step');
       return R.hop(gid, from, p.pos).then(function () {
         if (r.events) r.events.forEach(function (ev) {
-          if (ev.type === 'barrier') toast('🚧 撞上工安圍籬，強制停下');
-          if (ev.type === 'virusPass') toast('💣 病毒傳染給 ' + state.players[ev.to].name + '！');
+          if (ev.type === 'barrier') { SOUND.play('hit'); toast('🚧 撞上工安圍籬，強制停下'); }
+          if (ev.type === 'virusPass') { SOUND.play('hit'); toast('💣 病毒傳染給 ' + state.players[ev.to].name + '！'); }
           if (ev.type === 'godBuild') toast('🏗️ 建廠之神：經過自己的地自動升級');
         });
         return stepOnce();
@@ -1101,6 +1227,19 @@
     });
   }
 
+  /** 踩到格子會發生的事，各配一個聲音 */
+  function landingSound(ev) {
+    switch (ev.type) {
+      case 'rent': case 'tax': case 'radiation': return 'pay';
+      case 'pool': case 'rp': case 'card': case 'bounce': return 'income';
+      case 'jail': return 'jail';
+      case 'license': case 'pardon': return 'block';
+      case 'god': return (ev.bad ? 'godBad' : 'godGood');
+      case 'news': return 'card';
+      default: return '';
+    }
+  }
+
   function settleLanding(gid) {
     var out = E.landOn(state, gid);
     var p = state.players[gid];
@@ -1108,6 +1247,7 @@
     var lines = [];
 
     out.events.forEach(function (ev) {
+      SOUND.play(landingSound(ev));
       if (ev.type === 'rent') lines.push('付過路費 $' + ev.amount.toLocaleString() + ' 給 ' + state.players[ev.owner].name);
       if (ev.type === 'rp') lines.push('研發點數 +' + ev.amount);
       if (ev.type === 'tax') lines.push('繳營所稅 $' + ev.amount.toLocaleString());
@@ -1166,7 +1306,7 @@
     var interest = r.events.filter(function (e) { return e.type === 'interest' && e.amount > 0; });
     if (interest.length) toast('🏦 銀行發放存款利息（' + interest.length + ' 組）', 2000);
     r.events.forEach(function (e) {
-      if (e.type === 'virusBoom') toast('💥 ' + state.players[e.gid].name + ' 身上的病毒爆炸！' + e.cells.length + ' 座廠房降級', 3200);
+      if (e.type === 'virusBoom') { SOUND.play('boom'); toast('💥 ' + state.players[e.gid].name + ' 身上的病毒爆炸！' + e.cells.length + ' 座廠房降級', 3200); }
       if (e.type === 'charCard') toast('🎴 ' + state.players[e.gid].name + ' 獲得角色專屬卡', 1600);
     });
     autoSave();
@@ -1180,6 +1320,7 @@
   function autoSave() {
     var r = S.save(state);
     if (!r.ok) {
+      SOUND.play('warn');
       status('⚠️ ' + r.msg);
       toast('⚠️ ' + r.msg, 6000);
     }
@@ -1200,12 +1341,51 @@
                '<span class="nm">' + p.name + '</span>' +
                '<span class="wl">$' + x.wealth.toLocaleString() + '</span></div>';
       }).join('') +
-      '<div style="margin-top:14px;font-size:14px;color:#93a4bb">已自動存檔，下次可以接著玩。期末再看總財富定勝負。</div>';
+      '<div class="rank-code">下次接續請輸入編號　' + state.code + '</div>' +
+      '<div style="margin-top:10px;font-size:14px;color:#93a4bb">已自動存檔，下次可以接著玩。期末再看總財富定勝負。</div>' +
+      '<div class="rank-actions">' +
+        '<button id="btnBackHome" class="big primary">回到首頁</button>' +
+      '</div>';
     $('hudRank').classList.remove('hidden');
+    SOUND.play('fanfare');
+    BGM.play('win');
     status('本節結束，已存檔');
     busy = true;
+    $('btnBackHome').onclick = backToSetup;
+  }
+
+  /**
+   * 回到首頁（設定畫面）。
+   * 本節結束後老師通常要換班或收工，以前只能重新整理才回得去。
+   */
+  function backToSetup() {
+    SOUND.play('click');
+    BGM.stop();
+    clearInterval(timer);
+    clearInterval(gamePump);
+    clearInterval(lobbyPump);
+    clearTimeout(pushTimer);
+    autoPaused = false;
+    busy = false;
+    roomCode = null;
+    $('hudRank').classList.add('hidden');
+    $('hudQuestion').classList.add('hidden');
+    $('hudItemPhase').classList.add('hidden');
+    $('hudCast').classList.add('hidden');
+    $('game').classList.add('hidden');
+    $('lobby').classList.add('hidden');
+    $('setup').classList.remove('hidden');
+    refreshSaves();                       // 剛剛那一場會出現在清單最上面
+    msg('本節已存檔（編號 ' + (state && state.code ? state.code : '') + '）', 'ok');
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(function () {});
+    }
   }
 
   // ═══════════════════════════════════════
-  window.addEventListener('DOMContentLoaded', buildSetup);
+  window.addEventListener('DOMContentLoaded', function () {
+    SOUND.init(true);            // 白板接喇叭，預設開音效
+    BGM.init();
+    buildSetup();
+  });
 })();

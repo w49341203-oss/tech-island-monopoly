@@ -334,7 +334,17 @@
   // ═══════════════════════════════════════
   // ── 地圖一覽：學生要能查地價、誰的地、蓋幾級、過路費多少 ──
   var mapFilter = 'all';
+  function bindMuteP() {
+    var b = $('btnMuteP');
+    if (!b || b._bound) return;
+    b._bound = true;
+    function paint() { b.textContent = SOUND.isEnabled() ? '🔊' : '🔇'; }
+    paint();
+    b.onclick = function () { SOUND.setEnabled(!SOUND.isEnabled()); paint(); };
+  }
+
   function bindItemDone() {
+    bindMuteP();
     var b = $('btnItemDone');
     if (!b || b._bound) return;
     b._bound = true;
@@ -797,6 +807,20 @@
     var el = $('phaseBanner');
     if (!el) return;
     clearInterval(bannerTimer);
+    if (state.phase === 'break') {
+      el.className = 'phase-banner';
+      if (state.breakUntil == null) {
+        el.textContent = '☕ 休息中　等老師開始下一輪';
+      } else {
+        var tickBreak = function () {
+          var s = Math.max(0, Math.ceil((state.breakUntil - Date.now()) / 1000));
+          el.textContent = '☕ 休息中　' + s + ' 秒後開始下一輪';
+        };
+        tickBreak();
+        bannerTimer = setInterval(tickBreak, 500);
+      }
+      return;
+    }
     if (state.phase === 'item' && state.itemUntil == null) {
       el.className = 'phase-banner';
       el.textContent = '📣 正在公布各組的道具效果…';
@@ -889,6 +913,10 @@
   function selectCard(i, def, card) {
     if (!state || state.phase === 'setup') {
       pmsg('handMsg', '遊戲開始後才能使用卡片和道具', 'err');
+      return;
+    }
+    if (state.phase === 'break') {
+      pmsg('handMsg', '現在是休息時間，下一輪開始的「道具時間」才能出牌', 'err');
       return;
     }
     if (def.timing === 'onQuestion' && state.phase !== 'question') {
@@ -1099,6 +1127,9 @@
   }
 
   window.addEventListener('DOMContentLoaded', function () {
+    // 平板預設「靜音」：一個班九台同時響會吵到聽不見老師講話，
+    // 想開的組自己按右上角的喇叭就好。
+    SOUND.init(false);
     buildJoin();
     autoRejoin();
   });
