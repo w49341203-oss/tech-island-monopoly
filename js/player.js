@@ -334,7 +334,65 @@
   // ═══════════════════════════════════════
   // ── 地圖一覽：學生要能查地價、誰的地、蓋幾級、過路費多少 ──
   var mapFilter = 'all';
+  /**
+   * 全螢幕。
+   * Android 平板與電腦用瀏覽器的全螢幕 API 就可以；
+   * iPad 的 Safari 不一定給網頁用，那就改教學生用「加入主畫面」，
+   * 從主畫面圖示打開一樣是滿版無網址列。
+   */
+  function goFullscreenP() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      var exit = document.exitFullscreen || document.webkitExitFullscreen;
+      if (exit) { try { exit.call(document); } catch (e) {} }
+      paintFsBtn();
+      return;
+    }
+    var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    if (!req) { showAddToHomeTip(); return; }
+    try {
+      var p = req.call(el);
+      if (p && p.catch) p.catch(function () { showAddToHomeTip(); });
+    } catch (e) { showAddToHomeTip(); }
+    setTimeout(paintFsBtn, 400);
+  }
+
+  function paintFsBtn() {
+    var b = $('btnFullP');
+    if (!b) return;
+    var full = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    b.textContent = full ? '⛶ 離開全螢幕' : '⛶ 全螢幕';
+  }
+
+  /** iPad 不給全螢幕時，教學生用「加入主畫面」（效果一樣，而且下次開更快） */
+  function showAddToHomeTip() {
+    if (document.getElementById('fsTipP')) return;
+    var d = document.createElement('div');
+    d.id = 'fsTipP';
+    d.className = 'fs-tip-p';
+    d.innerHTML =
+      '<b>這台平板沒辦法直接全螢幕</b><br>' +
+      '改用這個方法一樣可以滿版：<br>' +
+      '① 按瀏覽器下方（或上方）的<b>分享</b>按鈕 <br>' +
+      '② 選<b>「加入主畫面」</b><br>' +
+      '③ 之後從主畫面的圖示打開，就沒有網址列了' +
+      '<br><button id="fsTipClose">知道了</button>';
+    document.body.appendChild(d);
+    document.getElementById('fsTipClose').onclick = function () { d.remove(); };
+  }
+
+  function bindFullP() {
+    var b = $('btnFullP');
+    if (!b || b._bound) return;
+    b._bound = true;
+    b.onclick = goFullscreenP;
+    paintFsBtn();
+    document.addEventListener('fullscreenchange', paintFsBtn);
+    document.addEventListener('webkitfullscreenchange', paintFsBtn);
+  }
+
   function bindMuteP() {
+    bindFullP();
     var b = $('btnMuteP');
     if (!b || b._bound) return;
     b._bound = true;
@@ -807,6 +865,11 @@
     var el = $('phaseBanner');
     if (!el) return;
     clearInterval(bannerTimer);
+    if (state.phase === 'ended') {
+      el.className = 'phase-banner';
+      el.textContent = '🏆 本節結束　看白板上的排名';
+      return;
+    }
     if (state.phase === 'break') {
       el.className = 'phase-banner';
       if (state.breakUntil == null) {

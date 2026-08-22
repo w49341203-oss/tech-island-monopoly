@@ -17,6 +17,22 @@
   var online = {};              // gid -> 最後一次收到該組訊息的時間
   var ONLINE_TIMEOUT = 50000;   // 50 秒沒消息就視為沒有平板，改由電腦代打（平板每 20 秒回報一次）
   var timer = null, paused = false, busy = false, lobbyPump = null, gamePump = null;
+
+  // 各階段的倒數計時器都登記在這裡。按「結束本節」時要能一次全部停掉，
+  // 否則休息面板會留在畫面上跟排名疊在一起，遊戲也會在背景偷偷跑下一輪。
+  var phaseTimers = [];
+  var sessionOver = false;
+
+  function regTimer(id) { phaseTimers.push(id); return id; }
+  function clearPhaseTimers() {
+    phaseTimers.forEach(function (id) { clearInterval(id); clearTimeout(id); });
+    phaseTimers = [];
+  }
+  /** 把所有會蓋在地圖上的面板收起來 */
+  function hideAllPanels() {
+    ['hudBreak', 'hudItemPhase', 'hudCast', 'hudQuestion', 'hudOrder', 'hudDice', 'hudPlayer']
+      .forEach(function (id) { var e = $(id); if (e) e.classList.add('hidden'); });
+  }
   // 「開放破壞類道具」開關關掉時，這些卡片道具一律無效
   var SABOTAGE_CARDS = ['virus', 'barrier', 'demolish', 'quake', 'blackout',
                         'radiate', 'apple', 'compress', 'brownout'];
@@ -212,6 +228,8 @@
    * 為什麼要代碼：如果用「班級＋存檔槽」當房間識別，兩位老師都選「智班槽1」就會撞在一起。
    */
   function openRoom(solo) {
+    sessionOver = false;
+    clearPhaseTimers();
     var code = state.code;
     var gameId = S.makeGameId(code);
 
@@ -639,6 +657,7 @@
   // ═══════════════════════════════════════
   /** 一輪的完整流程：道具階段 → 出題 → 揭曉 → 依序行動 → 結算 → 自動下一輪 */
   function runRound() {
+    if (sessionOver) { busy = false; return; }
     if (autoPaused) { busy = false; return; }
     if (state.phase === 'ended' || state.round >= state.maxRounds) { endSession(); return; }
     busy = true;
@@ -695,14 +714,14 @@
         $('bkSec').classList.add('manual');
         $('bkHint').textContent = '可以趁現在講解上一題，學生也能看地圖';
         // 手動模式也要持續處理平板送來的動作（例如查看地圖、銀行操作）
-        iv = setInterval(function () { pumpActions(); pushRemote(); }, 900);
+        iv = regTimer(setInterval(function () { pumpActions(); pushRemote(); }, 900));
         return;
       }
 
       $('bkSec').classList.remove('manual');
       $('bkSec').textContent = left;
       $('bkHint').textContent = '休息一下，時間到會自動開始（想提早開始就按下面的按鈕）';
-      iv = setInterval(function () {
+      iv = regTimer(setInterval(function () {
         pumpActions();
         if (autoPaused) return;
         left--;
@@ -710,12 +729,13 @@
         if (left <= 5 && left > 0) SOUND.play('tickFast');
         pushRemote();
         if (left <= 0) finish();
-      }, 1000);
+      }, 1000));
     });
   }
 
   /** 道具階段：固定秒數，各組在平板上出牌，白板顯示倒數與誰用了什麼 */
   function itemPhase() {
+    if (sessionOver) return Promise.resolve();
     // 全班都沒有平板連進來（單機試玩）就不用等 30 秒，直接短暫帶過
     var anyTablet = Object.keys(state.players).some(isOnline);
     var sec = anyTablet ? (cfg.itemSec || 30) : 4;
@@ -735,7 +755,7 @@
     return new Promise(function (resolve) {
       var left = sec;
       $('ipSec').textContent = left;
-      var iv = setInterval(function () {
+      var iv = regTimer(setInterval(function () {
         pumpActions();
         if (autoPaused) return;
         left--;
@@ -762,7 +782,7 @@
           delete state.itemUntil;
           castQueuedCards().then(resolve);
         }
-      }, 1000);
+      }, 1000));
     });
   }
 
@@ -855,6 +875,7 @@
   }
 
   function nextRound() {
+    if (sessionOver) return;
     if (state.phase === 'ended' || state.round >= state.maxRounds) { endSession(); return; }
     SOUND.play('round');
     BGM.play('game');
@@ -1329,8 +1350,16 @@
   }
 
   function endSession() {
+    if (sessionOver) return;              // 連按兩次不要重複結算
+    sessionOver = true;
     clearInterval(timer);
     clearInterval(gamePump);
+    clearPhaseTimers();                   // 休息倒數、道具倒數、決定倒數全部停掉
+    hideAllPanels();                      // 免得排名跟休息面板疊在一起
+    delete state.breakUntil;
+    delete state.itemUntil;
+    state.phase = 'ended';
+    pushRemote();                         // 平板也要知道這一節結束了
     autoSave();
     var rank = E.ranking(state);
     $('hudQuestion').classList.add('hidden');
@@ -1365,6 +1394,9 @@
     clearInterval(gamePump);
     clearInterval(lobbyPump);
     clearTimeout(pushTimer);
+    clearPhaseTimers();
+    hideAllPanels();
+    sessionOver = false;                  // 放掉旗標，才能再開新的一場
     autoPaused = false;
     busy = false;
     roomCode = null;
