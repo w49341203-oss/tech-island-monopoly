@@ -121,6 +121,13 @@
 
   /** 選角（不可重複） */
   function pickCharacter(state, gid, charId) {
+    // 只能在開賽前選。遊戲開始後還能改的話，等於可以換一張新的專屬卡、重抽一手牌。
+    if (state.round > 0 || (state.phase !== 'setup' && state.phase !== 'waiting')) {
+      return { ok: false, msg: '遊戲已經開始了，不能換角色' };
+    }
+    if (state.players[gid] && state.players[gid].charId) {
+      return { ok: false, msg: '你已經選好角色了' };
+    }
     for (var k in state.players) {
       if (state.players[k].charId === charId) return { ok: false, msg: '這位科學家已經被選走了' };
     }
@@ -184,6 +191,8 @@
   }
 
   function applyLoan(state, gid, amount) {
+    var blk_ = actionBlocked(state, gid);
+    if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
     var cap = 0;
     landsOf(state, gid).forEach(function (i) { cap += B.landValue(i, state.board.level[i] || 0); });
@@ -198,6 +207,8 @@
   }
 
   function repayLoan(state, gid, amount) {
+    var blk_ = actionBlocked(state, gid);
+    if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
     amount = Math.min(amount, p.loan, p.cash + p.bank);
     if (amount <= 0) return { ok: false, msg: '沒有可還的金額' };
@@ -304,6 +315,15 @@
   function setSteps(state, gid, n) {         // 良率控制器：自選點數
     state.players[gid].stepsLeft = Math.max(2, Math.min(12, n));
     return state.players[gid].stepsLeft;
+  }
+
+  /**
+   * 岔路口隨機選一條。
+   * 為什麼不讓玩家選：有選擇權的話，沒有人會自願走進對手蓋滿廠房的那一條，
+   * 岔路就失去風險、只剩下抄近路的功能。改成隨機才有賭一把的緊張感。
+   */
+  function pickFork(state, options) {
+    return options[Math.floor(rnd(state) * options.length)];
   }
 
   /** 走一格。回傳 {moved, to, needFork, options, stopped, arrived} */
@@ -513,8 +533,33 @@
   }
 
   // ── 買地 / 蓋廠 / 併購 ──
+  /**
+   * 這一組現在能不能做「買地／蓋廠／併購／銀行／買卡」這種需要輪到自己的動作。
+   *
+   * 為什麼要在引擎裡擋：學生的平板是他們自己的裝置，按鈕顯不顯示擋不住有心人，
+   * 改一下網頁程式就能送出任何訊息。真正的防線一定要在這裡。
+   *
+   * 實測過的四種鑽漏洞方式（修正前全部會成功）：
+   *   1. 還在走路（剩幾步沒走完）就按買地 → 把路過的地買走
+   *   2. 別組行動時亂按 → 在不是自己的回合買地
+   *   3. 道具階段亂按 → 隨時都能買
+   *   4. 被關在檢調所／住院中還能操作
+   */
+  function actionBlocked(state, gid) {
+    var p = state.players[gid];
+    if (!p) return '沒有這一組';
+    if (state.phase !== 'moving' && state.phase !== 'settle') return '現在不是行動時間';
+    if (currentGid(state) !== gid) return '還沒輪到你';
+    if (p.stepsLeft > 0) return '還在移動中，走完才能操作';
+    if (p.frozen > 0) return '停機中不能操作';
+    return null;
+  }
+
   function buyLand(state, gid, idx) {
+    var blocked = actionBlocked(state, gid);
+    if (blocked) return { ok: false, msg: blocked };
     var p = state.players[gid], cell = B.CELLS[idx];
+    if (idx !== p.pos) return { ok: false, msg: '只能買自己站著的那一格' };
     if (cell.type !== 'land' || state.board.owner[idx]) return { ok: false, msg: '這塊地不能買' };
     if (p.cash < 0) return { ok: false, msg: '現金為負時不能買地' };
     var price = p.god === 'grant' ? Math.round(cell.price / 2) : cell.price;
@@ -528,6 +573,8 @@
 
   /** 蓋廠：必須停在自己的地上（大富翁原味），但錢夠可一次蓋到滿 */
   function build(state, gid, idx, times) {
+    var blk_ = actionBlocked(state, gid);
+    if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
     if (state.board.owner[idx] !== gid) return { ok: false, msg: '這不是你的地' };
     if (p.pos !== idx) return { ok: false, msg: '必須停在自己的地上才能蓋' };
@@ -546,6 +593,8 @@
   }
 
   function merge(state, gid, idx) {
+    var blk_ = actionBlocked(state, gid);
+    if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid], owner = state.board.owner[idx];
     if (!owner || owner === gid) return { ok: false, msg: '不能併購這塊地' };
     var cur = B.landValue(idx, state.board.level[idx] || 0), bid = cur * CFG.mergerMult;
@@ -558,6 +607,8 @@
 
   // ── 銀行 ──
   function deposit(state, gid, amount) {
+    var blk_ = actionBlocked(state, gid);
+    if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
     if (B.CELLS[p.pos].type !== 'bank') return { ok: false, msg: '要停在銀行才能存款' };
     amount = Math.min(amount, p.cash);
@@ -566,6 +617,8 @@
     return { ok: true, amount: amount };
   }
   function withdraw(state, gid, amount) {
+    var blk_ = actionBlocked(state, gid);
+    if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
     if (B.CELLS[p.pos].type !== 'bank') return { ok: false, msg: '要停在銀行才能提款' };
     amount = Math.min(amount, p.bank);
@@ -576,6 +629,8 @@
 
   // ── 商店 ──
   function buyFromShop(state, gid, cardId) {
+    var blk_ = actionBlocked(state, gid);
+    if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
     if (B.CELLS[p.pos].type !== 'shop') return { ok: false, msg: '要停在創投商店才能買' };
     if (p.cards.length >= CFG.handLimit) return { ok: false, msg: '手牌已滿（上限 ' + CFG.handLimit + ' 張）' };
@@ -610,6 +665,11 @@
   // ── 提示（求救）──
   function buyHint(state, gid, level) {
     var p = state.players[gid];
+    // 提示要花錢。答完之後買了也沒用，非作答時間更不該能買 ——
+    // 學生很容易在等其他組時不小心點到，白白扣錢。
+    if (state.phase !== 'question') return { ok: false, msg: '現在不是作答時間' };
+    if (state.answers && state.answers[gid]) return { ok: false, msg: '已經作答了，提示買了也沒用' };
+    if (p.frozen > 0) return { ok: false, msg: '停機中不能買提示' };
     if (!state.question || !state.question.hints) return { ok: false, msg: '這題沒有提示' };
     var cost = CFG.hintCost[level] || 0;
     if (p.cash < cost) return { ok: false, msg: '現金不足' };
@@ -915,7 +975,7 @@
     createGame: createGame, pickCharacter: pickCharacter,
     startRound: startRound, submitAnswer: submitAnswer, reveal: reveal,
     currentGid: currentGid, nextOptions: nextOptions, rollDice: rollDice, setSteps: setSteps,
-    step: step, commitStep: commitStep, landOn: landOn,
+    step: step, commitStep: commitStep, landOn: landOn, pickFork: pickFork,
     buyLand: buyLand, build: build, merge: merge,
     deposit: deposit, withdraw: withdraw, applyLoan: applyLoan, repayLoan: repayLoan,
     buyFromShop: buyFromShop, sellCard: sellCard, buyHint: buyHint,

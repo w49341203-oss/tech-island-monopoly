@@ -13,7 +13,8 @@
     lobby: 'audio/bgm_lobby.mp3',       // 大廳：等各組連線、選角色
     game:  'audio/bgm_game.mp3',        // 遊戲進行中（會播最久，最重要）
     quiz:  'audio/bgm_quiz.mp3',        // 答題倒數（緊張感）
-    win:   'audio/bgm_win.mp3'          // 本節結束、頒獎
+    win:   'audio/bgm_win.mp3',         // 本節結束、頒獎
+    shop:  'audio/bgm_shop.mp3'         // 有人停在創投商店慢慢挑卡片時
   };
 
   var el = null, cur = null, prev = null, fadeTimer = null;

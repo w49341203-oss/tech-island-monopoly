@@ -11,7 +11,7 @@
   var state = null;
   var cfg = { chapters: [], groups: 9, maxRounds: 30, breakSec: 60,
               allowMerge: true, allowSabotage: true, solo: false, speed: 1, autoPilot: true,
-              decideSec: 8, itemSec: 30 };
+              itemSec: 30 };
   var greeted = {};             // 哪幾組已經響過「連進來」的提示音
   var everOnline = {};          // 哪幾組「整場曾經」連上過平板（斷線也算數）
   var lastActionAt = {};        // 每組最後處理過的動作時間戳（防止同一筆被執行兩次）
@@ -75,7 +75,6 @@
     setTimeout(function () {
       if (!SPEAK.available()) msg('這個瀏覽器不支援語音播報（建議用 Chrome 或 Edge）', 'err');
     }, 1200);
-    $('decideSec').onchange = function () { cfg.decideSec = +this.value; };
     $('animSpeed').onchange = function () { cfg.speed = +this.value; R.setSpeed(cfg.speed); };
     $('groupCount').onchange = function () { cfg.groups = +this.value; };
     $('maxRounds').onchange = function () { cfg.maxRounds = +this.value; };
@@ -92,6 +91,17 @@
       doLoad(code);
     };
     $('codeInput').onkeydown = function (e) { if (e.key === 'Enter') $('btnLoadCode').click(); };
+
+    // 空白鍵／右方向鍵＝下一位玩家。一節課要按幾十次，用鍵盤比較不累。
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== ' ' && e.key !== 'Spacebar' && e.key !== 'ArrowRight') return;
+      var t = e.target || {};
+      if (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA') return;
+      if (!waitAbort) return;
+      e.preventDefault();
+      SOUND.play('click');
+      waitAbort();
+    });
   }
 
   /** 這台電腦存過的場次，最近玩的排前面；點一下就接續 */
@@ -266,8 +276,9 @@
         S.setWriteErrorHandler(function (e) {
           var denied = /permission|insufficient/i.test(e.message || '');
           toast(denied
-            ? '⚠️ 雲端拒絕寫入：這一場正被另一台電腦開著，請關掉那一台再試'
-            : '⚠️ 雲端連線有問題，平板可能看不到最新畫面', 6000);
+            ? '⚠️ 雲端拒絕寫入：這一場正被另一台電腦開著。請關掉那一台，等 10 分鐘後再接續；' +
+              '若那台已經關了，直接用原本那台電腦開就好（本機也有存檔）'
+            : '⚠️ 雲端連線有問題，平板可能看不到最新畫面', 8000);
         });
         S.watchActions(function (a) { handleAction(a); S.clearAction(a.gid); });
         return S.openRoom(code, { groups: cfg.groups });
@@ -339,6 +350,11 @@
     if (state.phase === 'ended') return 'win';
     if (state.phase === 'question') return 'quiz';
     if (!$('game') || $('game').classList.contains('hidden')) return 'lobby';
+    // 正在等某一組逛創投商店：放商店的音樂
+    if (state.decide && state.players[state.decide.gid]) {
+      var here = B.CELLS[state.players[state.decide.gid].pos];
+      if (here && here.type === 'shop') return 'shop';
+    }
     return 'game';
   }
 
@@ -1166,7 +1182,6 @@
           toast(state.players[a.gid].num + '組 買下 ' + bn, 2000);
           SPEAK.say(SPEAK.groupSay(state.players[a.gid]) + '，買下' + bn);
         }
-        markDecided(a.gid);
         break;
       }
       case 'build': {
@@ -1177,7 +1192,6 @@
           SPEAK.say(SPEAK.groupSay(state.players[a.gid]) + '，在' +
                     B.CELLS[state.players[a.gid].pos].name + '蓋到' + SPEAK.levelSay(rr.level));
         }
-        markDecided(a.gid);
         break;
       }
       case 'merge': {
@@ -1185,7 +1199,6 @@
           var rm = E.merge(state, a.gid, state.players[a.gid].pos);
           if (rm.ok) toast(state.players[a.gid].num + '組 併購了 ' + B.CELLS[state.players[a.gid].pos].name, 2200);
         }
-        markDecided(a.gid);
         break;
       }
       case 'skip': markDecided(a.gid); break;
@@ -1256,58 +1269,78 @@
   // 依序移動
   // ═══════════════════════════════════════
   var pendingFork = null;
-  var decision = null;          // { gid: 'g1', done: false }
+  var decision = null;          // { gid: 'g1', done: false } —— 這一組有沒有按「我好了」
+  var waitAbort = null;         // 正在等老師按鍵時，用它可以強制結束等待
 
+  /** 這一組在平板上按了「我好了／我買完了」。只是通知老師，不會自己換人。 */
   function markDecided(gid) {
     if (decision && decision.gid === gid) decision.done = true;
   }
 
   /**
-   * 落地之後，如果這一組有平板而且有事情可以做（買地／蓋廠／併購／逛商店），
-   * 就等他決定。原本只等 1.6 秒，學生根本來不及按。
+   * 一位玩家走完之後，停在這裡等老師按「下一位玩家」才換人。
+   *
+   * 以前是倒數幾秒就自動換人，出過兩個問題：
+   *   1. 白板要先「猜」這一組有沒有事情可以做。猜錯就完全不等 ——
+   *      平板心跳晚到一下下（放下平板、鎖屏、網路小斷）就被當成沒人的組，
+   *      學生走到創投商店連購買畫面都沒出現就換下一位了。
+   *   2. 就算猜對，8 秒也常常不夠，還在挑卡片就被跳走。
+   * 現在一律等老師按鍵。換人的時機由老師決定，不會再有「還沒做完就跳走」，
+   * 老師也可以趁這個空檔跟全班講解剛剛發生什麼事。
    */
-  /**
-   * 等這一組做決定。
-   * noLimit=true 時不倒數（創投商店要慢慢挑），一直等到學生按「買完了」為止；
-   * 這種情況白板上會出現「跳過這一組」，免得某台平板當掉就把全班卡死。
-   */
-  function waitForDecision(gid, hasChoice, noLimit) {
-    if (!hasChoice || isBot(gid)) return Promise.resolve();
-    var deadline = noLimit ? null : Date.now() + (cfg.decideSec || 8) * 1000;
+  function waitForNext(gid) {
+    var p = state.players[gid];
+    // 單機試玩是要讓白板自己跑給老師看的，不需要有人在旁邊按鍵
+    if (cfg.solo) return new Promise(function (res) { setTimeout(res, 900); });
+    if (sessionOver) return Promise.resolve();
+
     decision = { gid: gid, done: false };
-    state.decide = { gid: gid, until: deadline };     // until 是 null 就代表不限時間
+    state.decide = { gid: gid, until: null };   // until 一律 null＝平板不倒數
     pushRemote();
 
-    var wg = $('hudWaitGroup');
-    if (noLimit) {
-      $('wgText').textContent = state.players[gid].name + ' 購買中…';
-      SPEAK.say(SPEAK.groupSay(state.players[gid]) + '，正在創投商店購買', true);
-      wg.classList.remove('hidden');
-      $('btnSkipGroup').onclick = function () { SOUND.play('click'); decision.done = true; };
-    }
+    var wg = $('hudWaitGroup'), txt = $('wgText'), hint = $('wgHint'), btn = $('btnNextPlayer');
+    txt.textContent = p.name + ' 行動中…';
+    hint.textContent = '等這一組在平板上做完，再按下面的按鍵（或直接按空白鍵）';
+    btn.classList.remove('ready');
+    btn.textContent = '▶ 下一位玩家';
+    wg.classList.remove('hidden');
+    status(p.name + ' 行動中…（按「下一位玩家」換人）');
+    // 停在創投商店慢慢挑卡片時，換成悠閒的商店音樂
+    BGM.play(bgmForPhase());
 
     return new Promise(function (resolve) {
+      var done = false;
+      function finish() {
+        if (done) return;
+        done = true;
+        clearInterval(iv);
+        waitAbort = null;
+        btn.onclick = null;
+        wg.classList.add('hidden');
+        decision = null;
+        delete state.decide;
+        BGM.play(bgmForPhase());        // 離開商店就換回平常的背景音樂
+        pushRemote();
+        resolve();
+      }
+      waitAbort = finish;                         // 空白鍵、結束本節都靠它
+      btn.onclick = function () { SOUND.play('click'); finish(); };
       var iv = regTimer(setInterval(function () {
         pumpActions();
-        if (noLimit) {
-          status(state.players[gid].name + ' 購買中…（等他按「買完了」）');
-        } else {
-          var left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
-          status(state.players[gid].name + ' 決定中…　' + left + ' 秒');
-        }
-        if (decision.done || (deadline && Date.now() >= deadline)) {
-          clearInterval(iv);
-          decision = null;
-          delete state.decide;
-          wg.classList.add('hidden');
-          pushRemote();
-          resolve();
+        if (done) return;
+        if (decision && decision.done) {
+          // 學生按了「我好了／我買完了」→ 按鍵變綠色，老師知道可以換人了
+          btn.classList.add('ready');
+          btn.textContent = '▶ 下一位玩家（這組說好了）';
+          txt.textContent = p.name + '　✅ 說他弄好了';
+          hint.textContent = '這一組已經做完，可以換下一位了';
         }
       }, 250));
     });
   }
 
   function runTurns() {
+    if (sessionOver) return;
     var gid = E.currentGid(state);
     if (!gid) { finishRound(); return; }
     showPlayerHUD(gid);
@@ -1399,13 +1432,16 @@
       if (p.stepsLeft <= 0) { R.stopWalk(gid); return Promise.resolve(); }
       var r = E.step(state, gid);
       if (r.needFork) {
-        R.stopWalk(gid);
-        return askFork(gid, r.options).then(function (choice) {
-          var from = p.pos;
-          E.commitStep(state, gid, choice);
-          R.startWalk(gid);
-          return R.hop(gid, from, choice).then(stepOnce);
-        });
+        // 岔路口隨機決定走哪一條，不讓玩家選。
+        // 讓玩家選的話，沒有人會自願走進對手蓋滿廠房的那一條，岔路就沒有風險可言了。
+        var choice = E.pickFork(state, r.options);
+        var from = p.pos;
+        E.commitStep(state, gid, choice);
+        toast('⛰️ 岔路口！隨機走向 ' + B.CELLS[choice].name, 2000);
+        SPEAK.say('岔路口，隨機走向' + B.CELLS[choice].name);
+        SOUND.play('card');
+        pushRemote();
+        return R.hop(gid, from, choice).then(stepOnce);
       }
       var from = r.moved ? p.prev : p.pos;
       SOUND.play('step');
@@ -1507,9 +1543,8 @@
       } else { hasChoice = true; lines.push('可以蓋廠（每級 $' + out.upgradeCost.toLocaleString() + '）'); }
     }
     if (out.canMerge && state.cfg && state.cfg.allowMerge && !isBot(gid)) hasChoice = true;
-    var noLimit = false;
-    if (cell.type === 'shop' && !isBot(gid)) { hasChoice = true; noLimit = true; }   // 商店慢慢挑，不倒數
-    if (cell.type === 'bank' && !isBot(gid)) hasChoice = true;
+    // 註：這裡不再用 hasChoice 決定「要不要等」——不管有沒有事情做，
+    // 一律等老師按「下一位玩家」。以前猜錯就直接跳過，學生連畫面都看不到。
 
     R.drawBoard(state);
     R.drawPlayers(state);
@@ -1520,15 +1555,18 @@
 
     if (lines.length) toast(p.num + '組｜' + lines.join('　·　'), 2800);
 
-    return waitForDecision(gid, hasChoice, noLimit).then(function () {
+    return waitForNext(gid).then(function () {
       R.drawBoard(state);
       R.drawPlayers(state);
       showPlayerHUD(gid);
-      return new Promise(function (res) { setTimeout(res, hasChoice ? 300 : (lines.length ? 1200 : 400)); });
+      // 單機試玩沒人按鍵，留一點時間看得清楚發生什麼事
+      if (!cfg.solo) return null;
+      return new Promise(function (res) { setTimeout(res, lines.length ? 1200 : 400); });
     });
   }
 
   function finishRound() {
+    if (sessionOver) return;
     var r = E.endRound(state);
     updateHUD();
     R.drawBoard(state);
@@ -1566,6 +1604,7 @@
   function endSession() {
     if (sessionOver) return;              // 連按兩次不要重複結算
     sessionOver = true;
+    if (waitAbort) waitAbort();           // 正在等「下一位玩家」的話先解開，不然流程會卡住
     clearInterval(timer);
     clearInterval(gamePump);
     clearPhaseTimers();                   // 休息倒數、道具倒數、決定倒數全部停掉

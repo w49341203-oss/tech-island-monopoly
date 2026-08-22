@@ -808,7 +808,7 @@
       god: '產業風向：神明附身 3 輪', tax: '國稅局：繳總資產 5%',
       pool: '政府補助池：領走累積稅金', audit: '稽查：直接送檢調',
       jail: '檢調約談所：停 1 輪', hosp: '醫院：停 1 輪',
-      airport: '桃園機場：可飛海外廠', fork: '岔路口：可選方向',
+      airport: '桃園機場：可飛海外廠', fork: '岔路口：隨機決定走哪一條',
       mountain: '山區'
     };
     return m[c.type] || '';
@@ -953,18 +953,28 @@
       stopDecideTimer();
       return;
     }
+
+    // 還在走路的時候不可以出現任何操作按鈕。
+    // 走路中平板會即時收到每一格的狀態，按鈕就會一格一格冒出來，
+    // 學生可以趁機把路過的地買走、順便逛商店 —— 引擎已經擋掉了，
+    // 但畫面上還是不該給他們按，不然會變成「我明明按了卻沒反應」。
+    if (me.stepsLeft > 0 && !waitingMe) {
+      card.classList.remove('hidden');
+      stopDecideTimer();
+      $('actTitle').textContent = '移動中…　還要走 ' + me.stepsLeft + ' 步';
+      body.innerHTML = '<div class="pl-msg">🚶 走完停下來之後才能買地、蓋廠、逛商店</div>';
+      return;
+    }
+
     card.classList.remove('hidden');
     $('actTitle').textContent = '輪到你了 · ' + cell.name;
     if (waitingMe) startDecideTimer(state.decide.until); else stopDecideTimer();
 
-    // 岔路
+    // 岔路口現在是隨機決定的（讓玩家選的話，沒人會自願走進對手蓋滿廠房的那一條），
+    // 這裡只告知，不給選項
     var opts = E.nextOptions(state, my.gid);
     if (me.stepsLeft > 0 && opts.length > 1) {
-      html.push('<div class="pl-msg">⛰️ 岔路口！選擇要走哪一條（3 秒內）</div>');
-      opts.forEach(function (o) {
-        html.push('<button class="opt-btn" data-fork="' + o + '">往 ' + B.CELLS[o].name +
-                  '（' + B.CELLS[o].place + '）</button>');
-      });
+      html.push('<div class="pl-msg">⛰️ 前面是岔路口，走哪一條由電腦隨機決定</div>');
     }
 
     // 買地
@@ -995,8 +1005,8 @@
     // 商店
     if (cell.type === 'shop') {
       html.push('<div class="pl-msg">🏪 創投商店　<b>不限時間，慢慢挑</b>　' +
-                '（白板上只會顯示「購買中」，別人看不到你買什麼）<br>' +
-                '買好之後按最下面的「🛒 我買完了」才會換下一組。</div>');
+                '（白板上只會顯示「行動中」，別人看不到你買什麼）<br>' +
+                '買好之後按最下面的「🛒 我買完了」，老師才會換下一組。</div>');
       html.push('<div class="shop-grid">' + shopShelf().map(function (c) {
         var afford = me.rp >= c.cost;
         return '<div class="hand-card' + (afford ? '' : ' taken') + '" data-shop="' + c.id + '">' +
@@ -1005,12 +1015,12 @@
                '<div class="c">' + c.cost + ' 點' + (afford ? '' : '（點數不足）') + '</div></div>';
       }).join('') + '</div>');
     }
-    if (!html.length) html.push('<div class="pl-msg">這一格沒有可以做的事，等老師端播完就換下一組</div>');
+    if (!html.length) html.push('<div class="pl-msg">這一格沒有可以做的事，按下面的按鍵告訴老師就好</div>');
     if (waitingMe) {
       var isShop = (cell.type === 'shop');
       html.push('<button class="opt-btn" data-act="skip" style="background:' +
                 (isShop ? '#166534' : '#334155') + '">' +
-                (isShop ? '🛒 我買完了（換下一組）' : '✓ 我決定好了（換下一組）') + '</button>');
+                (isShop ? '🛒 我買完了' : '✓ 我好了') + '</button>');
     }
 
     body.innerHTML = html.join('');
@@ -1024,7 +1034,12 @@
         if (a === 'build1') send({ type: 'build', times: 1 });
         if (a === 'buildall') send({ type: 'build', times: 99 });
         if (a === 'merge') send({ type: 'merge' });
-        if (a === 'skip') send({ type: 'skip' });
+        if (a === 'skip') {
+          send({ type: 'skip' });
+          // 換不換人是老師按的。這裡要講清楚，不然學生會以為沒送出一直按。
+          b.textContent = '✅ 已告訴老師，等老師換下一位';
+          b.style.background = '#166534';
+        }
         b.disabled = true;
       };
     });
@@ -1160,9 +1175,10 @@
   function startDecideTimer(until) {
     stopDecideTimer();
     var here = B.CELLS[state.players[my.gid].pos].name;
-    // until 是 null 代表這一格不限時間（創投商店），慢慢挑就好，不要用倒數逼學生
+    // until 一律是 null：換下一位由老師按鍵決定，平板這邊不倒數，
+    // 學生就不會因為「剩 2 秒」而慌張亂按。
     if (until == null) {
-      $('actTitle').textContent = '輪到你了 · ' + here + '　（不限時間，挑好按買完了）';
+      $('actTitle').textContent = '輪到你了 · ' + here + '　（不限時間，做完按最下面的按鍵）';
       return;
     }
     function tick() {
