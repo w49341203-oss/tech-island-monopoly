@@ -16,77 +16,99 @@
   // ═══════════════════════════════════════
   // 加入
   // ═══════════════════════════════════════
-  function buildJoin() {
-    for (var i = 1; i <= 10; i++) (function (n) {
-      var b = chip('第 ' + n + ' 組', false, function () { my.gid = 'g' + n; markOne($('jGroup'), b); });
-      $('jGroup').appendChild(b);
-    })(i);
+  var room = null;      // 查到的房間資訊（含這一場開了幾組）
 
+  function buildJoin() {
     var codeInput = $('jCode');
     codeInput.addEventListener('input', function () {
       this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
     });
+    codeInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') doFind(); });
 
+    $('btnFind').onclick = doFind;
     $('btnJoin').onclick = doJoin;
-    codeInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') doJoin(); });
+    $('btnBack').onclick = function () {
+      $('step2').classList.add('hidden');
+      $('step1').classList.remove('hidden');
+      pmsg('joinMsg', '', '');
+    };
 
-    // 記住上次輸入的代碼與組別，重新整理不用再打一次
+    // 記住上次輸入的代碼，重新整理不用再打一次
     try {
       var saved = JSON.parse(localStorage.getItem('techisland:me') || 'null');
-      if (saved) {
-        my.code = saved.code || '';
-        codeInput.value = my.code;
-        if (saved.gid) {
-          my.gid = saved.gid;
-          var idx = parseInt(saved.gid.slice(1), 10) - 1;
-          var chips = $('jGroup').children;
-          if (chips[idx]) markOne($('jGroup'), chips[idx]);
-        }
-      }
+      if (saved && saved.code) { my.code = saved.code; codeInput.value = saved.code; }
     } catch (e) {}
   }
 
-  function doJoin() {
+  /** 第一步：用代碼查房間，拿到這一場實際開了幾組 */
+  function doFind() {
     var code = ($('jCode').value || '').trim();
     if (code.length !== 6) { pmsg('joinMsg', '請輸入白板上的 6 位數房間代碼', 'err'); return; }
-    if (!my.gid) { pmsg('joinMsg', '請選你們是第幾組', 'err'); return; }
     my.code = code;
-    localStorage.setItem('techisland:me', JSON.stringify({ code: code, gid: my.gid }));
-
     S.initChannel(code);                    // 同一台電腦多分頁用代碼當頻道
     S.onLocalState(onState);
 
     if (!S.firebaseReady()) {
-      S.setMode('local', 'local_' + code);
-      pmsg('joinMsg', '已加入（本機模式），等待老師端…', 'ok');
-      send({ type: 'hello' });
-      heartbeat();
+      room = { gameId: 'local_' + code, groups: 10, local: true };
+      S.setMode('local', room.gameId);
+      showGroupPicker('本機模式（同一台電腦才連得到）');
       return;
     }
 
-    pmsg('joinMsg', '連線中…', '');
+    pmsg('joinMsg', '查詢中…', '');
+    $('btnFind').disabled = true;
     S.initFirebase().then(function () {
       // ⚠️ 一定要先切到雲端模式，findRoom 才會真的去查 Firestore。
       // 否則它會走本機分支回傳一個假房間，畫面顯示「已連上」但其實根本沒連到。
       S.setMode('firebase', null);
       return S.findRoom(code);
-    }).then(function (room) {
-      if (!room) {
-        pmsg('joinMsg', '找不到這個房間，請確認白板上的代碼（老師要先按「開新遊戲」）', 'err');
+    }).then(function (r) {
+      $('btnFind').disabled = false;
+      if (!r) {
+        pmsg('joinMsg', '找不到這個房間。請再確認一次白板上的代碼，' +
+                        '也要確認老師已經按下「開新遊戲」了', 'err');
         return;
       }
-      my.gameId = room.gameId;
-      S.setMode('firebase', room.gameId);
-      S.watchState(onState);
-      send({ type: 'hello' });
-      heartbeat();
-      pmsg('joinMsg', '已連上老師端，等待開始…', 'ok');
+      room = r;
+      S.setMode('firebase', r.gameId);
+      showGroupPicker('找到房間了！這一場有 ' + (r.groups || 9) + ' 組');
     }).catch(function (e) {
-      S.setMode('local', 'local_' + code);
-      pmsg('joinMsg', '雲端連線失敗，改用本機模式：' + e.message, 'err');
-      send({ type: 'hello' });
-      heartbeat();
+      $('btnFind').disabled = false;
+      pmsg('joinMsg', '連線失敗：' + e.message, 'err');
     });
+  }
+
+  /** 第二步：只列出這一場實際開的組別，避免選到不存在的組 */
+  function showGroupPicker(info) {
+    $('step1').classList.add('hidden');
+    $('step2').classList.remove('hidden');
+    $('foundInfo').textContent = info;
+    pmsg('joinMsg', '', '');
+
+    var n = (room && room.groups) || 9;
+    var box = $('jGroup');
+    box.innerHTML = '';
+    my.gid = null;
+    $('btnJoin').disabled = true;
+
+    for (var i = 1; i <= n; i++) (function (k) {
+      var b = chip('第 ' + k + ' 組', false, function () {
+        my.gid = 'g' + k;
+        markOne(box, b);
+        $('btnJoin').disabled = false;
+      });
+      box.appendChild(b);
+    })(i);
+  }
+
+  /** 選好組別，正式加入 */
+  function doJoin() {
+    if (!my.gid) { pmsg('joinMsg', '請先點選你們是第幾組', 'err'); return; }
+    localStorage.setItem('techisland:me', JSON.stringify({ code: my.code, gid: my.gid }));
+    S.watchState(onState);
+    send({ type: 'hello' });
+    heartbeat();
+    pmsg('joinMsg', '已加入第 ' + my.gid.slice(1) + ' 組，等待老師端…', 'ok');
   }
 
   function chip(text, on, fn) {

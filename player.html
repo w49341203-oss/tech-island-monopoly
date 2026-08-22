@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>科技島大富翁 — 我的平板</title>
-<link rel="stylesheet" href="css/style.css?v=v1.1">
+<link rel="stylesheet" href="css/style.css?v=20260822-1306">
 </head>
 <body class="player">
 
@@ -15,13 +15,25 @@
 <div id="join" class="player-wrap">
   <div class="pl-card">
     <h3>加入遊戲</h3>
-    <div class="row">
-      <label>輸入白板上的房間代碼</label>
-      <input id="jCode" class="code-input" type="text" inputmode="numeric"
-             maxlength="6" placeholder="------" autocomplete="off">
+
+    <!-- 第一步：輸入代碼 -->
+    <div id="step1">
+      <div class="row">
+        <label>輸入白板上的房間代碼</label>
+        <input id="jCode" class="code-input" type="text" inputmode="numeric"
+               maxlength="6" placeholder="------" autocomplete="off">
+      </div>
+      <button id="btnFind" class="primary big-btn">下一步</button>
     </div>
-    <div class="row"><label>你們是第幾組？</label><div id="jGroup" class="chips wrap"></div></div>
-    <button id="btnJoin" class="primary big-btn">加入</button>
+
+    <!-- 第二步：選組別（只列出這一場實際開的組數） -->
+    <div id="step2" class="hidden">
+      <div class="found" id="foundInfo"></div>
+      <div class="row"><label>你們是第幾組？</label><div id="jGroup" class="chips wrap"></div></div>
+      <button id="btnJoin" class="primary big-btn" disabled>加入這一組</button>
+      <button id="btnBack" class="ghost" style="width:100%;margin-top:8px">重新輸入代碼</button>
+    </div>
+
     <div class="pl-msg" id="joinMsg"></div>
   </div>
 </div>
@@ -102,12 +114,12 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js"></script>
-<script src="js/board.js?v=v1.1"></script>
-<script src="js/characters.js?v=v1.1"></script>
-<script src="js/cards.js?v=v1.1"></script>
-<script src="js/engine.js?v=v1.1"></script>
-<script src="js/store.js?v=v1.1"></script>
-<script src="js/player.js?v=v1.1"></script>
+<script src="js/firebase-config.js?v=20260822-1306"></script>
+<script src="js/board.js?v=20260822-1306"></script>
+<script src="js/characters.js?v=20260822-1306"></script>
+<script src="js/cards.js?v=20260822-1306"></script>
+<script src="js/engine.js?v=20260822-1306"></script>
+<script src="js/store.js?v=20260822-1306"></script>
+<script src="js/player.js?v=20260822-1306"></script>
 </body>
 </html>

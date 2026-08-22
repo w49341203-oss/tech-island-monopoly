@@ -183,6 +183,10 @@ body.player{overflow:auto}
 .asset-row .lv{margin-left:auto;color:var(--gold);font-weight:800}
 .big-btn{width:100%;padding:20px;font-size:22px}
 .pl-msg{font-size:14px;min-height:20px;color:var(--dim)}
+.found{background:#134e4a;border-radius:14px;padding:14px 16px;margin-bottom:16px;
+        font-size:16px;font-weight:800;color:#5eead4;text-align:center}
+.chips.wrap .chip{font-size:18px;padding:14px 20px;min-width:88px;text-align:center}
+.chips.wrap .chip.on{background:#134e4a;border-color:var(--teal);color:#5eead4}
 .code-input{width:100%;background:#0b1220;border:3px solid var(--line);border-radius:16px;
             padding:18px;font-size:44px;font-weight:900;text-align:center;letter-spacing:12px;
             color:var(--gold);font-family:inherit;font-variant-numeric:tabular-nums}
