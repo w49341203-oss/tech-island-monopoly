@@ -126,6 +126,9 @@
       else localQueue.push(payload);
       return Promise.resolve();
     }
+    if (!gameId) {
+      return Promise.reject(new Error('還沒連上房間（gameId 是空的）'));
+    }
     return db.collection('games').doc(gameId).collection('actions').doc(gid)
       .set(Object.assign({ gid: gid, at: Date.now() }, action));
   }
@@ -218,7 +221,15 @@
     });
   }
 
+  /** 診斷用：把內部狀態挖出來，方便查「為什麼沒送到」這類問題 */
+  function debugState() {
+    return { mode: mode, gameId: gameId, hasDb: !!db,
+             hasChannel: !!bc, channelName: bc ? bc.name : null,
+             queueLength: localQueue.length };
+  }
+
   global.STORE = {
+    _debug: debugState,
     CLASSES: CLASSES, SLOTS: SLOTS,
     listSaves: listSaves, save: saveLocal, load: loadLocal,
     clearSlot: clearSlot, resetAll: resetAll,

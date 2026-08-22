@@ -7,9 +7,20 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>科技島大富翁 — 我的平板</title>
-<link rel="stylesheet" href="css/style.css?v=20260822-1306">
+<link rel="stylesheet" href="css/style.css?v=20260822-1325">
 </head>
 <body class="player">
+
+<!-- ══ 重新連線中 ══ -->
+<div id="rejoin" class="player-wrap hidden">
+  <div class="pl-card" style="text-align:center">
+    <h3>正在回到遊戲…</h3>
+    <div class="rejoin-info" id="rejoinInfo"></div>
+    <button id="btnCancelRejoin" class="ghost" style="width:100%;margin-top:16px">
+      重新輸入代碼
+    </button>
+  </div>
+</div>
 
 <!-- ══ 加入遊戲 ══ -->
 <div id="join" class="player-wrap">
@@ -52,6 +63,7 @@
 <div id="play" class="player-wrap hidden">
 
   <div class="pl-top">
+    <button id="btnLeave" class="leave-btn" title="離開這一組">⇦</button>
     <img id="myAvatar" alt="">
     <div>
       <div class="pl-name" id="myName">第 ? 組</div>
@@ -114,12 +126,12 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260822-1306"></script>
-<script src="js/board.js?v=20260822-1306"></script>
-<script src="js/characters.js?v=20260822-1306"></script>
-<script src="js/cards.js?v=20260822-1306"></script>
-<script src="js/engine.js?v=20260822-1306"></script>
-<script src="js/store.js?v=20260822-1306"></script>
-<script src="js/player.js?v=20260822-1306"></script>
+<script src="js/firebase-config.js?v=20260822-1325"></script>
+<script src="js/board.js?v=20260822-1325"></script>
+<script src="js/characters.js?v=20260822-1325"></script>
+<script src="js/cards.js?v=20260822-1325"></script>
+<script src="js/engine.js?v=20260822-1325"></script>
+<script src="js/store.js?v=20260822-1325"></script>
+<script src="js/player.js?v=20260822-1325"></script>
 </body>
 </html>

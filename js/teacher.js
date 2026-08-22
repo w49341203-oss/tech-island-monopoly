@@ -299,6 +299,9 @@
   /** 把狀態同時推給：同機分頁（BroadcastChannel）與雲端（Firestore） */
   var pushTimer = null;
   function pushRemote() {
+    // 序號：平板同時從雲端和同機分頁收狀態，晚到的舊狀態如果覆蓋新的，
+    // 畫面會倒退（例如選好角色又跳回選角）。加序號讓平板能分辨新舊。
+    state._seq = (state._seq || 0) + 1;
     S.broadcastState(state);
     if (S.getMode() === 'firebase') {
       clearTimeout(pushTimer);                 // 節流：避免每個小動作都寫一次 Firestore

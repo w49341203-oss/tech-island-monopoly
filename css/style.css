@@ -183,6 +183,11 @@ body.player{overflow:auto}
 .asset-row .lv{margin-left:auto;color:var(--gold);font-weight:800}
 .big-btn{width:100%;padding:20px;font-size:22px}
 .pl-msg{font-size:14px;min-height:20px;color:var(--dim)}
+.rejoin-info{font-size:15px;color:var(--dim);line-height:1.8;margin-top:10px}
+.pl-top{position:relative}
+.leave-btn{position:absolute;top:8px;right:8px;background:transparent;color:var(--dim);
+           padding:6px 10px;font-size:16px;border-radius:8px}
+.leave-btn:hover{background:#1c2942;color:var(--ink)}
 .found{background:#134e4a;border-radius:14px;padding:14px 16px;margin-bottom:16px;
         font-size:16px;font-weight:800;color:#5eead4;text-align:center}
 .chips.wrap .chip{font-size:18px;padding:14px 20px;min-width:88px;text-align:center}

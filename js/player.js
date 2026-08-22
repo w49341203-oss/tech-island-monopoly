@@ -18,6 +18,17 @@
   // ═══════════════════════════════════════
   var room = null;      // 查到的房間資訊（含這一場開了幾組）
 
+  // ── 只在內容真的改變時才重畫 ──
+  // 老師端每 0.7 秒廣播一次狀態，如果每次都把 DOM 砍掉重建，
+  // 學生正在點的按鈕會被換掉，畫面也會一直閃，根本按不到。
+  var sig = {};
+  function changed(key, value) {
+    if (sig[key] === value) return false;
+    sig[key] = value;
+    return true;
+  }
+  function resetSig() { sig = {}; }
+
   function buildJoin() {
     var codeInput = $('jCode');
     codeInput.addEventListener('input', function () {
@@ -125,7 +136,19 @@
   function pmsg(id, text, cls) {
     var m = $(id); m.textContent = text; m.className = 'pl-msg ' + (cls || '');
   }
-  function send(action) { S.sendAction(my.gid, action); }
+  /** 送出動作給老師端。失敗一定要顯示出來，不然學生按了沒反應卻不知道為什麼 */
+  function send(action) {
+    if (!my.gid) {
+      pmsg('joinMsg', '還沒選組別，無法送出', 'err');
+      return Promise.resolve();
+    }
+    return S.sendAction(my.gid, action).catch(function (e) {
+      console.warn('[send] ' + action.type + ' 失敗：' + e.message);
+      var box = document.getElementById('pick').classList.contains('hidden') ? 'handMsg' : 'pickMsg';
+      pmsg(box, '送出失敗：' + e.message + '（請確認網路，或按重新整理）', 'err');
+      throw e;
+    });
+  }
 
   /** 每 10 秒報到一次，老師端才知道這組的平板還在線上（沒在線的組會由電腦代打） */
   var hbTimer = null;
@@ -137,45 +160,81 @@
   // ═══════════════════════════════════════
   // 收到老師端狀態
   // ═══════════════════════════════════════
+  var lastSeq = -1;
   function onState(st) {
+    if (!st || !st.players) return;
+    // 忽略晚到的舊狀態，否則畫面會倒退（選好角色又跳回選角、資產變回舊值）
+    if (typeof st._seq === 'number') {
+      if (st._seq < lastSeq) return;
+      lastSeq = st._seq;
+    }
     state = st;
     if (!my.gid || !state.players[my.gid]) return;
     var me = state.players[my.gid];
 
     if (!me.charId) { showPick(); return; }
-    show('play');
+
+    if (changed('screen', 'play')) { show('play'); resetSig(); sig.screen = 'play'; }
+
+    // 上方資訊：數字變了才更新（純文字，重畫不影響操作）
     renderTop(me);
-    renderHand(me);
-    renderAssets(me);
-    renderBank(me);
+
+    // 手牌：只有手牌內容變了才重建，否則正在點的卡片會被換掉
+    if (changed('hand', me.cards.map(function (c) { return c.id + (c.char ? '*' : ''); }).join(','))) {
+      renderHand(me);
+    }
+    // 資產：地產或等級變了才重建
+    if (changed('assets', E.landsOf(state, my.gid).map(function (i) {
+          return i + ':' + (state.board.level[i] || 0);
+        }).join(','))) {
+      renderAssets(me);
+    }
+    // 銀行按鈕：只有「在不在銀行格」變了才更新
+    if (changed('bank', B.CELLS[me.pos].type === 'bank' ? 'yes' : 'no')) renderBank(me);
 
     if (state.phase === 'question') {
-      if (state.round !== lastRound) { answered = false; hintLevel = 0; $('hintBox').textContent = ''; }
+      if (state.round !== lastRound) {
+        answered = false; hintLevel = 0; $('hintBox').textContent = '';
+      }
       renderQuestion(me);
-    } else {
+    } else if (changed('qcard', 'hide')) {
       $('qCard').classList.add('hidden');
     }
-    renderAction(me);
+    if (state.phase === 'question') sig.qcard = 'show';
+
+    // 行動選項：輪到誰、在哪一格、還剩幾步 —— 這些變了才重建
+    if (changed('action', state.phase + '|' + E.currentGid(state) + '|' + me.pos + '|' +
+                          (me.stepsLeft || 0) + '|' + (state.board.owner[me.pos] || '-') + '|' +
+                          (state.board.level[me.pos] || 0))) {
+      renderAction(me);
+    }
     lastRound = state.round;
     lastPhase = state.phase;
   }
 
   function show(which) {
-    ['join', 'pick', 'play'].forEach(function (id) {
-      $(id).classList.toggle('hidden', id !== which);
+    ['rejoin', 'join', 'pick', 'play'].forEach(function (id) {
+      var el = $(id);
+      if (el) el.classList.toggle('hidden', id !== which);
     });
   }
 
   // ═══════════════════════════════════════
   // 選角
   // ═══════════════════════════════════════
-  var picking = null;
+  var picking = null, pickSent = false;
   function showPick() {
     show('pick');
     var taken = {};
     Object.keys(state.players).forEach(function (g) {
       if (state.players[g].charId) taken[state.players[g].charId] = state.players[g].num;
     });
+
+    // 已經送出選角，就不要再重建畫面（等老師端確認即可）
+    if (pickSent) return;
+    // 別組的選角狀況沒變就不重建，否則畫面會一直閃、點不到
+    if (!changed('pick', Object.keys(taken).sort().join(',') + '|' + picking)) return;
+
     var grid = $('pickGrid');
     grid.innerHTML = '';
     window.CHARACTERS.forEach(function (c) {
@@ -207,15 +266,40 @@
     });
     $('btnPickOk').onclick = function () {
       if (!picking) return;
+      pickSent = true;
       send({ type: 'pick', charId: picking });
+      $('btnPickOk').disabled = true;
+      $('btnPickOk').textContent = '已送出，等待老師端…';
       pmsg('pickMsg', '已送出，等待老師端確認…', 'ok');
+      // 5 秒還沒生效就讓學生可以重試（網路不穩時不會卡死）
+      setTimeout(function () {
+        if (state && state.players[my.gid] && !state.players[my.gid].charId) {
+          pickSent = false;
+          $('btnPickOk').disabled = false;
+          $('btnPickOk').textContent = '再試一次';
+          pmsg('pickMsg', '還沒收到老師端的回應，請再按一次', 'err');
+          sig.pick = null;
+        }
+      }, 5000);
     };
   }
 
   // ═══════════════════════════════════════
   // 上方資訊
   // ═══════════════════════════════════════
+  function bindLeave() {
+    var b = $('btnLeave');
+    if (!b || b._bound) return;
+    b._bound = true;
+    b.onclick = function () {
+      if (!confirm('要離開這一組嗎？\n（離開後要重新輸入房間代碼）')) return;
+      localStorage.removeItem('techisland:me');
+      location.reload();
+    };
+  }
+
   function renderTop(me) {
+    bindLeave();
     var ch = window.charById(me.charId);
     if (ch) {
       var img = $('myAvatar');
@@ -258,8 +342,8 @@
     $('qCard').classList.remove('hidden');
     $('qRound').textContent = state.round;
 
-    if ($('qText').dataset.qid !== q.id) {
-      $('qText').dataset.qid = q.id;
+    if ($('qText').dataset.qid !== String(q.id)) {
+      $('qText').dataset.qid = String(q.id);
       $('qText').textContent = q.text;
       qStart = Date.now();
       var box = $('qOpts');
@@ -516,5 +600,69 @@
     fn(n);
   }
 
-  window.addEventListener('DOMContentLoaded', buildJoin);
+  /**
+   * 平板重新整理（或不小心關掉分頁再開）之後，自動回到原本那一組。
+   * 上課時學生誤觸重整很常見，如果每次都要重打代碼會很浪費時間。
+   */
+  function autoRejoin() {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem('techisland:me') || 'null'); } catch (e) {}
+    if (!saved || !saved.code || !saved.gid) return false;
+
+    my.code = saved.code;
+    my.gid = saved.gid;
+    show('rejoin');
+    $('rejoinInfo').textContent = '房間 ' + saved.code + '　第 ' + saved.gid.slice(1) + ' 組';
+
+    $('btnCancelRejoin').onclick = function () {
+      localStorage.removeItem('techisland:me');
+      my.gid = null;
+      show('join');
+      $('jCode').value = saved.code;
+    };
+
+    S.initChannel(saved.code);
+    S.onLocalState(onState);
+
+    function ok() {
+      S.watchState(onState);
+      send({ type: 'hello' });
+      heartbeat();
+    }
+
+    if (!S.firebaseReady()) {
+      S.setMode('local', 'local_' + saved.code);
+      ok();
+      // 本機模式收不到就退回輸入畫面
+      setTimeout(function () {
+        if (!state) { show('join'); pmsg('joinMsg', '連不到老師端，請重新輸入代碼', 'err'); }
+      }, 4000);
+      return true;
+    }
+
+    S.initFirebase().then(function () {
+      S.setMode('firebase', null);
+      return S.findRoom(saved.code);
+    }).then(function (r) {
+      if (!r) {
+        show('join');
+        $('jCode').value = saved.code;
+        pmsg('joinMsg', '原本的房間已經關閉了，請輸入新的代碼', 'err');
+        return;
+      }
+      room = r;
+      S.setMode('firebase', r.gameId);
+      ok();
+    }).catch(function (e) {
+      show('join');
+      $('jCode').value = saved.code;
+      pmsg('joinMsg', '重新連線失敗：' + e.message, 'err');
+    });
+    return true;
+  }
+
+  window.addEventListener('DOMContentLoaded', function () {
+    buildJoin();
+    autoRejoin();
+  });
 })();
