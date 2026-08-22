@@ -1,0 +1,752 @@
+[
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "「氧化反應」的定義為下列何者？",
+  "options": {
+   "A": "物質失去氧的反應",
+   "B": "物質與氧結合的反應",
+   "C": "物質質量減少的反應",
+   "D": "物質溶於水的反應"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_001",
+  "concept_id": "oxidation_definition",
+  "hints": [
+   "化學中氧化反應在「氧」的得失上的定義是什麼？",
+   "物質是得到氧還是失去氧？",
+   "氧化的關鍵字就在「氧」——想想這是物質與什麼結合的反應。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "下列何者「不是」氧化反應？",
+  "options": {
+   "A": "鐵生鏽",
+   "B": "蠟燭燃燒",
+   "C": "鎂帶在空氣中燃燒",
+   "D": "冰塊熔化成水"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_002",
+  "concept_id": "oxidation_definition",
+  "hints": [
+   "物理變化與化學變化的區別。生鏽、燃燒都是化學變化。",
+   "冰塊熔化是狀態改變（固態到液態）。",
+   "氧化一定是化學變化；找出選項中那個「沒有新物質生成」的物理變化。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "下列關於「燃燒」的敘述，何者正確？",
+  "options": {
+   "A": "燃燒就是一種快速、伴隨光和熱的氧化反應",
+   "B": "燃燒只發生在固體",
+   "C": "燃燒不需要氧氣參與",
+   "D": "燃燒是物理變化"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_003",
+  "concept_id": "oxidation_definition",
+  "hints": [
+   "燃燒是一種劇烈的反應，伴隨著光和熱。",
+   "燃燒需要氧氣參與，是一種什麼化學反應？",
+   "燃燒有光有熱、速率很快——想想它屬於哪一大類反應、過程少不了哪種氣體。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "下列何者「不是」緩慢氧化反應？",
+  "options": {
+   "A": "鐵生鏽",
+   "B": "食物腐敗",
+   "C": "瓦斯爆炸",
+   "D": "呼吸作用"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_004",
+  "concept_id": "oxidation_definition",
+  "hints": [
+   "有些氧化反應非常緩慢，不容易察覺，稱為緩慢氧化。",
+   "鐵生鏽、食物腐敗、呼吸作用都是緩慢的。瓦斯爆炸呢？",
+   "緩慢氧化是不冒火光、慢慢進行的；找出那個「瞬間放出大量光熱」的例外。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "下列關於金屬活性的敘述，何者正確？",
+  "options": {
+   "A": "金屬活性越大，越不易與氧反應",
+   "B": "金屬活性越大，越容易與氧結合而被氧化",
+   "C": "金、銀的金屬活性很大",
+   "D": "鉀、鈉的金屬活性很小"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_005",
+  "concept_id": "metal_activity_order",
+  "hints": [
+   "金屬活性代表金屬與氧結合的難易程度。",
+   "活性越大，代表它越活潑、越容易與氧反應。",
+   "活性代表「搶氧的積極度」——活性越大，與氧結合會變得更容易還是更難？"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "已知金屬活性大小：鎂 > 鋅 > 鐵 > 銅 > 銀。下列敘述何者「錯誤」？",
+  "options": {
+   "A": "鎂與氧的反應最劇烈",
+   "B": "銀最不易被氧化",
+   "C": "銀可以從硫酸銅溶液中置換出銅",
+   "D": "鐵可以從硫酸銅溶液中置換出銅"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_006",
+  "concept_id": "metal_activity_order",
+  "hints": [
+   "活性大小：鎂 > 鋅 > 鐵 > 銅 > 銀。活性小的金屬無法從溶液中置換出活性大的金屬。",
+   "活性大的金屬可以將活性小的金屬置換出來。",
+   "銀的活性比銅小，無法把銅從硫酸銅溶液中置換出來；反過來銅放進硝酸銀溶液才會析出銀。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "下列何種方法可以「防止」鐵生鏽？",
+  "options": {
+   "A": "讓鐵長期暴露於潮濕空氣中",
+   "B": "在鐵表面塗上油漆或鍍上其他金屬",
+   "C": "把鐵泡在鹽水中",
+   "D": "把鐵加熱到高溫"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_007",
+  "concept_id": "anti_rust_methods",
+  "hints": [
+   "鐵生鏽需要水和氧氣，防鏽的核心是隔絕兩者。",
+   "塗漆或電鍍可以隔絕空氣與水分嗎？",
+   "防鏽的原理是把鐵與空氣、水隔開——哪個做法能在鐵表面形成隔絕層？"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "「還原反應」最常見的定義為下列何者？",
+  "options": {
+   "A": "物質與氧結合",
+   "B": "物質失去氧",
+   "C": "物質溶於水",
+   "D": "物質燃燒"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_008",
+  "concept_id": "oxidation_definition",
+  "hints": [
+   "氧化是得到氧，那麼還原是什麼？",
+   "還原是失去氧的過程。",
+   "還原與氧化方向相反：氧化是得到氧，那還原是什麼？"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "下列關於氧化還原反應的敘述，何者正確？",
+  "options": {
+   "A": "氧化與還原可以分開單獨發生",
+   "B": "氧化與還原一定同時發生",
+   "C": "氧化反應比還原反應重要",
+   "D": "還原反應不會發生於日常生活中"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_009",
+  "concept_id": "oxidation_reduction_coupling",
+  "hints": [
+   "如果一個物質失去氧（被還原），那它釋放的氧去哪了？",
+   "必定有另一個物質得到氧（被氧化）。",
+   "氧化與還原必定同時發生，不能單獨發生。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "在反應 CuO + H₂ → Cu + H₂O 中，下列敘述何者正確？",
+  "options": {
+   "A": "CuO 被氧化，H₂ 被還原",
+   "B": "CuO 被還原，H₂ 被氧化",
+   "C": "Cu 被氧化，H₂O 被還原",
+   "D": "兩者都沒有發生氧化還原"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_010",
+  "concept_id": "oxidation_definition",
+  "hints": [
+   "CuO 變成 Cu（失去氧），H₂ 變成 H₂O（得到氧）。",
+   "失去氧代表被還原，得到氧代表被氧化。",
+   "看誰失去氧、誰得到氧：CuO 少了 O、H₂ 多了 O——對應氧化與還原各是誰？"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "在反應 2CuO + C → 2Cu + CO₂ 中，下列何者扮演「還原劑」？",
+  "options": {
+   "A": "CuO",
+   "B": "C（碳）",
+   "C": "Cu",
+   "D": "CO₂"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_011",
+  "concept_id": "oxidation_definition",
+  "hints": [
+   "還原劑是指能「幫別人還原」而自己被氧化的物質。",
+   "在反應中，哪一個物質搶走了 CuO 的氧而自己變成 CO₂？",
+   "碳（C）搶走氧而被氧化，扮演還原劑。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "下列關於氧化劑與還原劑的敘述，何者正確？",
+  "options": {
+   "A": "氧化劑本身被氧化",
+   "B": "還原劑本身被氧化",
+   "C": "還原劑會提供氧給其他物質",
+   "D": "氧化劑會搶走其他物質的氧"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_012",
+  "concept_id": "oxidation_definition",
+  "hints": [
+   "還原劑幫別人還原，自己被氧化；氧化劑幫別人氧化，自己被還原。",
+   "還原劑本身會得到氧（被氧化）。",
+   "還原劑幫別人還原，自己則往相反方向走——想想它本身發生哪種變化。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "下列關於「煉鐵」的敘述，何者正確？",
+  "options": {
+   "A": "煉鐵主要是將鐵礦中的鐵氧化還原為單質鐵",
+   "B": "煉鐵不涉及氧化還原反應",
+   "C": "煉鐵時鐵礦會被氧化",
+   "D": "煉鐵只需加熱即可，不需其他物質"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_013",
+  "concept_id": "smelting_iron_process",
+  "hints": [
+   "煉鐵是將鐵礦（主要為氧化鐵）中的鐵分離出來。",
+   "氧化鐵失去氧變成鐵，這是什麼化學反應？",
+   "鐵礦的主要成分是氧化鐵；煉鐵是把氧從中拿走——這對鐵來說是哪種反應？"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "呼吸作用屬於下列何種反應？",
+  "options": {
+   "A": "緩慢氧化",
+   "B": "緩慢還原",
+   "C": "快速燃燒",
+   "D": "中和反應"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_014",
+  "concept_id": "oxidation_definition",
+  "hints": [
+   "呼吸作用是人體內葡萄糖與氧氣反應釋放能量的過程。",
+   "它釋放熱量但非常緩慢且沒有火焰。",
+   "呼吸沒有火光、緩慢釋放能量，本質是養分與氧的反應——屬於哪一類氧化？"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "下列何者是日常生活中「氧化還原反應」的應用？",
+  "options": {
+   "A": "用瓦斯爐煮飯",
+   "B": "電池供電",
+   "C": "鐵製品鍍鋅防鏽",
+   "D": "煮飯、電池、防鏽三者都是"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_015",
+  "concept_id": "oxidation_reduction_coupling",
+  "hints": [
+   "氧化還原廣泛應用於燃燒、電化學與防鏽。",
+   "瓦斯燃燒、電池放電、電鍍防鏽都包含電子的得失或氧的得失。",
+   "這三者皆是日常生活中氧化還原的應用。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "在反應 2Mg + O₂ → 2MgO 中，鎂發生下列何種變化？",
+  "options": {
+   "A": "被還原",
+   "B": "被氧化",
+   "C": "未變化",
+   "D": "被中和"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_016",
+  "concept_id": "oxidation_definition",
+  "hints": [
+   "2Mg + O₂ → 2MgO 中，Mg 得到了氧變成 MgO。",
+   "得到氧代表發生什麼反應？",
+   "鎂從單質變成 MgO，它「得到了氧」——這種變化叫什麼？"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "calc",
+  "question": "已知反應 2Mg + O₂ → 2MgO，Mg=24、O=16。若有 4.8 g 鎂完全燃燒，產生的氧化鎂質量為多少 g？",
+  "options": {
+   "A": "4.0",
+   "B": "6.4",
+   "C": "8.0",
+   "D": "12.0"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_2_017",
+  "concept_id": "mole_from_mass_and_molar_mass",
+  "hints": [
+   "Mg 莫耳質量為 24，MgO 莫耳質量為 24+16=40。",
+   "4.8 g 鎂等於 4.8 / 24 = 0.2 莫耳。反應係數比 Mg : MgO = 2 : 2 = 1 : 1。",
+   "Mg 與 MgO 的係數相同：0.2 莫耳 Mg 生成 0.2 莫耳 MgO，再乘上 MgO 的式量 40。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "calc",
+  "question": "已知反應 C + O₂ → CO₂，C=12、O=16。若 6 g 碳完全燃燒，需要多少 g 的氧氣？",
+  "options": {
+   "A": "8",
+   "B": "16",
+   "C": "22",
+   "D": "32"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_2_018",
+  "concept_id": "mole_from_mass_and_molar_mass",
+  "hints": [
+   "反應式為 C + O₂ → CO₂，C=12，O₂=32。",
+   "C 與 O₂ 反應的莫耳數比為 1 : 1。6 g 碳等於 6 / 12 = 0.5 莫耳。",
+   "係數比 C:O₂＝1:1；先算 6 克碳是幾莫耳（除以 12），再乘 O₂ 的分子量 32。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "calc",
+  "question": "已知反應 2H₂ + O₂ → 2H₂O，H=1、O=16。完全燃燒 4 g 的 H₂ 需要消耗多少 g 的 O₂？",
+  "options": {
+   "A": "16",
+   "B": "32",
+   "C": "64",
+   "D": "128"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_2_019",
+  "concept_id": "mole_from_mass_and_molar_mass",
+  "hints": [
+   "反應式為 2H₂ + O₂ → 2H₂O，H₂=2，O₂=32。",
+   "H₂ 與 O₂ 反應的莫耳數比為 2 : 1。4 g 氫氣等於 4 / 2 = 2 莫耳。",
+   "係數比 H₂:O₂＝2:1；2 莫耳 H₂ 需要幾莫耳 O₂？再乘分子量 32。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "下列關於「燃燒三要素」的敘述，何者正確？",
+  "options": {
+   "A": "可燃物、助燃物（氧氣）、達燃點以上溫度",
+   "B": "水、火、空氣",
+   "C": "氫氣、氧氣、二氧化碳",
+   "D": "高溫、高壓、催化劑"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_020",
+  "concept_id": "combustion_three_elements",
+  "hints": [
+   "燃燒需要滿足三個條件才能發生。",
+   "這三個要素分別是燃料、氧氣與熱度。",
+   "三要素＝有東西可燒＋有幫助燃燒的氣體＋溫度達到門檻——對照選項逐一檢查。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "在高爐煉鐵的反應中：Fe₂O₃ + 3 CO → 2 Fe + 3 CO₂。在該反應中，一氧化碳（CO）所扮演的角色為下列何者？",
+  "options": {
+   "A": "氧化劑",
+   "B": "還原劑",
+   "C": "催化劑",
+   "D": "反應溶劑"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_021",
+  "concept_id": "smelting_iron_process",
+  "hints": [
+   "還原劑是指在反應中奪取別人的氧（使別人還原），而自己被氧化的物質。",
+   "反應中，CO 奪取了 Fe₂O₃ 的氧，自身被氧化成 CO₂。",
+   "CO 把 Fe₂O₃ 的氧拿走了——「幫別人脫氧」的物質，扮演的是哪個角色？"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-3",
+  "difficulty": "basic",
+  "question": "森林大火發生時，消防員常會在火線前方的林木砍伐出一條空地，這主要是利用何種滅火原理？",
+  "options": {
+   "A": "隔絕空氣中的助燃物（氧氣）",
+   "B": "移去可燃物",
+   "C": "降低溫度至燃點以下",
+   "D": "噴灑催化劑以阻止反應"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_022",
+  "concept_id": "combustion_three_elements",
+  "hints": [
+   "燃燒三要素為：可燃物、助燃物（氧）、溫度達到燃點。滅火只需破壞其中之一。",
+   "砍伐林木移走樹木，是移除了燃燒所需的燃料。",
+   "砍出空地是拿走了三要素中的哪一項？想想這既不是降溫、也不是隔絕氧氣。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "實驗室中，活性極大的金屬鈉（Na）因操作不當在空氣中起火燃燒。下列哪一種滅火操作最為安全？",
+  "options": {
+   "A": "迅速往燒杯倒水滅火",
+   "B": "用二氧化碳滅火器猛烈噴灑",
+   "C": "覆蓋乾燥的細砂壓滅火焰",
+   "D": "用口吹氣將火焰吹熄"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_2_023",
+  "concept_id": "chemical_reaction_safety",
+  "hints": [
+   "金屬鈉起火不能用水滅火，因為鈉與水劇烈反應會產生氫氣，導致爆炸。",
+   "鈉高溫燃燒時，也能與二氧化碳反應，因此不能用 CO₂ 滅火器。",
+   "使用乾砂覆蓋以隔絕氧氣，是金屬起火最安全有效的滅火方式。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "已知金屬活性大小順序為：鋅 > 銅。若將紅色的銅片放入無色的硫酸鋅（ZnSO₄）水溶液中，將會觀察到何種現象？",
+  "options": {
+   "A": "銅片表面析出灰色金屬鋅",
+   "B": "溶液變為藍色，且銅片逐漸溶解",
+   "C": "完全沒有反應，溶液與銅片皆無變化",
+   "D": "溶液產生大量氣泡"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_024",
+  "concept_id": "metal_activity_order",
+  "hints": [
+   "活性大的金屬容易氧化，活性小的金屬離子容易被還原。",
+   "鋅的活性大於銅，代表鋅比銅更想以離子形式待在溶液中。",
+   "因此，活性小的銅片無法將活性大的鋅離子從溶液中置換出來，兩者不反應。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "金屬鋁的活性非常大，但日常生活中許多鋁製器具卻不易生鏽。下列關於此現象的科學原理解釋，何者正確？",
+  "options": {
+   "A": "鋁在室溫下根本不會與氧氣反應",
+   "B": "鋁在表面生成的氧化鋁薄膜非常緻密，能阻絕內部的鋁繼續吸氧",
+   "C": "鋁的密度小，所以不易生鏽",
+   "D": "鋁器具表面通常鍍了一層金"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_025",
+  "concept_id": "anti_rust_methods",
+  "hints": [
+   "鋁的活性很大，暴露在空氣中會迅速與氧反應被氧化。",
+   "但氧化產生的氧化鋁（Al₂O₃）結構緻密，緊密附著在鋁的表面。",
+   "這層緻密的氧化物能隔絕外部的氧氣和水分，防止內部金屬鋁繼續生鏽。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "市售包裝食品中，常放置一小包「鐵粉脫氧劑」以防止食品腐敗。此脫氧防腐的物理與化學原理是？",
+  "options": {
+   "A": "鐵粉會釋放有毒氣體殺死細菌",
+   "B": "鐵粉極易與氧氣結合而生鏽，藉此消耗包裝內的氧氣",
+   "C": "鐵粉比熱大，能保持包裝低溫",
+   "D": "鐵粉可充當乾燥劑吸收包裝內的水分"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_026",
+  "concept_id": "anti_rust_methods",
+  "hints": [
+   "鐵生鏽是與水和氧氣發生的緩慢氧化反應。",
+   "利用鐵粉容易氧化的特性，使其與袋內的氧氣反應，將氧氣消耗完畢。",
+   "缺乏氧氣的環境能抑制需氧細菌滋生，從而防止食物腐敗。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "在密閉容器中進行銅與氧氣的反應：2 Cu + O₂ → 2 CuO。當反應達到完成時，容器內所有物質的總質量會如何變化？",
+  "options": {
+   "A": "總質量增加，因為銅與氧結合變重了",
+   "B": "總質量減少，因為部分氧氣被消耗了",
+   "C": "總質量保持不變，遵守質量守恆定律",
+   "D": "總質量會隨反應速率變慢而遞減"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_2_027",
+  "concept_id": "closed_system_mass_conservation",
+  "hints": [
+   "不論反應物如何變化，只要在密閉容器中，無物質逸出或進入。",
+   "化學反應前後總質量守恆。",
+   "因此總質量必定保持不變。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "calc",
+  "question": "已知反應式 2 Mg + O₂ → 2 MgO。若有 1.2 克的金屬鎂（原子量 24）完全燃燒，需要消耗多少莫耳的氧氣分子（O₂）？",
+  "options": {
+   "A": "0.025 莫耳",
+   "B": "0.05 莫耳",
+   "C": "0.1 莫耳",
+   "D": "0.2 莫耳"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_2_028",
+  "concept_id": "mole_from_mass_and_molar_mass",
+  "hints": [
+   "先算鎂的莫耳數：1.2 g ÷ 24 g/mol ＝ 0.05 莫耳的 Mg。",
+   "依反應式係數比，反應消耗的 Mg : O₂ ＝ 2 : 1。",
+   "先算 1.2 克 Mg 是幾莫耳（除以 24），再用係數比 Mg:O₂＝2:1 求出 O₂ 的莫耳數。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "calc",
+  "question": "在高爐煉鐵的還原反應中：Fe₂O₃ + 3 CO → 2 Fe + 3 CO₂。若有 1 莫耳的氧化鐵（Fe₂O₃）完全反應，需要消耗多少公克的一氧化碳（CO，分子量 28）？",
+  "options": {
+   "A": "28 公克",
+   "B": "56 公克",
+   "C": "84 公克",
+   "D": "112 公克"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_2_029",
+  "concept_id": "smelting_iron_process",
+  "hints": [
+   "由反應方程式可知，反應消耗的 Fe₂O₃ : CO 莫耳數比為 1 : 3。",
+   "1 莫耳的 Fe₂O₃ 完全反應，會消耗 3 莫耳的 CO。",
+   "CO 的莫耳質量為 28 g/mol，其質量為 3 mol × 28 g/mol ＝ 84 克。"
+  ]
+ },
+ {
+  "chapter": "8下-2",
+  "section": "2-2",
+  "difficulty": "calc",
+  "question": "某金屬 M 的原子量為 24，其與氧反應可生成氧化物 MO。若 4.8 克的 M 完全燃燒，理論上可產生多少公克的 MO（氧原子量為 16）？",
+  "options": {
+   "A": "4.8 公克",
+   "B": "6.4 公克",
+   "C": "8.0 公克",
+   "D": "9.6 公克"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_2_030",
+  "concept_id": "mole_from_mass_and_molar_mass",
+  "hints": [
+   "M 的莫耳數 ＝ 4.8 g ÷ 24 g/mol ＝ 0.2 莫耳。",
+   "反應式為 2 M + O₂ → 2 MO，M 與 MO 係數比為 1:1，故可產生 0.2 莫耳的 MO。",
+   "MO 的分子量 ＝ 24 ＋ 16 ＝ 40。其質量 ＝ 0.2 mol × 40 g/mol ＝ 8.0 克。"
+  ]
+ }
+]

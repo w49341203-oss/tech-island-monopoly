@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>科技島大富翁 — 老師端</title>
+<link rel="stylesheet" href="css/style.css?v=v1.1">
+</head>
+<body class="teacher">
+
+<!-- ══ 設定畫面 ══ -->
+<div id="setup" class="screen setup">
+  <div class="setup-box">
+    <h1>科技島大富翁 <span class="ver">v1.1</span></h1>
+
+    <div class="row">
+      <label>班級</label>
+      <div id="classPicker" class="chips"></div>
+    </div>
+
+    <div class="row">
+      <label>存檔槽</label>
+      <div id="slotPicker" class="chips"></div>
+    </div>
+
+    <div class="row">
+      <label>這次要考的章節</label>
+      <div id="chapterPicker" class="chips wrap"></div>
+      <div class="hint" id="qCount">尚未載入題庫</div>
+    </div>
+
+    <div class="row">
+      <label>設定</label>
+      <div class="inline">
+        <span>組數</span>
+        <select id="groupCount">
+          <option value="2">2 組</option>
+          <option value="3">3 組</option>
+          <option value="4">4 組</option>
+          <option value="5">5 組</option>
+          <option value="6">6 組</option>
+          <option value="7">7 組</option>
+          <option value="8">8 組</option>
+          <option value="9" selected>9 組</option>
+          <option value="10">10 組</option>
+        </select>
+        <span>本節回合數</span>
+        <select id="maxRounds">
+          <option value="20">20 輪</option>
+          <option value="30" selected>30 輪</option>
+          <option value="40">40 輪</option>
+        </select>
+        <span>動畫速度</span>
+        <select id="animSpeed">
+          <option value="1" selected>正常</option>
+          <option value="1.6">快</option>
+          <option value="2.5">很快</option>
+        </select>
+        <label class="check"><input type="checkbox" id="allowMerge" checked> 開放併購</label>
+        <label class="check"><input type="checkbox" id="allowSabotage" checked> 開放破壞類道具</label>
+        <label class="check"><input type="checkbox" id="autoPilot" checked> 沒有平板的組由電腦代打</label>
+      </div>
+    </div>
+
+    <div class="setup-actions">
+      <button id="btnNew" class="big primary">開新遊戲</button>
+      <button id="btnLoad" class="big">讀取存檔</button>
+      <button id="btnSolo" class="big ghost">單機試玩（不用平板）</button>
+    </div>
+    <div id="setupMsg" class="msg"></div>
+  </div>
+</div>
+
+<!-- ══ 選角等待畫面 ══ -->
+<div id="lobby" class="screen lobby hidden">
+  <h2>請各組在平板上選擇你們的科學家</h2>
+  <div id="lobbyGrid" class="lobby-grid"></div>
+  <div class="lobby-actions">
+    <button id="btnStart" class="big primary" disabled>全部選好了，開始遊戲</button>
+    <button id="btnAutoPick" class="big ghost">幫還沒選的組隨機指定</button>
+    <div class="hint" id="lobbyHint" style="width:100%;text-align:center"></div>
+  </div>
+</div>
+
+<!-- ══ 遊戲畫面：只有地圖 ══ -->
+<div id="game" class="screen game hidden">
+  <svg id="stage"></svg>
+
+  <!-- HUD 疊在地圖上 -->
+  <div class="hud">
+    <div class="hud-round" id="hudRound">第 1 輪 / 30</div>
+
+    <div class="hud-question hidden" id="hudQuestion">
+      <div class="q-timer"><div class="q-bar" id="qBar"></div><span id="qSec">10</span></div>
+      <div class="q-text" id="qText"></div>
+      <div class="q-options" id="qOptions"></div>
+      <div class="q-lights" id="qLights"></div>
+    </div>
+
+    <div class="hud-order hidden" id="hudOrder"></div>
+
+    <svg class="hud-minimap" id="minimap" viewBox="0 0 300 340"><g id="mmG"></g></svg>
+
+    <div class="hud-player hidden" id="hudPlayer">
+      <img id="hpAvatar" alt="">
+      <div class="hp-info">
+        <div class="hp-name" id="hpName"></div>
+        <div class="hp-line">💰 <b id="hpCash">0</b></div>
+        <div class="hp-line">🏦 <b id="hpBank">0</b></div>
+        <div class="hp-line">🎁 <b id="hpRp">0</b></div>
+      </div>
+    </div>
+
+    <div class="hud-toast hidden" id="hudToast"></div>
+
+    <div class="hud-dice hidden" id="hudDice">
+      <svg viewBox="0 0 420 240"><g id="die1"></g><g id="die2"></g></svg>
+      <div class="dice-sum hidden" id="diceSum"></div>
+    </div>
+
+    <div class="hud-rank hidden" id="hudRank"></div>
+    <div class="hud-ver">v1.1</div>
+  </div>
+
+  <!-- 老師控制列（滑鼠移到底部才出現，不干擾投影） -->
+  <div class="teacher-bar">
+    <button id="btnNext" class="primary">▶ 開始這一輪</button>
+    <button id="btnPause">⏸ 暫停講解</button>
+    <button id="btnRank">📊 排行榜</button>
+    <button id="btnZoom">🗺️ 全島</button>
+    <button id="btnSave">💾 存檔</button>
+    <button id="btnFull">⛶ 全螢幕</button>
+    <button id="btnEnd" class="danger">結束本節</button>
+    <span class="bar-status" id="barStatus"></span>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/board.js?v=v1.1"></script>
+<script src="js/characters.js?v=v1.1"></script>
+<script src="js/cards.js?v=v1.1"></script>
+<script src="js/questions.js?v=v1.1"></script>
+<script src="js/engine.js?v=v1.1"></script>
+<script src="js/render.js?v=v1.1"></script>
+<script src="js/store.js?v=v1.1"></script>
+<script src="js/teacher.js?v=v1.1"></script>
+</body>
+</html>

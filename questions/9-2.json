@@ -1,0 +1,602 @@
+[
+ {
+  "chapter": "9-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "電流的國際單位是下列何者？",
+  "id": "q_9_2_001",
+  "concept_id": "current_and_circuit",
+  "hints": [
+   "先把四個單位分別對應到電流、電壓、電阻與功率。",
+   "電流表示單位時間通過截面的電荷量，其國際單位以 A 表示。",
+   "找出符號為 A 的單位，排除 V、Ω 與 W 所代表的物理量。"
+  ],
+  "options": {
+   "A": "安培",
+   "B": "伏特",
+   "C": "歐姆",
+   "D": "瓦特"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "要使燈泡持續發亮，電路至少必須符合哪項條件？",
+  "id": "q_9_2_002",
+  "concept_id": "current_and_circuit",
+  "hints": [
+   "觀察電荷是否有一條能從電源出發、通過燈泡再回到電源的連續路徑。",
+   "持續電流需要閉合導電路徑與能維持電位差的電源，斷路時無法形成穩定電流。",
+   "逐項檢查是否同時具備完整回路和電源兩端的連接。"
+  ],
+  "options": {
+   "A": "形成完整閉合路徑並有電源",
+   "B": "只接燈泡一端",
+   "C": "把兩條導線都接在同一電池端",
+   "D": "保持開關斷開"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "金屬導線中的傳統電流方向如何規定？",
+  "id": "q_9_2_003",
+  "concept_id": "current_and_circuit",
+  "hints": [
+   "先區分傳統電流的約定方向與金屬中電子實際漂移的方向。",
+   "外電路的傳統電流按正電荷移動方向規定，由較高電位流向較低電位；電子漂移方向相反。",
+   "排除與電子同向或沒有方向規定的說法，再核對外電路兩端電位。"
+  ],
+  "options": {
+   "A": "由高電位經外電路流向低電位",
+   "B": "一定與電子移動方向相同",
+   "C": "只由電阻流向電池",
+   "D": "沒有規定方向"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "量測通過燈泡的電流時，電流計應如何接入？",
+  "id": "q_9_2_004",
+  "concept_id": "current_and_circuit",
+  "hints": [
+   "要量到通過燈泡的電流，儀表本身也必須讓同一股電流流過。",
+   "電流計內阻很小，應接在待測支路中；跨接電源兩端可能造成過大電流。",
+   "把燈泡支路切開並讓儀表接入同一路徑，再判斷連接方式。"
+  ],
+  "options": {
+   "A": "與燈泡串聯",
+   "B": "與燈泡並聯",
+   "C": "直接跨接電源兩端且不接負載",
+   "D": "不必接入電路"
+  },
+  "answer": "A",
+  "imageUrl": "images/9-2/q004_ammeter_setup.png",
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "下列哪種做法最可能造成危險短路？",
+  "id": "q_9_2_005",
+  "concept_id": "current_and_circuit",
+  "hints": [
+   "尋找會繞過正常負載、讓電源兩端之間形成極低電阻路徑的做法。",
+   "依 I＝V/R，電源電壓一定時總電阻過小會產生很大電流，造成導線過熱與危險。",
+   "逐項判斷路徑是否保留負載與保護裝置，找出直接跨接電源者。"
+  ],
+  "options": {
+   "A": "以低電阻導線直接連接電源兩端",
+   "B": "將燈泡正確接入閉合電路",
+   "C": "把電路上的開關斷開",
+   "D": "使用規格合適的保險裝置"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "電壓的單位是下列何者？",
+  "id": "q_9_2_006",
+  "concept_id": "voltage_measurement",
+  "hints": [
+   "先辨認選項分別是電流、電壓、電阻與能量的單位。",
+   "電壓表示每單位電荷的電位能差，其國際單位符號是 V。",
+   "找出符號 V 對應的名稱，排除 A、Ω 與能量單位。"
+  ],
+  "options": {
+   "A": "安培",
+   "B": "伏特",
+   "C": "歐姆",
+   "D": "焦耳"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "量測燈泡兩端電壓時，電壓計應如何連接？",
+  "id": "q_9_2_007",
+  "concept_id": "voltage_measurement",
+  "hints": [
+   "題目要比較燈泡兩個端點的電位，因此儀表兩端要分別接到這兩點。",
+   "電壓計內阻很大，量測元件兩端電位差時跨接在元件兩端，不應取代原支路。",
+   "保留燈泡原本接線，再把儀表兩端接到燈泡的兩個端點。"
+  ],
+  "options": {
+   "A": "與燈泡並聯",
+   "B": "與燈泡串聯",
+   "C": "取代電源",
+   "D": "只接單一端點"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "電壓在電路中的主要意義為何？",
+  "id": "q_9_2_008",
+  "concept_id": "voltage_measurement",
+  "hints": [
+   "先區分電壓與電流：一個描述兩點的能量差，另一個描述電荷流率。",
+   "兩點電壓可寫成 V＝ΔU/q，表示每庫侖電荷對應的電位能差。",
+   "找出同時提到單位電荷與電位能差的敘述，排除流量、長度或質量。"
+  ],
+  "options": {
+   "A": "每單位電荷的電位能差，能推動電荷流動",
+   "B": "一秒通過的電荷量",
+   "C": "導線的長度",
+   "D": "電器消耗的質量"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "電阻的單位是下列何者？",
+  "id": "q_9_2_009",
+  "concept_id": "resistance_ohms_law",
+  "hints": [
+   "先把各單位對應到電流、電壓、電阻與電荷量。",
+   "電阻可由 R＝V/I 定義，其國際單位符號為希臘字母 Ω。",
+   "找出符號 Ω 的單位名稱，排除 A、V 與 C 所代表的量。"
+  ],
+  "options": {
+   "A": "安培",
+   "B": "伏特",
+   "C": "歐姆",
+   "D": "庫侖"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "同材料、同溫度且截面積相同的導線，長度增加時電阻通常如何改變？",
+  "id": "q_9_2_010",
+  "concept_id": "resistance_ohms_law",
+  "hints": [
+   "題目已固定材料、溫度與截面積，只需追蹤導線長度的變化。",
+   "均勻導線的電阻可寫成 R＝ρL/A，在 ρ 與 A 固定時與 L 成正比。",
+   "把較大的長度代入比例關係，判斷電阻的增減方向。"
+  ],
+  "options": {
+   "A": "增加",
+   "B": "減少",
+   "C": "不變",
+   "D": "必定為零"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "同材料、同溫度且長度相同的導線，截面積增加時電阻通常如何改變？",
+  "id": "q_9_2_011",
+  "concept_id": "resistance_ohms_law",
+  "hints": [
+   "題目已固定材料、溫度與長度，變化的是電流可通過的橫截面大小。",
+   "由 R＝ρL/A 可知，在 ρ 與 L 固定時，電阻與截面積成反比。",
+   "讓分母 A 增大，依分數變化判斷 R 的方向，再核對選項。"
+  ],
+  "options": {
+   "A": "減少",
+   "B": "增加",
+   "C": "不變",
+   "D": "變為無限大"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-3",
+  "difficulty": "basic",
+  "question": "符合歐姆定律的電阻器，其電壓 V、電流 I 與電阻 R 的關係為何？",
+  "id": "q_9_2_012",
+  "concept_id": "resistance_ohms_law",
+  "hints": [
+   "先確認 V、I、R 分別代表電壓、電流與電阻，三者不能直接相加。",
+   "在溫度等條件不變且符合歐姆定律時，電壓等於電流與電阻的乘積。",
+   "用單位檢查：A×Ω 應得到 V，據此選出正確關係式。"
+  ],
+  "options": {
+   "A": "V＝IR",
+   "B": "V＝I＋R",
+   "C": "I＝VR",
+   "D": "R＝V＋I"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-3",
+  "difficulty": "calc",
+  "question": "一電阻兩端電壓為 6 V，通過電流為 2 A，電阻為多少？",
+  "id": "q_9_2_013",
+  "concept_id": "resistance_ohms_law",
+  "hints": [
+   "先整理已知電壓與電流，未知量是電阻。",
+   "由歐姆定律 V＝IR 移項可得 R＝V/I。",
+   "將 6 V 除以 2 A，確認單位為 Ω 後再對照選項。"
+  ],
+  "options": {
+   "A": "3 Ω",
+   "B": "4 Ω",
+   "C": "8 Ω",
+   "D": "12 Ω"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-3",
+  "difficulty": "calc",
+  "question": "將 4 Ω 電阻接在 12 V 電源上，依歐姆定律電流為多少？",
+  "id": "q_9_2_014",
+  "concept_id": "resistance_ohms_law",
+  "hints": [
+   "先圈出電源電壓與電阻值，題目要找的是通過電阻的電流。",
+   "由 V＝IR 移項可得 I＝V/R。",
+   "計算 12 V÷4 Ω，保留安培單位後核對選項。"
+  ],
+  "options": {
+   "A": "0.33 A",
+   "B": "3 A",
+   "C": "8 A",
+   "D": "48 A"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-3",
+  "difficulty": "concept",
+  "question": "固定電阻不變時，兩端電壓增加，通過的電流如何改變？",
+  "id": "q_9_2_015",
+  "concept_id": "resistance_ohms_law",
+  "hints": [
+   "題目已固定電阻，因此只需比較電壓與電流兩個變量。",
+   "對符合歐姆定律的固定電阻，I＝V/R；R 不變時 I 與 V 成正比。",
+   "讓 V 乘上一個倍數，觀察除以同一 R 後 I 會如何變化。"
+  ],
+  "options": {
+   "A": "依比例增加",
+   "B": "依比例減少",
+   "C": "保持為零",
+   "D": "與電壓無關"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-4",
+  "difficulty": "basic",
+  "question": "兩電阻串聯時，各電阻中的哪一個物理量相同？",
+  "id": "q_9_2_016",
+  "concept_id": "series_parallel_circuits",
+  "hints": [
+   "觀察串聯電路只有一條電荷流動路徑，途中沒有分岔。",
+   "穩定狀態下同一時間通過串聯各元件的電荷量相同，因此各處電流相同；電壓可分配。",
+   "沿唯一支路逐點追蹤電荷流率，排除會隨元件阻值改變的量。"
+  ],
+  "options": {
+   "A": "電流",
+   "B": "電壓",
+   "C": "電阻",
+   "D": "功率必定相同"
+  },
+  "answer": "A",
+  "imageUrl": "images/9-2/q016_series_resistors.png",
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-4",
+  "difficulty": "basic",
+  "question": "兩電阻並聯時，各支路兩端的哪一個物理量相同？",
+  "id": "q_9_2_017",
+  "concept_id": "series_parallel_circuits",
+  "hints": [
+   "觀察每條並聯支路都連接在同一對節點之間。",
+   "同一對節點的電位差固定，因此各支路承受相同電壓；支路電流可因電阻不同而不同。",
+   "先標出兩個共同節點，再比較每條支路的起點與終點。"
+  ],
+  "options": {
+   "A": "電壓",
+   "B": "電流",
+   "C": "電阻",
+   "D": "電子數"
+  },
+  "answer": "A",
+  "imageUrl": "images/9-2/q017_parallel_resistors.png",
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-4",
+  "difficulty": "calc",
+  "question": "2 Ω 與 3 Ω 電阻串聯，等效電阻為多少？",
+  "id": "q_9_2_018",
+  "concept_id": "series_parallel_circuits",
+  "hints": [
+   "先確認兩個電阻是串聯，而不是並聯，串聯只有一條路徑。",
+   "串聯等效電阻等於各電阻直接相加，可寫成 R總＝R1＋R2。",
+   "將 2 Ω 與 3 Ω 相加，再檢查結果應大於任一單獨電阻。"
+  ],
+  "options": {
+   "A": "1.2 Ω",
+   "B": "2.5 Ω",
+   "C": "5 Ω",
+   "D": "6 Ω"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-4",
+  "difficulty": "concept",
+  "question": "在原有電阻旁再並聯一個電阻，電路的總電阻通常如何改變？",
+  "id": "q_9_2_019",
+  "concept_id": "series_parallel_circuits",
+  "hints": [
+   "想像新增支路後，電流多了一條可以通過的路徑。",
+   "並聯時 1/R總 等於各支路 1/R 的總和；增加有限正電阻支路會提高總電導。",
+   "在倒數和中加入正值後再取倒數，判斷等效電阻相對原本的變化。"
+  ],
+  "options": {
+   "A": "減小",
+   "B": "增大",
+   "C": "不變",
+   "D": "一定變為零"
+  },
+  "answer": "A",
+  "imageUrl": "images/9-2/q019_parallel_branch_compare_v001.png",
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-4",
+  "difficulty": "concept",
+  "question": "家庭用電器通常採並聯的主要原因為何？",
+  "id": "q_9_2_020",
+  "concept_id": "series_parallel_circuits",
+  "hints": [
+   "觀察家中某一電器關閉時，其他電器通常仍能正常工作。",
+   "並聯支路各自跨接同一供電兩端，能獨立開關並獲得相同供電電壓；各支路電流不必相同。",
+   "逐項核對獨立控制、支路電壓與電流條件，排除必須同時關閉的描述。"
+  ],
+  "options": {
+   "A": "各電器可獨立開關並承受相同供電電壓",
+   "B": "所有電器必須同時關閉",
+   "C": "可使總電阻無限大",
+   "D": "各支路電流必定相同"
+  },
+  "answer": "A",
+  "imageUrl": "images/9-2/q020_household_parallel_v001.png",
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-4",
+  "difficulty": "concept",
+  "question": "串聯電路中其中一處斷路，通常會發生什麼事？",
+  "id": "q_9_2_021",
+  "concept_id": "series_parallel_circuits",
+  "hints": [
+   "先沿串聯的唯一電流路徑追蹤，看看斷點後是否還有回到電源的連續通道。",
+   "任何一處斷開都會破壞閉合回路；沒有完整路徑時穩定電流無法流過各元件。",
+   "把斷點視為無限大電阻，依 I＝V/R 的極限判斷整條支路。"
+  ],
+  "options": {
+   "A": "整條電路沒有電流",
+   "B": "其他元件電流增加無限大",
+   "C": "電源的電壓會全部消失",
+   "D": "斷點會自動重新接通"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-5",
+  "difficulty": "basic",
+  "question": "保險絲或無熔絲開關的主要功能為何？",
+  "id": "q_9_2_022",
+  "concept_id": "basic_electrical_safety",
+  "hints": [
+   "先找出哪種狀況會讓導線過熱，以及保護裝置應在危險擴大前做什麼。",
+   "過載或短路造成電流超過安全值時，保險裝置會開啟回路以停止電流。",
+   "排除提高功率、升高電壓或維持短路的說法，選擇主動中斷危險者。"
+  ],
+  "options": {
+   "A": "電流過大時切斷電路以降低危險",
+   "B": "提高所有電器功率",
+   "C": "增加供電電壓",
+   "D": "讓短路持續"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-5",
+  "difficulty": "concept",
+  "question": "發現電器導線破損時，較安全的處理方式為何？",
+  "id": "q_9_2_023",
+  "concept_id": "basic_electrical_safety",
+  "hints": [
+   "把裸露導體、漏電與觸電風險放在第一順位，不要嘗試用身體確認故障。",
+   "破損設備應停止使用並隔離電源，由具資格的人員檢查修復；接地保護不可任意移除。",
+   "逐項排除增加接觸水分、延長帶病運轉或破壞接地的行為。"
+  ],
+  "options": {
+   "A": "停止使用並交由合格人員檢修",
+   "B": "用濕手測試是否漏電",
+   "C": "繼續使用直到完全斷裂",
+   "D": "直接拆除接地線"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9-2",
+  "section": "2-5",
+  "difficulty": "concept",
+  "question": "下列何者符合基本用電安全？",
+  "id": "q_9_2_024",
+  "concept_id": "basic_electrical_safety",
+  "hints": [
+   "檢查每項行為是否能降低過載、導電接觸與保護裝置失效的風險。",
+   "安全用電應避免插座超過額定負載、保持乾燥並使用合規格的保護元件。",
+   "排除把金屬或水接近帶電設備，以及繞過保險保護的做法。"
+  ],
+  "options": {
+   "A": "避免插座超載並保持手部乾燥",
+   "B": "以金屬物插入插座測試",
+   "C": "用水沖洗通電設備",
+   "D": "以不合規格導線取代保險絲"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ }
+]

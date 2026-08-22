@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>科技島大富翁 — 我的平板</title>
+<link rel="stylesheet" href="css/style.css?v=v1.1">
+</head>
+<body class="player">
+
+<!-- ══ 加入遊戲 ══ -->
+<div id="join" class="player-wrap">
+  <div class="pl-card">
+    <h3>加入遊戲</h3>
+    <div class="row"><label>老師開的是哪一班？</label><div id="jClass" class="chips wrap"></div></div>
+    <div class="row"><label>存檔槽</label><div id="jSlot" class="chips"></div></div>
+    <div class="row"><label>你們是第幾組？</label><div id="jGroup" class="chips wrap"></div></div>
+    <button id="btnJoin" class="primary big-btn">加入</button>
+    <div class="pl-msg" id="joinMsg"></div>
+  </div>
+</div>
+
+<!-- ══ 選角 ══ -->
+<div id="pick" class="player-wrap hidden">
+  <div class="pl-card">
+    <h3>選一位科學家（每組不能重複）</h3>
+    <div id="pickGrid" class="pick-grid"></div>
+    <button id="btnPickOk" class="primary big-btn" disabled style="margin-top:14px">就決定是你了</button>
+    <div class="pl-msg" id="pickMsg"></div>
+  </div>
+</div>
+
+<!-- ══ 遊戲中 ══ -->
+<div id="play" class="player-wrap hidden">
+
+  <div class="pl-top">
+    <img id="myAvatar" alt="">
+    <div>
+      <div class="pl-name" id="myName">第 ? 組</div>
+      <div class="pl-stats">
+        <span>💰 <b id="myCash">0</b></span>
+        <span>🏦 <b id="myBank">0</b></span>
+        <span>🎁 <b id="myRp">0</b></span>
+        <span id="myLoanWrap" class="hidden">📉 欠 <b id="myLoan">0</b></span>
+      </div>
+      <div class="pl-stats" style="font-size:13px;color:#93a4bb">
+        <span id="myPos">－</span><span id="myState"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 答題 -->
+  <div class="pl-card hidden" id="qCard">
+    <h3>第 <span id="qRound">1</span> 輪　<span id="qLeft"></span></h3>
+    <div class="pl-q" id="qText"></div>
+    <div id="qOpts"></div>
+    <div class="pl-actions" style="margin-top:10px">
+      <button id="btnHint">💡 買提示（$500）</button>
+      <button id="btnHint2">💡💡 更多提示（$1,000）</button>
+    </div>
+    <div class="pl-msg" id="hintBox"></div>
+  </div>
+
+  <!-- 輪到我行動 -->
+  <div class="pl-card hidden" id="actCard">
+    <h3 id="actTitle">輪到你了</h3>
+    <div id="actBody"></div>
+  </div>
+
+  <!-- 手牌 -->
+  <div class="pl-card">
+    <h3>🎴 我的手牌（<span id="handCount">0</span>/8）</h3>
+    <div class="hand" id="handList"></div>
+    <div class="pl-msg" id="handMsg"></div>
+  </div>
+
+  <!-- 資產 -->
+  <div class="pl-card">
+    <h3>🏭 我的產業（<span id="assetCount">0</span> 塊）</h3>
+    <div class="assets" id="assetList"></div>
+  </div>
+
+  <!-- 銀行 -->
+  <div class="pl-card">
+    <h3>🏦 銀行</h3>
+    <div class="pl-msg" id="bankHint">要停在銀行格才能存提款與申請貸款</div>
+    <div class="pl-actions">
+      <button id="btnDeposit">存款</button>
+      <button id="btnWithdraw">提款</button>
+      <button id="btnLoan">💰 申請貸款</button>
+      <button id="btnRepay">還款</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/board.js?v=v1.1"></script>
+<script src="js/characters.js?v=v1.1"></script>
+<script src="js/cards.js?v=v1.1"></script>
+<script src="js/engine.js?v=v1.1"></script>
+<script src="js/store.js?v=v1.1"></script>
+<script src="js/player.js?v=v1.1"></script>
+</body>
+</html>

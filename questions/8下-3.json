@@ -1,0 +1,752 @@
+[
+ {
+  "chapter": "8下-3",
+  "section": "3-1",
+  "difficulty": "basic",
+  "question": "「電解質」的定義為下列何者？",
+  "options": {
+   "A": "可導電的金屬",
+   "B": "溶於水或熔融狀態能導電的物質",
+   "C": "所有的固體物質",
+   "D": "在乾燥固態時就能導電的物質"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_001",
+  "concept_id": "electrolyte_definition",
+  "hints": [
+   "電解質的特徵是必須在什麼狀態下能夠導電？",
+   "它本身必須是化合物，且溶於水或熔融態能導電。",
+   "關鍵在導電條件：這類物質要在什麼狀態下才能導電？想想離子能不能自由移動。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-1",
+  "difficulty": "basic",
+  "question": "下列何者「不是」電解質？",
+  "options": {
+   "A": "食鹽（NaCl）",
+   "B": "硫酸（H₂SO₄）",
+   "C": "氫氧化鈉（NaOH）",
+   "D": "蔗糖（C₁₂H₂₂O₁₁）"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_002",
+  "concept_id": "electrolyte_definition",
+  "hints": [
+   "電解質包括酸、鹼、鹽。蔗糖和酒精溶於水不能導電。",
+   "蔗糖（C₁₂H₂₂O₁₁）在水中不會解離出離子。",
+   "蔗糖不是電解質。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-1",
+  "difficulty": "basic",
+  "question": "電解質溶於水後能導電，主要是因為下列何者？",
+  "options": {
+   "A": "解離產生可自由移動的離子",
+   "B": "產生大量的氣體",
+   "C": "釋放出大量電子",
+   "D": "與水反應產生熱"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_003",
+  "concept_id": "dissociation_theory",
+  "hints": [
+   "金屬導電是靠自由電子，而電解質溶液導電是靠什麼？",
+   "溶液中必須有帶電的粒子在電場下移動。",
+   "純水幾乎不導電；溶了電解質之後，水裡多了什麼「會動的帶電粒子」？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-1",
+  "difficulty": "concept",
+  "question": "下列關於電解質溶液導電性的敘述，何者正確？",
+  "options": {
+   "A": "電解質濃度越大，導電能力一定越強",
+   "B": "強電解質在水中幾乎完全解離，導電能力強",
+   "C": "蒸餾水是強電解質",
+   "D": "酒精溶液是強電解質"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_3_004",
+  "concept_id": "electrolyte_definition",
+  "hints": [
+   "強電解質與弱電解質的差別在於解離的程度。",
+   "強電解質在水中幾乎完全解離，離子濃度大，導電性強。",
+   "導電強弱看解離程度——強電解質在水中的解離接近哪種程度？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-2",
+  "difficulty": "basic",
+  "question": "下列關於酸的性質，何者「錯誤」？",
+  "options": {
+   "A": "嚐起來有酸味",
+   "B": "能使藍色石蕊試紙變紅",
+   "C": "能與活性大的金屬反應產生氫氣",
+   "D": "能使無色酚酞變紅"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_005",
+  "concept_id": "acid_base_properties",
+  "hints": [
+   "酸能使藍色石蕊試紙變紅，酚酞在酸性中會變紅嗎？",
+   "無色酚酞在酸性中依然是無色，在鹼性中才會變紅。",
+   "酚酞遇酸不變色、遇鹼才變紅——找出把這件事講反的那一句。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-2",
+  "difficulty": "basic",
+  "question": "下列關於鹼的性質，何者正確？",
+  "options": {
+   "A": "摸起來有澀味，且能使藍色石蕊試紙變紅",
+   "B": "只有強鹼的水溶液才能導電，弱鹼水溶液不能",
+   "C": "多為固體，溶於水後不會解離出任何離子",
+   "D": "水溶液能解離出氫氧根離子，使紅色石蕊試紙變藍"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_006",
+  "concept_id": "acid_base_properties",
+  "hints": [
+   "鹼的特徵是觸感滑膩，且能使紅色石蕊試紙變藍。",
+   "摸起來有滑膩感，且使紅色石蕊變藍。",
+   "摸起來有滑膩感，且能使紅色石蕊試紙變藍。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-2",
+  "difficulty": "basic",
+  "question": "下列何者「不是」常見的酸？",
+  "options": {
+   "A": "鹽酸（HCl）",
+   "B": "硫酸（H₂SO₄）",
+   "C": "硝酸（HNO₃）",
+   "D": "氨水（NH₃·H₂O）"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_007",
+  "concept_id": "acid_base_properties",
+  "hints": [
+   "常見的酸包括鹽酸、硫酸、硝酸。氨水是酸還是鹼？",
+   "氨水（NH₃·H₂O）呈弱鹼性。",
+   "氨水不是常見的酸。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-2",
+  "difficulty": "basic",
+  "question": "酸在水中解離出的「共同陽離子」是下列何者？",
+  "options": {
+   "A": "Na⁺",
+   "B": "H⁺",
+   "C": "OH⁻",
+   "D": "Cl⁻"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_008",
+  "concept_id": "acid_base_properties",
+  "hints": [
+   "酸在水中解離時，都會釋放出哪種陽離子？",
+   "這是酸的共同特性，使其表現出酸性。",
+   "所有酸溶於水都會解離出同一種陽離子——就是讓藍色石蕊變紅的那個。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-2",
+  "difficulty": "basic",
+  "question": "鹼在水中解離出的「共同陰離子」是下列何者？",
+  "options": {
+   "A": "Cl⁻",
+   "B": "OH⁻",
+   "C": "H⁺",
+   "D": "SO₄²⁻"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_009",
+  "concept_id": "acid_base_properties",
+  "hints": [
+   "鹼在水中解離時，都會釋放出哪種共同的陰離子？",
+   "這是鹼呈鹼性的原因。",
+   "所有鹼溶於水都會解離出同一種陰離子——名字就藏在「氫氧」兩個字裡。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-2",
+  "difficulty": "concept",
+  "question": "下列何種液體在水中不是「酸性」？",
+  "options": {
+   "A": "檸檬汁",
+   "B": "胃液",
+   "C": "肥皂水",
+   "D": "可樂"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_3_010",
+  "concept_id": "ph_scale",
+  "hints": [
+   "酸性溶液的 pH < 7，中性為 7，鹼性 pH > 7。",
+   "肥皂水含有脂肪酸鈉，呈弱鹼性。",
+   "肥皂摸起來滑滑的——想想滑膩感是酸的特性還是鹼的特性。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-3",
+  "difficulty": "basic",
+  "question": "下列關於 pH 值的敘述，何者正確？",
+  "options": {
+   "A": "pH = 7 為酸性",
+   "B": "pH < 7 為酸性",
+   "C": "pH > 7 為酸性",
+   "D": "pH 值不能小於 0"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_011",
+  "concept_id": "ph_scale",
+  "hints": [
+   "pH 值是表示溶液中氫離子濃度的指標。",
+   "當 pH 越小，酸性越強。",
+   "pH 以 7 為分界：小於 7 的是哪一邊、大於 7 的是哪一邊？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-3",
+  "difficulty": "basic",
+  "question": "pH = 7 的溶液為下列何者？",
+  "options": {
+   "A": "強酸",
+   "B": "弱酸",
+   "C": "中性",
+   "D": "強鹼"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_012",
+  "concept_id": "ph_scale",
+  "hints": [
+   "pH ＝ 7 代表溶液中 H⁺ 與 OH⁻ 的濃度相等，呈中性。",
+   "水在 25°C 時的純水 pH ＝ 7。",
+   "7 正好落在分界點上——不酸也不鹼，這叫什麼性？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-3",
+  "difficulty": "basic",
+  "question": "下列何種溶液 pH 值「最大」？",
+  "options": {
+   "A": "胃酸（pH≈1）",
+   "B": "牛奶（pH≈6）",
+   "C": "蒸餾水（pH≈7）",
+   "D": "氫氧化鈉溶液（pH≈13）"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_013",
+  "concept_id": "ph_scale",
+  "hints": [
+   "pH 值越高，代表鹼性越強。",
+   "對比胃酸（pH≈1）、牛奶（pH≈6）、水（7）、NaOH（13）。",
+   "pH 越大代表鹼性越強——選項中哪一個是強鹼溶液？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-3",
+  "difficulty": "concept",
+  "question": "下列關於酸鹼強弱的敘述，何者正確？",
+  "options": {
+   "A": "強酸溶液 pH 值一定很低",
+   "B": "強酸溶液濃度一定很大",
+   "C": "強酸表示溶液中酸的含量很高",
+   "D": "強酸的解離度比弱酸小"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_3_014",
+  "concept_id": "acid_base_properties",
+  "hints": [
+   "酸鹼強弱取決於解離度（在水中解離的比例），而非溶液的濃度。",
+   "強酸在水中完全解離，使得相同濃度下其 pH 值較低。",
+   "「強酸」解離徹底、氫離子濃度高——它的 pH 會落在數線的哪一端？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-3",
+  "difficulty": "concept",
+  "question": "下列關於廣用試紙的敘述，何者正確？",
+  "options": {
+   "A": "只能判斷酸鹼性，無法估計 pH 值",
+   "B": "可以根據顏色變化估計 pH 值約略大小",
+   "C": "只能用於酸性溶液",
+   "D": "顏色越深表示溶液濃度越大"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_3_015",
+  "concept_id": "ph_scale",
+  "hints": [
+   "廣用試紙會根據不同的 pH 值呈現紅、橙、黃、綠、藍、紫等顏色。",
+   "這可以用來判斷大略的 pH 值。",
+   "廣用試紙靠顏色對照表判讀——它能告訴你 pH 的「大概」還是「精確」數值？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-4",
+  "difficulty": "basic",
+  "question": "酸與鹼反應產生「鹽和水」的反應稱為？",
+  "options": {
+   "A": "氧化反應",
+   "B": "還原反應",
+   "C": "中和反應",
+   "D": "分解反應"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_016",
+  "concept_id": "neutralization_reaction",
+  "hints": [
+   "酸與鹼混合時會釋放出熱量，並產生水和鹽類。",
+   "這類反應在化學上稱為什麼？",
+   "酸與鹼相遇、彼此抵銷，生成鹽和水——這種反應的名稱是什麼？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-4",
+  "difficulty": "basic",
+  "question": "下列關於「鹽」的敘述，何者正確？",
+  "options": {
+   "A": "鹽就是食鹽（NaCl）",
+   "B": "鹽是由酸的陰離子與鹼的陽離子組成的化合物",
+   "C": "鹽水溶液一定是酸性",
+   "D": "鹽不能溶於水"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_017",
+  "concept_id": "neutralization_reaction",
+  "hints": [
+   "中和反應產生的離子化合物稱為鹽。",
+   "鹽是由酸解離出的陰離子與鹼解離出的陽離子結合而成。",
+   "把鹽的組成拆開看：陽離子來自鹼、陰離子來自酸——對照選項找正確的描述。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-4",
+  "difficulty": "concept",
+  "question": "在反應 HCl + NaOH → NaCl + H₂O 中，下列敘述何者正確？",
+  "options": {
+   "A": "HCl 為鹼，NaOH 為酸",
+   "B": "NaCl 為鹽，H₂O 為水",
+   "C": "反應後 pH 值一定為 7",
+   "D": "反應為氧化還原反應"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_3_018",
+  "concept_id": "neutralization_reaction",
+  "hints": [
+   "反應為 HCl + NaOH → NaCl + H₂O。",
+   "HCl 是酸，NaOH 是鹼，NaCl 是中和產生的鹽。",
+   "生成物有兩個：H₂O 是水，那另一個 NaCl 在這類反應中叫什麼？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-4",
+  "difficulty": "concept",
+  "question": "胃酸過多時，可服用下列何者來中和胃酸？",
+  "options": {
+   "A": "鹽酸",
+   "B": "檸檬汁",
+   "C": "氫氧化鎂（鎂乳）",
+   "D": "氯化鈉"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_3_019",
+  "concept_id": "neutralization_reaction",
+  "hints": [
+   "胃酸主要成分是強酸鹽酸（HCl），中和胃酸需要弱鹼。",
+   "鹽酸和檸檬汁是酸性，氫氧化鎂是弱鹼性物質。",
+   "中和胃酸要用溫和不傷身的鹼性物質——選項中哪一個是弱鹼？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-4",
+  "difficulty": "calc",
+  "question": "100 mL 的鹽酸（HCl）與 100 mL 的氫氧化鈉（NaOH）恰好完全中和。若鹽酸的莫耳濃度為 0.1 M，則 NaOH 的莫耳濃度應為多少 M？",
+  "options": {
+   "A": "0.05",
+   "B": "0.1",
+   "C": "0.2",
+   "D": "1.0"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_3_020",
+  "concept_id": "neutralization_reaction",
+  "hints": [
+   "完全中和時，酸提供的 H⁺ 莫耳數等於鹼提供的 OH⁻ 莫耳數。",
+   "因為 HCl 和 NaOH 都是一元酸鹼，且體積相同（100 mL）。",
+   "恰好中和代表 H⁺ 與 OH⁻ 莫耳數相等；兩邊體積相同時，濃度該是什麼關係？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-3",
+  "difficulty": "basic",
+  "question": "在稀鹽酸與氫氧化鈉溶液進行酸鹼中和反應時，反應的實質是酸解離出的 H⁺ 與鹼解離出的何種離子結合生成水？",
+  "options": {
+   "A": "Na⁺",
+   "B": "Cl⁻",
+   "C": "OH⁻",
+   "D": "SO₄²⁻"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_021",
+  "concept_id": "neutralization_reaction",
+  "hints": [
+   "酸鹼中和反應中，產物主要是水與鹽類。",
+   "水是由酸的氫離子與鹼的離子結合而成。",
+   "中和的實質是 H⁺ 與某種離子結合成水——想想 H₂O 拆開來還需要誰。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-1",
+  "difficulty": "basic",
+  "question": "將電解質溶液接上直流電源進行導電性實驗時，關於溶液內離子前進方向的敘述，何者正確？",
+  "options": {
+   "A": "所有的陰、陽離子都移向正極",
+   "B": "陽離子移向正極，陰離子移向負極",
+   "C": "陽離子移向負極，陰離子移向正極",
+   "D": "電子在溶液中自由穿梭，離子保持靜止"
+  },
+  "answer": "C",
+  "imageUrl": "images/8下-3/q022_electrolyte_circuit.png",
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_022",
+  "concept_id": "dissociation_theory",
+  "hints": [
+   "帶正電荷的粒子稱為陽離子，帶負電荷的粒子稱為陰離子。",
+   "同種電荷相斥，異種電荷相吸。",
+   "因此，陽離子（正電）會移向負極，陰離子（負電）會移向正極。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-2",
+  "difficulty": "basic",
+  "question": "日常生活中，小蘇打粉（碳酸氫鈉）常用於烘焙與清潔。將小蘇打粉溶於水後，該溶液的酸鹼性與 pH 值範圍為？",
+  "options": {
+   "A": "酸性，pH < 7",
+   "B": "中性，pH = 7",
+   "C": "鹼性，pH > 7",
+   "D": "強酸性，pH < 2"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_3_023",
+  "concept_id": "ph_scale",
+  "hints": [
+   "小蘇打學名為碳酸氫鈉（NaHCO₃），是一種碳酸鹽類。",
+   "它溶於水後會解離出微量的氫氧根離子（OH⁻），呈弱鹼性。",
+   "鹼性溶液的 pH 值大於 7。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-1",
+  "difficulty": "concept",
+  "question": "配製相同莫耳濃度的鹽酸與醋酸溶液。實驗發現，鹽酸溶液的導電性明顯好於醋酸溶液。這是因為？",
+  "options": {
+   "A": "等質量下鹽酸所含的分子數較多，離子也較多",
+   "B": "鹽酸的解離度較高，水溶液中自由離子濃度較大",
+   "C": "醋酸溶於水後完全不解離，所以完全不導電",
+   "D": "醋酸所含的氫原子個數較多，反而阻礙導電"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_3_024",
+  "concept_id": "electrolyte_definition",
+  "hints": [
+   "溶液導電性的強弱，主要取決於溶液中可自由移動離子的總濃度。",
+   "強酸鹽酸在水中解離度接近 100%，弱酸醋酸解離度極低。",
+   "在濃度相同時，鹽酸釋放的離子多，導電性好。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-2",
+  "difficulty": "concept",
+  "question": "將 10 mL 莫耳濃度為 0.1 M 的鹽酸溶液加入足量純水稀釋至 10 公升（稀釋了 1000 倍）。關於稀釋後溶液的 pH 值，下列何者正確？",
+  "options": {
+   "A": "pH 值變小，酸性變強",
+   "B": "pH 值變大，並可達到 9 變為鹼性",
+   "C": "pH 值變大，但會無限接近 7，且仍小於 7",
+   "D": "pH 值完全不變，因為溶質總量不變"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_3_025",
+  "concept_id": "ph_scale",
+  "hints": [
+   "稀釋酸性溶液會降低氫離子濃度，使得 pH 值上升（酸性減弱）。",
+   "不管加入多少水，酸性溶液稀釋後都不可能變成鹼性（pH > 7）。",
+   "因此，稀釋稀酸的 pH 值會變大，但只會無限逼近 7，依然是酸性。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-2",
+  "difficulty": "concept",
+  "question": "將酚酞指示劑滴入下列哪一種溶液中，溶液會呈現「紅色」？",
+  "options": {
+   "A": "稀鹽酸溶液（pH ≈ 2）",
+   "B": "食鹽水溶液（pH = 7）",
+   "C": "氫氧化鈉溶液（pH ≈ 13）",
+   "D": "檸檬汁（pH ≈ 3）"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_3_026",
+  "concept_id": "ph_scale",
+  "hints": [
+   "酚酞是一種常見的酸鹼指示劑，其變色範圍大約在 pH 8.2 ~ 10.0。",
+   "酚酞在酸性與中性溶液中呈無色，在鹼性中呈紅色。",
+   "酚酞只有在鹼性溶液中才變紅——四個選項中哪一個是鹼性？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-1",
+  "difficulty": "concept",
+  "question": "根據電中性原理，電解質溶液中正電荷總量必定等於負電荷總量。若某杯硫酸鈉（Na₂SO₄）溶液中含有 2 莫耳的鈉離子（Na⁺），則溶液中應含有多少莫耳的硫酸根離子（SO₄²⁻）？",
+  "options": {
+   "A": "1 莫耳",
+   "B": "2 莫耳",
+   "C": "4 莫耳",
+   "D": "0.5 莫耳"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_3_027",
+  "concept_id": "dissociation_theory",
+  "hints": [
+   "Na⁺ 帶 1 個正電，SO₄²⁻ 帶 2 個負電。",
+   "2 莫耳的 Na⁺ 含有 2 莫耳的正電荷。",
+   "Na⁺ 每莫耳帶 +1、共 2 莫耳正電荷；SO₄²⁻ 每莫耳帶 -2——需要幾莫耳才能平衡？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-3",
+  "difficulty": "calc",
+  "question": "用未知濃度的鹽酸（HCl）中和 50 mL 莫耳濃度為 0.2 M 的氫氧化鈉（NaOH）溶液。若恰好完全中和時，共消耗鹽酸溶液 25 mL，則此鹽酸的莫耳濃度為多少 M？",
+  "options": {
+   "A": "0.1 M",
+   "B": "0.2 M",
+   "C": "0.4 M",
+   "D": "0.8 M"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_3_028",
+  "concept_id": "neutralization_reaction",
+  "hints": [
+   "中和反應中：酸解離 H⁺ 莫耳數 ＝ 鹼解離 OH⁻ 莫耳數。",
+   "NaOH 提供的 OH⁻ ＝ 0.2 M × 0.05 L ＝ 0.01 莫耳。",
+   "先算 OH⁻ 莫耳數（0.2 M × 0.05 L），中和所需的 H⁺ 與它等量；再除以鹽酸的體積 0.025 L（25 mL）。"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-1",
+  "difficulty": "calc",
+  "question": "將 1 莫耳的氯化鈣（CaCl₂）固體完全溶解於水中並完全解離。不考慮水的解離下，溶液中所含有的陰、陽離子總莫耳數為多少莫耳？",
+  "options": {
+   "A": "1 莫耳",
+   "B": "2 莫耳",
+   "C": "3 莫耳",
+   "D": "4 莫耳"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_3_029",
+  "concept_id": "dissociation_theory",
+  "hints": [
+   "寫出氯化鈣在水中的解離方程式：CaCl₂ → Ca²⁺ ＋ 2 Cl⁻。",
+   "1 莫耳的 CaCl₂ 完全解離，會產生 1 莫耳的 Ca²⁺ 陽離子與 2 莫耳的 Cl⁻ 陰離子。",
+   "CaCl₂ 解離成 1 個 Ca²⁺ 與 2 個 Cl⁻——1 莫耳固體總共解離出幾莫耳離子？"
+  ]
+ },
+ {
+  "chapter": "8下-3",
+  "section": "3-2",
+  "difficulty": "calc",
+  "question": "配製 1 公升的稀鹽酸水溶液，已知其中含有 0.0001 莫耳的氫離子（H⁺）。則該稀鹽酸溶液在 25°C 時的 pH 值為多少？",
+  "options": {
+   "A": "1",
+   "B": "3",
+   "C": "4",
+   "D": "5"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_3_030",
+  "concept_id": "ph_scale",
+  "hints": [
+   "先求出氫離子濃度：[H⁺] ＝ 0.0001 mol ÷ 1 L ＝ 10⁻⁴ M。",
+   "當氫離子濃度為 10^(-pH) M 時，指數的絕對值即為 pH 值。",
+   "pH＝負的 10 為底對數；[H⁺]＝10⁻⁴ M 時，算算 pH 是多少。"
+  ]
+ }
+]

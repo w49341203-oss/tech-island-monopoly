@@ -1,0 +1,752 @@
+[
+ {
+  "chapter": "8下-1",
+  "section": "1-1",
+  "difficulty": "basic",
+  "question": "提出「質量守恆定律」的科學家為下列何者？",
+  "options": {
+   "A": "道耳頓",
+   "B": "拉瓦節",
+   "C": "牛頓",
+   "D": "愛因斯坦"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_001",
+  "concept_id": "closed_system_mass_conservation",
+  "hints": [
+   "拉瓦節是十八世紀的科學家，他提出了哪個守恆定律？",
+   "反應前後總質量守恆。",
+   "這位法國科學家以精密天平做燃燒實驗聞名，被稱為近代化學之父——想想是哪一位。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-1",
+  "difficulty": "basic",
+  "question": "下列關於質量守恆定律的敘述，何者正確？",
+  "options": {
+   "A": "化學反應後總質量會增加",
+   "B": "化學反應後總質量會減少",
+   "C": "化學反應前後總質量保持不變",
+   "D": "化學反應前後質量無一定的關係"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_002",
+  "concept_id": "closed_system_mass_conservation",
+  "hints": [
+   "質量守恆指出化學反應前後有什麼物理量不會改變？",
+   "反應物的總質量與生成物的總質量關係。",
+   "回想密閉容器實驗：反應前後把所有東西（連氣體）都算進去時，總質量有沒有改變？"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-1",
+  "difficulty": "basic",
+  "question": "判斷「化學反應」最主要的依據為下列何者？",
+  "options": {
+   "A": "顏色改變",
+   "B": "產生新物質",
+   "C": "體積改變",
+   "D": "形狀改變"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_003",
+  "concept_id": "physical_vs_chemical_change",
+  "hints": [
+   "物理變化與化學變化的主要區別是什麼？",
+   "是否有產生新的物質？",
+   "冒泡或變色都只是可能的線索；關鍵在反應後是不是出現了「原本不存在的東西」。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-1",
+  "difficulty": "concept",
+  "question": "鎂帶在空氣中燃燒後，產物質量「比鎂帶大」，下列解釋何者正確？",
+  "options": {
+   "A": "違反質量守恆定律",
+   "B": "鎂帶燃燒時與空氣中的氧結合，故產物質量包含氧的質量",
+   "C": "鎂帶燃燒時吸收熱量，使質量增加",
+   "D": "鎂帶燃燒時膨脹，所以質量變大"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_1_004",
+  "concept_id": "closed_system_mass_conservation",
+  "hints": [
+   "鎂帶燃燒是與空氣中哪種氣體結合？",
+   "結合後的產物是氧化鎂，其質量包含鎂與什麼？",
+   "結合了空氣中的氧氣，因此產物包含氧的質量。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-1",
+  "difficulty": "concept",
+  "question": "下列哪一項實驗可用「密閉容器」來驗證質量守恆？",
+  "options": {
+   "A": "敞口燃燒木炭",
+   "B": "敞口加熱小蘇打粉",
+   "C": "在密閉錐形瓶中混合醋與小蘇打",
+   "D": "讓蠟燭在開放空間燃燒"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_1_005",
+  "concept_id": "closed_system_mass_conservation",
+  "hints": [
+   "如果有氣體逸散，敞開容器的總質量會變嗎？",
+   "哪一個實驗在密閉瓶中進行且會產生氣體或沉澱？",
+   "醋加小蘇打會冒出氣體——想想哪種容器能把氣體留住，讓天平前後可以公平比較。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "在密閉容器中，3.2 g 的甲烷（CH₄）與 12.8 g 的氧氣完全反應，產生水和二氧化碳。則反應後容器內所有物質的總質量為多少 g？",
+  "options": {
+   "A": "9.6",
+   "B": "12.8",
+   "C": "16.0",
+   "D": "32.0"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_1_006",
+  "concept_id": "closed_system_mass_conservation",
+  "hints": [
+   "在密閉容器中進行反應，反應前後總質量會變嗎？",
+   "甲烷 3.2g 與氧氣 12.8g 完全反應後，總質量是兩者相加。",
+   "密閉容器中完全反應：生成物總質量等於反應物總質量，把兩個質量相加。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "已知 A + B → C，其中 A 為 10 g，B 為 8 g，反應後 C 為 12 g，且剩下未反應的 A 為 2 g。若反應系統為密閉，剩下未反應的 B 應為多少 g？",
+  "options": {
+   "A": "0",
+   "B": "2",
+   "C": "4",
+   "D": "6"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_1_007",
+  "concept_id": "closed_system_mass_conservation",
+  "hints": [
+   "反應前後總質量守恆。反應前總質量為 A+B，反應後總質量為 C+剩餘A+剩餘B。",
+   "10 + 8 = 12 + 2 + 剩餘B。",
+   "總質量守恆：反應前 10＋8 公克＝反應後 C 的質量＋剩下的 B，列式解出剩餘量。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "目前國際上採用下列何種原子作為「原子量」的比較標準？",
+  "options": {
+   "A": "氫原子（H）",
+   "B": "氧原子（O）",
+   "C": "碳-12 原子（¹²C）",
+   "D": "鎂原子（Mg）"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_008",
+  "concept_id": "atomic_molecular_mass",
+  "hints": [
+   "目前科學界是用哪種原子的質量作為原子量的基準？",
+   "此原子的原子量被定義為 12。",
+   "標準是碳的某個同位素，質量數為 12——寫法是在元素符號左上角標質量數。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "下列關於分子量的敘述，何者正確？",
+  "options": {
+   "A": "分子量等於該分子中質子的總數",
+   "B": "分子量為組成原子的原子量總和",
+   "C": "分子量單位為公克",
+   "D": "所有分子的分子量都相同"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_009",
+  "concept_id": "atomic_molecular_mass",
+  "hints": [
+   "分子量是如何計算出來的？",
+   "它是分子中各個原子的原子量總和嗎？",
+   "分子量是組成該分子的所有原子的原子量總和。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "1 莫耳粒子的數量為下列何者？",
+  "options": {
+   "A": "6.02 × 10²³",
+   "B": "6.02 × 10²²",
+   "C": "6.02 × 10²⁴",
+   "D": "1.66 × 10⁻²⁴"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_010",
+  "concept_id": "mole_concept_avogadro",
+  "hints": [
+   "1 莫耳（mole）是一個科學計數單位，代表多少個粒子？",
+   "這個數字被稱為亞佛加厥數。",
+   "這個數叫亞佛加厥數，量級在 10 的 23 次方——想想完整數值。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "化學反應式「2H₂ + O₂ → 2H₂O」中，下列係數比何者正確？",
+  "options": {
+   "A": "H₂ : O₂ : H₂O = 1 : 1 : 1",
+   "B": "H₂ : O₂ : H₂O = 2 : 1 : 2",
+   "C": "H₂ : O₂ : H₂O = 1 : 2 : 1",
+   "D": "H₂ : O₂ : H₂O = 2 : 2 : 1"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_011",
+  "concept_id": "chemical_coefficient_molecule_count",
+  "hints": [
+   "化學反應式前方的數字代表係數。",
+   "讀取 2H₂ + O₂ → 2H₂O 各物質前方的係數（沒有寫代表 1）。",
+   "比值為 2 : 1 : 2。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "道耳頓「原子說」中，下列關於化學反應的敘述，何者正確？",
+  "options": {
+   "A": "化學反應中原子會被創造或消滅",
+   "B": "化學反應只是原子間重新排列，種類與數量不變",
+   "C": "化學反應會改變原子的種類",
+   "D": "化學反應會使原子變大或變小"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_1_012",
+  "concept_id": "element_smallest_particle_atom",
+  "hints": [
+   "化學反應中，原子的種類和數目會改變嗎？",
+   "道耳頓指出反應只是原子間重新排列。",
+   "原子的種類與數量不變，只是重新排列。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "下列關於平衡化學反應式的原則，何者正確？",
+  "options": {
+   "A": "只調整反應物的係數，不調整生成物",
+   "B": "可以改變化學式中的下標來平衡",
+   "C": "等號左右兩邊每種原子的數目必須相等",
+   "D": "只要左右兩邊的分子總數相等即可"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_1_013",
+  "concept_id": "chemical_coefficient_molecule_count",
+  "hints": [
+   "化學反應式平衡時，左右兩邊的什麼必須相等？",
+   "是分子總數還是每種原子的總數？",
+   "平衡的目的是讓原子不生不滅——那等號兩邊「每一種原子的數目」該滿足什麼條件？"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "下列化學反應式何者「已平衡」？",
+  "options": {
+   "A": "H₂ + O₂ → H₂O",
+   "B": "Mg + O₂ → MgO",
+   "C": "2H₂ + O₂ → 2H₂O",
+   "D": "C + O₂ → 2CO₂"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_1_014",
+  "concept_id": "chemical_coefficient_molecule_count",
+  "hints": [
+   "檢查每個選項，左右兩邊各原子的個數是否相等。",
+   "例如 C 答案：左邊有 4 個 H、2 個 O，右邊有 4 個 H、2 個 O。",
+   "逐一數每條式子左右兩邊的 H 原子與 O 原子個數，找出兩邊完全相等的那一條。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "下列關於 1 莫耳的敘述，何者「錯誤」？",
+  "options": {
+   "A": "1 莫耳的水分子等於 6.02×10²³ 個水分子",
+   "B": "1 莫耳氧分子（O₂）的質量為 32 g",
+   "C": "1 莫耳氫原子（H）的質量為 1 g",
+   "D": "1 莫耳的任何物質質量都相同"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_1_015",
+  "concept_id": "mole_concept_avogadro",
+  "hints": [
+   "1 莫耳的任何物質所含粒子數都相同，但質量會相同嗎？",
+   "水的分子量是 18，二氧化碳是 44，1 莫耳的質量會一樣嗎？",
+   "1 莫耳的「個數」是固定的，但「質量」要看分子量——找出把質量講成固定不變的那句。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "calc",
+  "question": "已知 C=12，O=16，則 1 莫耳的二氧化碳（CO₂）質量為多少 g？",
+  "options": {
+   "A": "28",
+   "B": "32",
+   "C": "44",
+   "D": "48"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_1_016",
+  "concept_id": "mole_from_mass_and_molar_mass",
+  "hints": [
+   "CO₂ 包含一個碳原子和兩個氧原子。",
+   "分子量 ＝ 碳原子量 ＋ 2 × 氧原子量。",
+   "先算分子量：12＋16×2；1 莫耳物質的公克數就等於它的分子量。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "calc",
+  "question": "已知反應式 2H₂ + O₂ → 2H₂O，若有 4 莫耳的 H₂ 完全反應，會消耗多少莫耳的 O₂？",
+  "options": {
+   "A": "1",
+   "B": "2",
+   "C": "4",
+   "D": "8"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_1_017",
+  "concept_id": "chemical_coefficient_molecule_count",
+  "hints": [
+   "反應式中 H₂ : O₂ 的莫耳數係數比為 2 : 1。",
+   "消耗的 O₂ 莫耳數是 H₂ 的一半。",
+   "看係數比：H₂ 比 O₂ 是 2 比 1，那 4 莫耳的 H₂ 需要幾莫耳的 O₂？"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "calc",
+  "question": "已知反應式 N₂ + 3H₂ → 2NH₃，2 莫耳 N₂ 完全反應後，可產生多少莫耳 NH₃？",
+  "options": {
+   "A": "1",
+   "B": "2",
+   "C": "3",
+   "D": "4"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_1_018",
+  "concept_id": "chemical_coefficient_molecule_count",
+  "hints": [
+   "反應式中 N₂ : NH₃ 的莫耳數係數比為 1 : 2。",
+   "產生的 NH₃ 莫耳數是消耗 N₂ 的兩倍。",
+   "看係數比：N₂ 比 NH₃ 是 1 比 2，那 2 莫耳的 N₂ 能生成幾莫耳的 NH₃？"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "下列反應式 C + O₂ → CO₂ 中，反應物為下列何者？",
+  "options": {
+   "A": "C 和 O₂",
+   "B": "CO₂",
+   "C": "C 和 CO₂",
+   "D": "O₂ 和 CO₂"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_019",
+  "concept_id": "chemical_formula_subscript_meaning",
+  "hints": [
+   "在化學反應式中，箭頭左邊代表反應物，右邊代表生成物。",
+   "箭頭左邊有 C 和 O₂。",
+   "反應物一律寫在箭號的左邊——看看這條式子箭號左邊有哪些。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "化學反應式中，下列符號何者表示「氣體」？",
+  "options": {
+   "A": "(s)",
+   "B": "(l)",
+   "C": "(g)",
+   "D": "(aq)"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_020",
+  "concept_id": "chemical_formula_subscript_meaning",
+  "hints": [
+   "化學反應式中，括號內的字母代表狀態。",
+   "(s)固態、(l)液態、(g)氣態、(aq)水溶液。",
+   "狀態符號寫在小括號裡：s 是固體、l 是液體、aq 是水溶液——氣體的英文字首是哪個字母？"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-1",
+  "difficulty": "basic",
+  "question": "化學反應前後，反應物的分子總數與生成物的分子總數，是否必定相等？",
+  "options": {
+   "A": "必定相等，這是質量守恆的基礎",
+   "B": "不一定相等，反應前後分子總數可能會增加、減少或不變",
+   "C": "必定不相等，分子一定會減少",
+   "D": "分子總數會隨溫度升高而倍增"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_021",
+  "concept_id": "chemical_coefficient_molecule_count",
+  "hints": [
+   "化學反應是原子重新排列，分子的種類會改變。",
+   "例如 2H₂ + O₂ → 2H₂O，反應前共 3 個分子，反應後變 2 個分子。",
+   "因此反應前後的分子總數不一定會相等。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "1 莫耳的水分子（H₂O）與 1 莫耳的二氧化碳分子（CO₂）中，所含有的分子個數關係為？",
+  "options": {
+   "A": "水分子較多，因為水的密度大",
+   "B": "二氧化碳分子較多，因為其分子量大",
+   "C": "兩者所含分子個數一樣多",
+   "D": "無法比較，氣體與液體個數定義不同"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_022",
+  "concept_id": "mole_concept_avogadro",
+  "hints": [
+   "莫耳是科學上的數量單位，如同「一打」代表 12 個。",
+   "1 莫耳的任何粒子，其個數都等於亞佛加厥數。",
+   "因此，只要莫耳數相同，所含的分子個數就必定一樣多。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-1",
+  "difficulty": "basic",
+  "question": "在鋼鐵工廠中，將生鐵在高溫下吹入氧氣以降低含碳量，反應產生二氧化碳逸散，此含碳量降低的過程屬於？",
+  "options": {
+   "A": "物理變化",
+   "B": "化學變化",
+   "C": "狀態變化",
+   "D": "核反應"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1,
+  "id": "q_8d_1_023",
+  "concept_id": "physical_vs_chemical_change",
+  "hints": [
+   "判斷物理或化學變化的關鍵在於是否產生新物質。",
+   "碳（C）與氧氣（O₂）結合生成了新的物質二氧化碳（CO₂）。",
+   "判斷關鍵只有一個：有沒有新物質生成？想想二氧化碳是不是原本就存在的東西。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-3",
+  "difficulty": "concept",
+  "question": "乙醇（C₂H₅OH）在充足的氧氣中完全燃燒，其化學反應式為：1 C₂H₅OH + x O₂ → y CO₂ + z H₂O。若將反應式平衡，則係數比 x : y : z 為？",
+  "options": {
+   "A": "1 : 2 : 3",
+   "B": "3 : 2 : 3",
+   "C": "3 : 1 : 2",
+   "D": "2 : 2 : 3"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_1_024",
+  "concept_id": "chemical_coefficient_molecule_count",
+  "hints": [
+   "依據原子守恆，反應前後每種原子的總數必須相等。",
+   "左邊有 2 個 C，所以右邊 CO₂ 係數 y = 2；左邊有 6 個 H，所以右邊 H₂O 係數 z = 3。",
+   "右邊總共有 2×2 + 3 = 7 個 O ；左邊乙醇已有 1 個 O，故 O₂ 的係數 x 應為 (7-1)/2 = 3。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-1",
+  "difficulty": "concept",
+  "question": "將大理石（碳酸鈣）放入敞開的燒杯中，加入足量的稀鹽酸。反應後稱量燒杯內物質的總質量，發現變輕了，其主要原因為？",
+  "options": {
+   "A": "反應後總質量減少，不遵守質量守恆",
+   "B": "大理石被酸溶解後質量憑空消失了",
+   "C": "產生的二氧化碳氣體逸散到燒杯外的空氣中",
+   "D": "水蒸發導致質量大幅減輕"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_1_025",
+  "concept_id": "closed_system_mass_conservation",
+  "hints": [
+   "化學反應在任何系統中都遵守質量守恆定律。",
+   "大理石與鹽酸反應會產生二氧化碳氣體。",
+   "敞開容器中，氣體會散失到大氣中，導致留在杯內的物質質量變輕。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "已知水（H₂O）的分子量為 18。若工坊實驗中需要 90 克的水，則這相當於多少莫耳的水分子？",
+  "options": {
+   "A": "1.8 莫耳",
+   "B": "5.0 莫耳",
+   "C": "10 莫耳",
+   "D": "90 莫耳"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_1_026",
+  "concept_id": "mole_from_mass_and_molar_mass",
+  "hints": [
+   "莫耳數 ＝ 物質質量（公克） ÷ 分子量（或原子量）。",
+   "已知質量為 90 克，水的分子量（1 莫耳的克數）為 18 克/莫耳。",
+   "計算 90 ÷ 18 ＝ 5 莫耳。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-3",
+  "difficulty": "concept",
+  "question": "實驗室中進行金屬鈉與水的反應。為防止劇烈反應產生高熱引發爆炸，下列哪一項是符合安全規範的操作？",
+  "options": {
+   "A": "用手直接拿取一大塊鈉投入水中，以觀察壯觀火焰",
+   "B": "取米粒大小的鈉金屬投入裝水燒杯，並用玻璃片遮蓋杯口",
+   "C": "在封閉的密閉玻璃試管中加熱鈉與水的混合物",
+   "D": "將水快速倒入裝有大量鈉的燒杯中"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2,
+  "id": "q_8d_1_027",
+  "concept_id": "chemical_reaction_safety",
+  "hints": [
+   "鈉活性極大，與水反應產生氫氣與強鹼，並放出大量熱。",
+   "過大的金屬鈉會導致劇烈燃燒甚至爆炸濺出鹼液。",
+   "取極小量反應並用玻璃片防護，是標準的安全規範。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-3",
+  "difficulty": "calc",
+  "question": "已知反應式 2 H₂ + O₂ → 2 H₂O。若有 4 克的氫氣（分子量 2）與充足的氧氣完全反應，理論上可產生多少公克的水（分子量 18）？",
+  "options": {
+   "A": "18 公克",
+   "B": "36 公克",
+   "C": "72 公克",
+   "D": "4 公克"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_1_028",
+  "concept_id": "mole_from_mass_and_molar_mass",
+  "hints": [
+   "先將氫氣質量換算為莫耳數：4 g ÷ 2 g/mol ＝ 2 莫耳的 H₂。",
+   "由反應式係數比 H₂ : H₂O ＝ 2 : 2 ＝ 1 : 1，可知可產生 2 莫耳的 H₂O。",
+   "將水莫耳數換算為質量：2 mol × 18 g/mol ＝ 36 克。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-3",
+  "difficulty": "calc",
+  "question": "平衡鐵生鏽的化學反應式：a Fe + b O₂ → c Fe₂O₃。若 a、b、c 為最簡整數係數，則 a + b + c 的數值為？",
+  "options": {
+   "A": "5",
+   "B": "7",
+   "C": "9",
+   "D": "12"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_1_029",
+  "concept_id": "chemical_coefficient_molecule_count",
+  "hints": [
+   "平衡反應式：使左右兩邊的 Fe 原子與 O 原子數量相等。",
+   "右邊 Fe₂O₃ 有 3 個 O，左邊 O₂ 有 2 個 O，氧原子最公倍數為 6。因此 b = 3，c = 2。",
+   "先由 c＝2 平衡 Fe 得 a，再平衡 O 得 b，最後把三個係數相加。"
+  ]
+ },
+ {
+  "chapter": "8下-1",
+  "section": "1-2",
+  "difficulty": "calc",
+  "question": "已知碳（C）的原子量為 12，氧（O）的原子量為 16。若天平量得二氧化碳（CO₂）共 3 莫耳，其中含有多少公克的碳元素？",
+  "options": {
+   "A": "12 公克",
+   "B": "36 公克",
+   "C": "44 公克",
+   "D": "132 公克"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 9,
+  "atk": 4,
+  "def": 3,
+  "id": "q_8d_1_030",
+  "concept_id": "mole_from_mass_and_molar_mass",
+  "hints": [
+   "每個 CO₂ 分子中含有 1 個碳原子。",
+   "因此，3 莫耳的 CO₂ 分子中，含有 3 莫耳的碳原子（C）。",
+   "碳的原子量為 12，故其質量為 3 mol × 12 g/mol ＝ 36 克。"
+  ]
+ }
+]

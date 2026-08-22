@@ -1,0 +1,977 @@
+[
+ {
+  "chapter": "final-10",
+  "section": "10-1",
+  "difficulty": "concept",
+  "question": "要比較兩種材料的密度，最合理的做法為何？",
+  "id": "q_final_10_001",
+  "concept_id": "density",
+  "hints": [
+   "先找出比較密度時必須取得的兩個物理量。",
+   "密度是單位體積所含的質量，不能由顏色或名稱判定。",
+   "對每種材料以相同單位取得質量與體積，再計算兩者的比值比較。"
+  ],
+  "options": {
+   "A": "分別測量質量與體積後計算密度",
+   "B": "只比較顏色",
+   "C": "只比較體積",
+   "D": "只詢問名稱"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-1",
+  "difficulty": "calc",
+  "question": "物體質量 120 g、體積 40 cm³，密度為多少？",
+  "id": "q_final_10_002",
+  "concept_id": "density",
+  "hints": [
+   "題目給了質量與體積，先確認要找的是哪個比值。",
+   "密度等於質量除以體積，單位隨題目保留為 g/cm³。",
+   "把 120 除以 40，再和選項的數值及單位核對。"
+  ],
+  "options": {
+   "A": "0.33 g/cm³",
+   "B": "3 g/cm³",
+   "C": "80 g/cm³",
+   "D": "160 g/cm³"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 22,
+  "hp": 10,
+  "atk": 5,
+  "def": 3
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-2",
+  "difficulty": "concept",
+  "question": "看見閃電後才聽見雷聲，主要原因為何？",
+  "id": "q_final_10_003",
+  "concept_id": "sound_propagation_medium",
+  "hints": [
+   "比較閃光與雷聲從同一事件傳到觀察者的先後。",
+   "在空氣中，兩種訊號的傳播速率相差非常大。",
+   "判斷哪一種訊號先到，再選能解釋時間差的速率關係。"
+  ],
+  "options": {
+   "A": "光速遠大於聲速",
+   "B": "聲音不需介質",
+   "C": "光速比聲速慢",
+   "D": "雷聲先到但耳朵拒絕接收"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-2",
+  "difficulty": "concept",
+  "question": "平面鏡成像時，下列何者正確？",
+  "id": "q_final_10_004",
+  "concept_id": "mirror_imaging",
+  "hints": [
+   "抓住平面鏡與鏡面垂直方向上的物、像位置關係。",
+   "平面鏡形成正立等大虛像，物與像分居鏡面兩側。",
+   "把各選項逐一檢查是否同時符合距離關係與虛像特性。"
+  ],
+  "options": {
+   "A": "像距等於物距",
+   "B": "影像一定縮小",
+   "C": "影像可投射到屏幕",
+   "D": "光線不遵守反射定律"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-2",
+  "difficulty": "concept",
+  "question": "熱飲放在室內逐漸降溫，最後接近室溫，最合理的解釋為何？",
+  "id": "q_final_10_005",
+  "concept_id": "temperature_thermal_equilibrium",
+  "hints": [
+   "觀察熱飲與室內起初的溫度高低。",
+   "能量會在有溫差時傳遞，溫差縮小時逐漸接近平衡。",
+   "排除把冷當物質、把溫度計當能量去處或宣稱質量消失的敘述。"
+  ],
+  "options": {
+   "A": "能量由高溫處傳向低溫處直到接近熱平衡",
+   "B": "冷會自行產生",
+   "C": "溫度計吸走所有熱",
+   "D": "物質質量必定消失"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-3",
+  "difficulty": "concept",
+  "question": "化學反應在密閉系統中進行，反應前後總質量通常如何？",
+  "id": "q_final_10_006",
+  "concept_id": "closed_system_mass_conservation",
+  "hints": [
+   "先確認反應邊界是否允許物質進出。",
+   "密閉系統中，若把所有反應物與生成物都納入，總質量守恆。",
+   "比較反應前後同一系統邊界內的總量，不因冒泡就漏算氣體。"
+  ],
+  "options": {
+   "A": "相等",
+   "B": "反應後必定較小",
+   "C": "反應後必定較大",
+   "D": "只要冒泡就無法比較"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-3",
+  "difficulty": "concept",
+  "question": "氧化與還原反應的關係為何？",
+  "id": "q_final_10_007",
+  "concept_id": "oxidation_reduction_coupling",
+  "hints": [
+   "氧化與還原要追蹤同一反應中兩方的氧或電子變化。",
+   "一方失去與另一方得到是成對的轉移過程。",
+   "檢查選項是否承認兩個半反應互相配對，而非只保留單邊。"
+  ],
+  "options": {
+   "A": "通常同時發生",
+   "B": "永遠互不相關",
+   "C": "只有氧化沒有還原",
+   "D": "只發生在生物體內"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-3",
+  "difficulty": "concept",
+  "question": "探討溫度對反應速率的影響時，較合理的實驗設計為何？",
+  "id": "q_final_10_008",
+  "concept_id": "reaction_rate_factors",
+  "hints": [
+   "先找出題目要研究的自變因。",
+   "公平比較只改一個條件，其餘可能影響速率的因素需控制。",
+   "比較各設計是否能把結果差異歸因於溫度，而非多個條件混在一起。"
+  ],
+  "options": {
+   "A": "只改變溫度並盡量控制其他條件",
+   "B": "同時改變所有條件",
+   "C": "不做測量只憑感覺",
+   "D": "只挑符合預期的結果，因此在實"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-4",
+  "difficulty": "concept",
+  "question": "物體靜止漂浮時，浮力與重力的關係為何？",
+  "id": "q_final_10_009",
+  "concept_id": "static_floating_force_balance",
+  "hints": [
+   "靜止漂浮表示物體沒有向上或向下加速。",
+   "沒有加速度時，垂直方向合力為零。",
+   "列出向上的浮力與向下的重力，再用合力條件比較大小和方向。"
+  ],
+  "options": {
+   "A": "大小相等、方向相反",
+   "B": "兩者皆為零",
+   "C": "浮力永遠較大",
+   "D": "重力永遠較大"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-4",
+  "difficulty": "concept",
+  "question": "理想斜面能省力的代價通常是什麼？",
+  "id": "q_final_10_010",
+  "concept_id": "simple_machines",
+  "hints": [
+   "想像同一高度改用較平緩的斜面搬運。",
+   "理想機械不創造能量；所需力較小時，通常要在較長路程上作用。",
+   "以輸入功約等於輸出功檢查是否真的能同時省力又省距離。"
+  ],
+  "options": {
+   "A": "移動較長距離",
+   "B": "創造額外能量",
+   "C": "使重力消失",
+   "D": "同時省距離"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-4",
+  "difficulty": "calc",
+  "question": "以 50 N 的力沿力方向推動物體 4 m，做功多少？",
+  "id": "q_final_10_011",
+  "concept_id": "work_definition_calculation",
+  "hints": [
+   "題目已給力、位移，且說明兩者同方向。",
+   "同方向且力固定時，功等於力乘位移。",
+   "以 50 乘 4，保留焦耳單位後核對選項。"
+  ],
+  "options": {
+   "A": "12.5 J",
+   "B": "46 J",
+   "C": "54 J",
+   "D": "200 J"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "gold": 22,
+  "hp": 10,
+  "atk": 5,
+  "def": 3
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-4",
+  "difficulty": "concept",
+  "question": "有摩擦時機械能減少，最合理的能量去向為何？",
+  "id": "q_final_10_012",
+  "concept_id": "mechanical_energy_conversion",
+  "hints": [
+   "摩擦常伴隨物體或接觸面升溫，也可能產生聲音。",
+   "能量守恆表示機械能降低不等於總能量消失。",
+   "尋找能說明機械能轉成其他可追蹤形式的選項。"
+  ],
+  "options": {
+   "A": "轉為內能與聲音等形式",
+   "B": "完全消失",
+   "C": "變成質量",
+   "D": "離開宇宙"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-5",
+  "difficulty": "basic",
+  "question": "量測元件兩端電壓時，電壓計應如何接入？",
+  "id": "q_final_10_013",
+  "concept_id": "voltage_measurement",
+  "hints": [
+   "量測的是元件兩端的電位差，不是流過儀表的支路電流。",
+   "電壓計要跨接在被測元件的兩端，且不可直接短接電源。",
+   "在圖像中找出能同時接觸元件兩端、又不取代元件通路的接法。"
+  ],
+  "options": {
+   "A": "與元件並聯",
+   "B": "與元件串聯",
+   "C": "直接短接電源",
+   "D": "只接一端"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-5",
+  "difficulty": "calc",
+  "question": "6 Ω 電阻接在 12 V 電源上，電流為多少？",
+  "id": "q_final_10_014",
+  "concept_id": "resistance_ohms_law",
+  "hints": [
+   "先辨認已知電壓與電阻，未知量是電流。",
+   "符合歐姆定律時，電流等於電壓除以電阻。",
+   "把 12 除以 6，確認安培單位並比對選項。"
+  ],
+  "options": {
+   "A": "0.5 A",
+   "B": "2 A",
+   "C": "6 A",
+   "D": "72 A"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "gold": 22,
+  "hp": 10,
+  "atk": 5,
+  "def": 3
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-5",
+  "difficulty": "concept",
+  "question": "家庭電器採並聯的主要原因為何？",
+  "id": "q_final_10_015",
+  "concept_id": "series_parallel_circuits",
+  "hints": [
+   "想想家中一盞燈關閉時，其他電器是否仍能使用。",
+   "並聯各支路接在同一對節點上，可各自控制且端電壓相同。",
+   "檢查選項是否同時符合獨立開關與正常供電，不把各支路電流誤認相同。"
+  ],
+  "options": {
+   "A": "可獨立開關且各支路承受相同電壓",
+   "B": "各支路的電流必定完全相同",
+   "C": "其中一件關閉後全部一起斷電",
+   "D": "可以取消保險絲等保護裝置"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-5",
+  "difficulty": "concept",
+  "question": "哪一項做法符合用電安全？",
+  "id": "q_final_10_016",
+  "concept_id": "basic_electrical_safety",
+  "hints": [
+   "先辨認哪些行為會讓人直接接觸導電部位或讓電流過大。",
+   "用電安全應避免潮濕接觸、短路與超載，故障需由合格人員處理。",
+   "逐項排除增加觸電或失去過電流保護的做法。"
+  ],
+  "options": {
+   "A": "避免插座超載，故障交由合格人員處理",
+   "B": "用濕手測試設備",
+   "C": "用金屬物插入插座",
+   "D": "以導線取代保險裝置"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-6",
+  "difficulty": "concept",
+  "question": "面對與預期不符的測量結果，最符合科學探究的做法為何？",
+  "id": "q_final_10_017",
+  "concept_id": "measurement_estimation",
+  "hints": [
+   "與預期不同不等於資料必然錯誤。",
+   "科學探究重視可重複、條件紀錄與誠實保留結果。",
+   "選擇能先檢查程序並用再次測量判斷原因的處理方式。"
+  ],
+  "options": {
+   "A": "檢查方法、重複測量並誠實保留資料",
+   "B": "直接刪除結果",
+   "C": "修改數字配合答案",
+   "D": "停止記錄條件"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-6",
+  "difficulty": "concept",
+  "question": "跨概念解題時，第一步較合理的是什麼？",
+  "id": "q_final_10_018",
+  "concept_id": "cross_concept_problem_definition",
+  "hints": [
+   "跨概念題先分清楚題目涉及哪些對象、範圍與未知量。",
+   "公式只有在系統邊界、條件和物理量定義清楚後才有意義。",
+   "先列出已知、未知、單位與限制，再決定需要哪一個模型。"
+  ],
+  "options": {
+   "A": "界定系統、已知量與要回答的問題",
+   "B": "先猜選項字母",
+   "C": "套用最長公式",
+   "D": "忽略單位與條件"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-6",
+  "difficulty": "concept",
+  "question": "下列哪一項最能連結質量守恆與能量守恆的共同思考方式？",
+  "id": "q_final_10_019",
+  "concept_id": "conservation_system_transfer_tracking",
+  "hints": [
+   "兩種守恆判斷都可能因系統邊界漏算而看似消失。",
+   "守恆分析要追蹤量在系統內的儲存、轉移與轉換。",
+   "先畫出邊界，再列出進入、離開與形態改變的項目。"
+  ],
+  "options": {
+   "A": "先界定系統，再追蹤轉移與轉換",
+   "B": "只看肉眼可見部分",
+   "C": "凡是看不見就當作消失",
+   "D": "只記最後結果"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 18,
+  "hp": 8,
+  "atk": 4,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-6",
+  "difficulty": "concept",
+  "question": "十卷知識最後共同指向哪種能力？",
+  "id": "q_final_10_020",
+  "concept_id": "evidence_model_conditions_safety_reasoning",
+  "hints": [
+   "回想十卷解題時反覆使用的不只是單一公式。",
+   "可靠解釋要同時受觀察證據、模型適用條件與安全界線約束。",
+   "檢查哪個選項能面對新情境、修正錯誤並說明原因，而不是只記答案。"
+  ],
+  "options": {
+   "A": "以證據、模型、條件與安全界線解釋現象",
+   "B": "背下固定選項位置",
+   "C": "忽略錯誤資料",
+   "D": "未測量便斷定答案"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 20,
+  "hp": 9,
+  "atk": 4,
+  "def": 3
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-1",
+  "difficulty": "concept",
+  "question": "用量筒測液體體積時，讀數應以何處為準？",
+  "id": "q_final_10_021",
+  "concept_id": "volume_measurement",
+  "hints": [
+   "俯視或仰視都會讓讀數偏掉，這叫視差。",
+   "水在玻璃管裡會形成凹面，量的是液體本身而不是管壁的沾附。",
+   "把眼睛降到與凹面最低處同一高度再讀。"
+  ],
+  "options": {
+   "A": "視線與凹液面最低處齊平",
+   "B": "視線由上往下俯視液面",
+   "C": "讀液面接觸管壁的最高處",
+   "D": "從側面斜看比較清楚"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-1",
+  "difficulty": "calc",
+  "question": "一塊金屬質量 54 g，放入裝有 20 mL 水的量筒後水面升到 40 mL，密度為多少？",
+  "id": "q_final_10_022",
+  "concept_id": "density",
+  "hints": [
+   "排開的水體積就是金屬的體積。",
+   "40 − 20 = 20 mL，而 1 mL = 1 cm³。",
+   "密度 = 質量 ÷ 體積 = 54 ÷ 20。"
+  ],
+  "options": {
+   "A": "2.7 g/cm³",
+   "B": "1.35 g/cm³",
+   "C": "5.4 g/cm³",
+   "D": "0.37 g/cm³"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-2",
+  "difficulty": "concept",
+  "question": "同一根弦，拉得越緊時發出的聲音會如何改變？",
+  "id": "q_final_10_023",
+  "concept_id": "sound_three_elements",
+  "hints": [
+   "音調由振動的快慢決定，響度由振幅決定。",
+   "弦拉得越緊，每秒振動的次數越多。",
+   "振動越快 → 頻率越高 → 音調越高。"
+  ],
+  "options": {
+   "A": "音調變高",
+   "B": "音調變低",
+   "C": "響度變小",
+   "D": "音色改變但音調不變"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-2",
+  "difficulty": "concept",
+  "question": "在月球表面敲鑼，旁邊的太空人聽不見，最合理的原因為何？",
+  "id": "q_final_10_024",
+  "concept_id": "sound_propagation_medium",
+  "hints": [
+   "鑼還是有在振動，問題出在振動傳不出去。",
+   "聲音要靠介質一層一層傳遞，光則不用。",
+   "沒有空氣就沒有能被推動的粒子。"
+  ],
+  "options": {
+   "A": "月球表面接近真空，缺少傳聲的介質",
+   "B": "月球重力太小，聲音傳不動",
+   "C": "鑼在低溫下不會振動",
+   "D": "聲音被月塵完全吸收"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-2",
+  "difficulty": "concept",
+  "question": "要比較兩種材料的隔音效果，下列哪一種做法最合理？",
+  "id": "q_final_10_025",
+  "concept_id": "ultrasound_and_noise",
+  "hints": [
+   "要比較的是「材料」，其他條件都要一樣。",
+   "換了距離或音量，比到的就不只是材料。",
+   "只留一個不一樣的條件。"
+  ],
+  "options": {
+   "A": "同一個音源、同樣距離，只換材料",
+   "B": "一種在室內測、一種在室外測",
+   "C": "兩種材料用不同音量的音源",
+   "D": "憑聽感直接判斷哪個比較安靜"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-3",
+  "difficulty": "concept",
+  "question": "光線由空氣斜射入水中時，折射光線會如何偏折？",
+  "id": "q_final_10_026",
+  "concept_id": "light_refraction",
+  "hints": [
+   "光在水中走得比在空氣中慢。",
+   "從快的介質進入慢的介質時，光線會被「拉」向法線。",
+   "這也是為什麼水裡的魚看起來比實際淺。"
+  ],
+  "options": {
+   "A": "偏向法線",
+   "B": "偏離法線",
+   "C": "沿原方向直行",
+   "D": "完全反射回空氣"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-3",
+  "difficulty": "concept",
+  "question": "在暗室用手電筒照白紙，房間各處都看得到紙，最主要是因為什麼？",
+  "id": "q_final_10_027",
+  "concept_id": "law_of_reflection",
+  "hints": [
+   "鏡子只有特定角度看得到反光，紙卻各角度都看得到。",
+   "差別在表面平不平。",
+   "粗糙表面把光散射到四面八方。"
+  ],
+  "options": {
+   "A": "紙面粗糙造成漫反射，光被反射到各個方向",
+   "B": "紙會自己發光",
+   "C": "光在紙上完全折射",
+   "D": "紙把光全部吸收後再放出"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-3",
+  "difficulty": "calc",
+  "question": "光以 30 度入射角射到平面鏡上，反射角是幾度？",
+  "id": "q_final_10_028",
+  "concept_id": "law_of_reflection",
+  "hints": [
+   "角度都是相對於法線量的。",
+   "反射定律：入射角等於反射角。",
+   "不是相對於鏡面，所以不是 60 度。"
+  ],
+  "options": {
+   "A": "30 度",
+   "B": "60 度",
+   "C": "15 度",
+   "D": "90 度"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-4",
+  "difficulty": "concept",
+  "question": "把金屬湯匙和木湯匙同時放進熱湯，先燙手的通常是哪一支？為什麼？",
+  "id": "q_final_10_029",
+  "concept_id": "heat_transfer_methods",
+  "hints": [
+   "兩支都泡在同樣的湯裡，湯溫一樣。",
+   "差別在熱能沿著材料傳遞的快慢。",
+   "鍋鏟的握把常用木頭，就是因為它導熱慢。"
+  ],
+  "options": {
+   "A": "金屬，因為它的導熱較快",
+   "B": "木頭，因為它比較輕",
+   "C": "兩支一樣快，因為湯溫相同",
+   "D": "木頭，因為木頭吸熱較多"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-4",
+  "difficulty": "concept",
+  "question": "燒開水時看到水在鍋中上下翻滾，主要是哪一種熱傳播方式？",
+  "id": "q_final_10_030",
+  "concept_id": "heat_transfer_methods",
+  "hints": [
+   "水本身在移動，不是熱沿著靜止的物體傳過去。",
+   "底部受熱的水變輕上升，上方較冷的水下沉補位。",
+   "這種靠流體本身流動搬運熱的方式叫對流。"
+  ],
+  "options": {
+   "A": "對流",
+   "B": "傳導",
+   "C": "輻射",
+   "D": "昇華"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-4",
+  "difficulty": "calc",
+  "question": "把 200 g、20°C 的水加熱到 70°C，需要吸收多少熱量？（水的比熱 1 cal/g·°C）",
+  "id": "q_final_10_031",
+  "concept_id": "heat_and_specific_heat",
+  "hints": [
+   "熱量 = 質量 × 比熱 × 溫度變化。",
+   "溫度變化是 70 − 20 = 50°C，不是 70。",
+   "200 × 1 × 50 = 10000。"
+  ],
+  "options": {
+   "A": "10000 cal",
+   "B": "14000 cal",
+   "C": "4000 cal",
+   "D": "250 cal"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-5",
+  "difficulty": "concept",
+  "question": "一顆石頭沉在水底靜止不動，此時它受到的浮力如何？",
+  "id": "q_final_10_032",
+  "concept_id": "static_floating_force_balance",
+  "hints": [
+   "沉下去不代表浮力不見了。",
+   "只要排開了水，就會受到向上的浮力。",
+   "它靜止是因為浮力加上地面支撐力剛好平衡重力。"
+  ],
+  "options": {
+   "A": "仍然存在，只是小於重力",
+   "B": "完全消失",
+   "C": "等於重力，所以才靜止",
+   "D": "方向向下"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-5",
+  "difficulty": "concept",
+  "question": "同一塊黏土捏成實心球會沉、捏成碗狀卻會浮，主要原因為何？",
+  "id": "q_final_10_033",
+  "concept_id": "static_floating_force_balance",
+  "hints": [
+   "黏土的質量從頭到尾沒變。",
+   "浮力看的是「排開了多少水」。",
+   "碗狀把空氣也圈進去，排開的水就多了。"
+  ],
+  "options": {
+   "A": "碗狀排開的水較多，浮力較大",
+   "B": "碗狀的質量變小了",
+   "C": "碗狀的密度變小是因為黏土變少",
+   "D": "碗狀受到的重力方向改變"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-5",
+  "difficulty": "calc",
+  "question": "物體在空氣中重 12 N，完全浸入水中時彈簧秤讀數為 7 N，浮力是多少？",
+  "id": "q_final_10_034",
+  "concept_id": "static_floating_force_balance",
+  "hints": [
+   "水中讀數變小，少掉的部分被浮力頂上去了。",
+   "浮力 = 空氣中的重量 − 水中的視重。",
+   "12 − 7 = 5。"
+  ],
+  "options": {
+   "A": "5 N",
+   "B": "7 N",
+   "C": "12 N",
+   "D": "19 N"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-6",
+  "difficulty": "concept",
+  "question": "判斷一個變化是不是化學變化，最關鍵的依據為何？",
+  "id": "q_final_10_035",
+  "concept_id": "physical_vs_chemical_change",
+  "hints": [
+   "冰融化成水會吸熱，但水還是水。",
+   "形狀、狀態改變都可能只是物理變化。",
+   "看的是「原本的物質還在不在」。"
+  ],
+  "options": {
+   "A": "有沒有產生新物質",
+   "B": "有沒有改變形狀",
+   "C": "有沒有放出熱量",
+   "D": "有沒有改變狀態"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-7",
+  "difficulty": "calc",
+  "question": "用 60 W 的機器工作 5 秒，共做了多少功？",
+  "id": "q_final_10_036",
+  "concept_id": "power_calculation",
+  "hints": [
+   "功率是「每秒做多少功」。",
+   "功 = 功率 × 時間。",
+   "60 × 5 = 300。"
+  ],
+  "options": {
+   "A": "300 J",
+   "B": "12 J",
+   "C": "65 J",
+   "D": "3000 J"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-8",
+  "difficulty": "concept",
+  "question": "兩個相同的燈泡串聯後，其中一顆燒斷，另一顆會如何？",
+  "id": "q_final_10_037",
+  "concept_id": "series_parallel_circuits",
+  "hints": [
+   "串聯只有一條路徑。",
+   "電流必須走完整個回路才能流動。",
+   "路上任何一處斷掉，整條路就都不通。"
+  ],
+  "options": {
+   "A": "也跟著熄滅，因為電路被切斷",
+   "B": "變得更亮",
+   "C": "亮度不變",
+   "D": "變暗但仍會亮"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-9",
+  "difficulty": "concept",
+  "question": "同一組實驗做三次得到三個不同的數值，最合理的處理方式為何？",
+  "id": "q_final_10_038",
+  "concept_id": "measurement_estimation",
+  "hints": [
+   "測量本來就會有誤差，數值不同不代表做錯。",
+   "刪掉不合意的資料，等於只留下自己想看的答案。",
+   "把差異一起交代出來，別人才判斷得了可信度。"
+  ],
+  "options": {
+   "A": "如實記錄三次並說明差異範圍",
+   "B": "只留下最接近預期的那一次",
+   "C": "取最大值當作結果",
+   "D": "重做到三次一樣為止"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "final-10",
+  "section": "10-9",
+  "difficulty": "concept",
+  "question": "別人提出與你相反的結論時，最符合科學態度的第一步為何？",
+  "id": "q_final_10_039",
+  "concept_id": "evidence_before_conclusion",
+  "hints": [
+   "結論不同，往往是因為條件或範圍設得不一樣。",
+   "先弄清楚對方在什麼前提下得到那個結果。",
+   "比的是證據，不是聲量或身分。"
+  ],
+  "options": {
+   "A": "先看他依據哪些證據與條件",
+   "B": "先說明自己的結論比較合理",
+   "C": "看誰的資歷比較深",
+   "D": "以多數人的看法為準"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 16,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ }
+]
