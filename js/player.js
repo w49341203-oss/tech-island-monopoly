@@ -215,6 +215,19 @@
     }
     var me = state.players[my.gid];
 
+    // 老師按了「結束本節」：學生端要回到起始畫面，
+    // 不然平板會一直停在遊戲畫面，學生以為還能操作。
+    if (state.phase === 'ended') {
+      if (!endedShown) {
+        endedShown = true;
+        stopDecideTimer();
+        clearInterval(bannerTimer);
+        showEndedScreen();
+      }
+      return;
+    }
+    endedShown = false;
+
     if (!me.charId) { showPick(); return; }
 
     // 這裡以前用簽章擋住重複呼叫，結果只要進過一次選角畫面就再也回不到遊戲畫面
@@ -222,55 +235,72 @@
     if (sig.screen !== 'play') { resetSig(); sig.screen = 'play'; }
     show('play');
 
-    // 上方資訊：數字變了才更新（純文字，重畫不影響操作）
-    guard('上方資訊', function () { renderTop(me); });
-
-    // 手牌：只有手牌內容變了才重建，否則正在點的卡片會被換掉
-    if (changed('hand', me.cards.map(function (c) { return c.id + (c.char ? '*' : ''); }).join(',') +
-                        '|' + (me.playedThisRound || 0))) {
-      guard('手牌', function () { renderHand(me); });
-    }
-    // 資產：地產或等級變了才重建
-    if (changed('assets', E.landsOf(state, my.gid).map(function (i) {
-          return i + ':' + (state.board.level[i] || 0);
-        }).join(','))) {
-      guard('資產', function () { renderAssets(me); });
-    }
-    // 銀行按鈕：只有「在不在銀行格」變了才更新
-    if (changed('bank', B.CELLS[me.pos].type === 'bank' ? 'yes' : 'no')) guard('銀行', function () { renderBank(me); });
-
-    if (state.phase === 'question') {
-      // 地圖／戰況是整片蓋住畫面的面板，題目出來時一定要收掉，
-      // 否則那台平板整片還是地圖，學生會說「我這邊沒有出現題目」。
-      var mp = $('mapPanel');
-      if (mp && !mp.classList.contains('hidden')) {
-        mp.classList.add('hidden');
-        var mi = $('mapInfo'); if (mi) mi.classList.add('hidden');
-      }
-      // 用題號判斷是不是新的一題（預測卡會在同一輪換題，用輪次判斷會漏掉）
-      var qid = state.question ? String(state.question.id) : '';
-      if (qid !== lastQid) {
-        lastQid = qid;
-        answered = false; hintLevel = 0; $('hintBox').textContent = '';
-      }
-      guard('題目', function () { renderQuestion(me); });
-      sig.qcard = 'show';
-    } else {
-      if (changed('qcard', 'hide')) {
-        $('qCard').classList.add('hidden');
-        // 作答時間過了就把按鈕鎖住，避免學生以為還能改答案
-        [].forEach.call($('qOpts').children, function (b) { b.disabled = true; });
-      }
-    }
+    // ══════════════════════════════════════════════════════
+    // 【順序很重要】階段提示與題目要最先畫。
+    // 以前它們排在手牌、資產、銀行後面，只要前面任何一行出錯（某個欄位缺了、
+    // 某一格資料怪怪的），整個函式就中斷 —— 這台平板會停在上一個階段，
+    // 變成「別組已經在答題，他還顯示休息中或道具時間」。
+    // 現在最重要的兩件事先畫，而且每一段都各自包起來，壞一段不影響其他段。
+    // ══════════════════════════════════════════════════════
     guard('階段提示', function () { renderPhaseBanner(); });
 
-    // 行動選項：輪到誰、在哪一格、還剩幾步 —— 這些變了才重建
-    if (changed('action', state.phase + '|' + E.currentGid(state) + '|' + me.pos + '|' +
-                          (me.stepsLeft || 0) + '|' + (state.board.owner[me.pos] || '-') + '|' +
-                          (state.board.level[me.pos] || 0) + '|' +
-                          (state.decide ? state.decide.gid : '-') + '|' + me.cash)) {
-      guard('行動選項', function () { renderAction(me); });
+    if (state.phase === 'question') {
+      guard('題目', function () {
+        // 地圖／戰況是整片蓋住畫面的面板，題目出來時一定要收掉，
+        // 否則那台平板整片還是地圖，學生會說「我這邊沒有出現題目」。
+        var mp = $('mapPanel');
+        if (mp && !mp.classList.contains('hidden')) {
+          mp.classList.add('hidden');
+          var mi = $('mapInfo'); if (mi) mi.classList.add('hidden');
+        }
+        // 用題號判斷是不是新的一題（預測卡會在同一輪換題，用輪次判斷會漏掉）
+        var qid = state.question ? String(state.question.id) : '';
+        if (qid !== lastQid) {
+          lastQid = qid;
+          answered = false; hintLevel = 0; $('hintBox').textContent = '';
+        }
+        renderQuestion(me);
+      });
+      sig.qcard = 'show';
+    } else {
+      guard('收題目', function () {
+        if (changed('qcard', 'hide')) {
+          $('qCard').classList.add('hidden');
+          // 作答時間過了就把按鈕鎖住，避免學生以為還能改答案
+          [].forEach.call($('qOpts').children, function (b) { b.disabled = true; });
+        }
+      });
     }
+
+    // ── 以下都是輔助資訊，各自獨立，壞一個不會擋住上面的題目 ──
+    guard('上方資訊', function () { renderTop(me); });
+
+    guard('手牌', function () {
+      var sigHand = (me.cards || []).map(function (c) { return c.id + (c.char ? '*' : ''); }).join(',') +
+                    '|' + (me.playedThisRound || 0);
+      if (changed('hand', sigHand)) renderHand(me);
+    });
+
+    guard('資產', function () {
+      var sigAssets = E.landsOf(state, my.gid).map(function (i) {
+        return i + ':' + (state.board.level[i] || 0);
+      }).join(',');
+      if (changed('assets', sigAssets)) renderAssets(me);
+    });
+
+    guard('銀行', function () {
+      var here = B.CELLS[me.pos];
+      if (changed('bank', (here && here.type === 'bank') ? 'yes' : 'no')) renderBank(me);
+    });
+
+    guard('行動選項', function () {
+      var sigAct = state.phase + '|' + E.currentGid(state) + '|' + me.pos + '|' +
+                   (me.stepsLeft || 0) + '|' + (state.board.owner[me.pos] || '-') + '|' +
+                   (state.board.level[me.pos] || 0) + '|' +
+                   (state.decide ? state.decide.gid : '-') + '|' + me.cash;
+      if (changed('action', sigAct)) renderAction(me);
+    });
+
     lastRound = state.round;
     lastPhase = state.phase;
   }
@@ -291,7 +321,7 @@
   guard.seen = {};
 
   function show(which) {
-    ['rejoin', 'join', 'pick', 'play'].forEach(function (id) {
+    ['rejoin', 'join', 'pick', 'play', 'ended'].forEach(function (id) {
       var el = $(id);
       if (el) el.classList.toggle('hidden', id !== which);
     });
@@ -301,6 +331,33 @@
   // 選角
   // ═══════════════════════════════════════
   var picking = null, pickSent = false;
+  var endedShown = false;
+
+  /** 本節結束：收起遊戲畫面，顯示「這一節結束了」與這一場的編號 */
+  function showEndedScreen() {
+    var me = state.players[my.gid] || {};
+    var rank = E.ranking(state).map(function (x, i) {
+      var p = state.players[x.gid];
+      return '<div class="mp-row' + (x.gid === my.gid ? ' mine' : '') + '">' +
+             '<b style="min-width:24px">' + (i + 1) + '</b>' +
+             '<span class="mp-name">' + p.name + '</span>' +
+             '<span class="mp-right"><b>$' + x.wealth.toLocaleString() + '</b></span></div>';
+    }).join('');
+    show('ended');
+    $('endedBody').innerHTML =
+      '<div class="ended-big">🏆 這一節結束了</div>' +
+      '<div class="ended-sub">' + (me.name || '') + '　最終總財富 $' +
+      ((E.wealth(state, my.gid)) || 0).toLocaleString() + '</div>' +
+      '<div class="ended-rank">' + rank + '</div>' +
+      '<div class="ended-code">下次上課的編號　<b>' + (state.code || '') + '</b></div>' +
+      '<button id="btnEndedBack" class="opt-btn" style="margin-top:16px">回到首頁</button>';
+    var b = document.getElementById('btnEndedBack');
+    if (b) b.onclick = function () {
+      try { localStorage.removeItem('techisland:me'); } catch (e) {}
+      location.reload();
+    };
+  }
+
   function showPick() {
     show('pick');
     var taken = {};
@@ -412,6 +469,18 @@
       '<br><button id="fsTipClose">知道了</button>';
     document.body.appendChild(d);
     document.getElementById('fsTipClose').onclick = function () { d.remove(); };
+  }
+
+
+  /** 從程式檔的網址讀出這次上傳的版本戳記，顯示在畫面上。
+   *  沒有這個的話，改完上傳卻忘了在平板重新整理時，會以為「修了還是沒好」。 */
+  function buildStamp() {
+    var tags = document.querySelectorAll('script[src*=".js?v="]');
+    for (var i = 0; i < tags.length; i++) {
+      var m = (tags[i].getAttribute('src') || '').match(/v=([\d-]+)/);
+      if (m) return m[1];
+    }
+    return '?';
   }
 
   function bindFullP() {
@@ -1309,6 +1378,8 @@
     // 想開的組自己按右上角的喇叭就好。
     SOUND.init(false);
     startConnWatch();
+    var pv = document.getElementById('plVer');
+    if (pv) pv.textContent = '版本 ' + buildStamp();
     buildJoin();
     autoRejoin();
   });

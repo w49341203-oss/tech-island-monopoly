@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b1220">
 <title>科技島大富翁 — 我的平板</title>
-<link rel="stylesheet" href="css/style.css?v=20260822-2104">
+<link rel="stylesheet" href="css/style.css?v=20260822-2122">
 </head>
 <body class="player">
 
@@ -64,8 +64,14 @@
 </div>
 
 <!-- ══ 遊戲中 ══ -->
+<!-- ══ 本節結束（要放在 play 外面，否則 play 隱藏時它也看不到）══ -->
+<div id="ended" class="hidden">
+  <div class="ended-box" id="endedBody"></div>
+</div>
+
 <div id="play" class="player-wrap hidden">
 
+  <div class="pl-ver" id="plVer"></div>
   <div class="conn-warn hidden" id="connWarn"></div>
   <div class="phase-banner" id="phaseBanner">⏳ 等待開始</div>
 
@@ -174,14 +180,14 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260822-2104"></script>
-<script src="js/sound.js?v=20260822-2104"></script>
-<script src="js/board.js?v=20260822-2104"></script>
-<script src="js/render.js?v=20260822-2104"></script>
-<script src="js/characters.js?v=20260822-2104"></script>
-<script src="js/cards.js?v=20260822-2104"></script>
-<script src="js/engine.js?v=20260822-2104"></script>
-<script src="js/store.js?v=20260822-2104"></script>
-<script src="js/player.js?v=20260822-2104"></script>
+<script src="js/firebase-config.js?v=20260822-2122"></script>
+<script src="js/sound.js?v=20260822-2122"></script>
+<script src="js/board.js?v=20260822-2122"></script>
+<script src="js/render.js?v=20260822-2122"></script>
+<script src="js/characters.js?v=20260822-2122"></script>
+<script src="js/cards.js?v=20260822-2122"></script>
+<script src="js/engine.js?v=20260822-2122"></script>
+<script src="js/store.js?v=20260822-2122"></script>
+<script src="js/player.js?v=20260822-2122"></script>
 </body>
 </html>

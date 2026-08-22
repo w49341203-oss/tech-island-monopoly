@@ -409,6 +409,7 @@
     bindCellClick();
     updateHUD();
     $('hudCode').textContent = roomCode ? '場次編號 ' + roomCode : '';
+    var hv = $('hudVer'); if (hv) hv.textContent = buildStamp();
     renderOnlineDots();
     clearInterval(gamePump);
     gamePump = setInterval(function () {
@@ -460,6 +461,18 @@
    * 進入全螢幕。瀏覽器規定只能由使用者的點擊觸發，
    * 所以綁在「開新遊戲／開始遊戲」這些按鈕上。失敗就顯示一個提示讓老師手動點。
    */
+
+  /** 從程式檔的網址讀出這次上傳的版本戳記，顯示在畫面上。
+   *  沒有這個的話，改完上傳卻忘了在平板重新整理時，會以為「修了還是沒好」。 */
+  function buildStamp() {
+    var tags = document.querySelectorAll('script[src*=".js?v="]');
+    for (var i = 0; i < tags.length; i++) {
+      var m = (tags[i].getAttribute('src') || '').match(/v=([\d-]+)/);
+      if (m) return m[1];
+    }
+    return '?';
+  }
+
   function goFullscreen() {
     var el = document.documentElement;
     if (document.fullscreenElement) return;
