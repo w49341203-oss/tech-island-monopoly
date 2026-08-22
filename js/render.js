@@ -412,7 +412,7 @@
     var k = Math.min(w / mw, h / mh);
     var inner = el('g', { transform: 'scale(' + k + ')' });
     var M = 'matrix(' + SX + ',0,0,' + (SX * SQ) + ',0,0)';
-    inner.appendChild(el('rect', { width: mw, height: mh, fill: '#0369a1' }));
+    inner.appendChild(el('rect', { width: mw, height: mh, fill: '#38b6ff' }));
     inner.appendChild(el('path', { d: ISLAND, transform: M, fill: '#86efac' }));
     inner.appendChild(el('path', { d: TRACK, transform: M, fill: 'none', stroke: '#fff', 'stroke-width': 20, 'stroke-opacity': .6 }));
     minimap.dots = el('g', {});

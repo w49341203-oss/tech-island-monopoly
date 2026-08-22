@@ -7,14 +7,21 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>科技島大富翁 — 老師端</title>
-<link rel="stylesheet" href="css/style.css?v=20260822-2122">
+<link rel="stylesheet" href="css/style.css?v=20260822-2219">
 </head>
 <body class="teacher">
 
 <!-- ══ 設定畫面 ══ -->
 <div id="setup" class="screen setup">
   <div class="setup-box">
-    <h1>科技島大富翁</h1>
+    <div class="brand">
+      <img class="brand-char left"  src="images/characters/char_01_newton_idle.png" alt="">
+      <div class="brand-text">
+        <h1>科技島大富翁</h1>
+        <div class="brand-sub">台灣科技業 × 國中理化　全班對戰</div>
+      </div>
+      <img class="brand-char right" src="images/characters/char_19_curie_idle.png" alt="">
+    </div>
 
     <div class="row">
       <label>接續舊場次</label>
@@ -54,6 +61,12 @@
           <option value="20">20 輪</option>
           <option value="30" selected>30 輪</option>
           <option value="40">40 輪</option>
+        </select>
+        <span>語音播報</span>
+        <select id="speakLevel">
+          <option value="key" selected>重點（推薦）</option>
+          <option value="all">詳細（連過路費都唸）</option>
+          <option value="off">關閉</option>
         </select>
         <span>輪間休息</span>
         <select id="breakSec">
@@ -196,16 +209,17 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260822-2122"></script>
-<script src="js/sound.js?v=20260822-2122"></script>
-<script src="js/bgm.js?v=20260822-2122"></script>
-<script src="js/board.js?v=20260822-2122"></script>
-<script src="js/characters.js?v=20260822-2122"></script>
-<script src="js/cards.js?v=20260822-2122"></script>
-<script src="js/questions.js?v=20260822-2122"></script>
-<script src="js/engine.js?v=20260822-2122"></script>
-<script src="js/render.js?v=20260822-2122"></script>
-<script src="js/store.js?v=20260822-2122"></script>
-<script src="js/teacher.js?v=20260822-2122"></script>
+<script src="js/firebase-config.js?v=20260822-2219"></script>
+<script src="js/sound.js?v=20260822-2219"></script>
+<script src="js/speak.js?v=20260822-2219"></script>
+<script src="js/bgm.js?v=20260822-2219"></script>
+<script src="js/board.js?v=20260822-2219"></script>
+<script src="js/characters.js?v=20260822-2219"></script>
+<script src="js/cards.js?v=20260822-2219"></script>
+<script src="js/questions.js?v=20260822-2219"></script>
+<script src="js/engine.js?v=20260822-2219"></script>
+<script src="js/render.js?v=20260822-2219"></script>
+<script src="js/store.js?v=20260822-2219"></script>
+<script src="js/teacher.js?v=20260822-2219"></script>
 </body>
 </html>

@@ -52,6 +52,10 @@
     Q.CHAPTERS.forEach(function (ch) {
       var b = document.createElement('div');
       b.className = 'chip';
+      // 依冊別上色。十五個一模一樣的方塊很難找，分色之後一眼就看得到
+      b.dataset.book = ch.file.indexOf('final') === 0 ? 'all'
+                     : ch.file.indexOf('8下') === 0 ? '8d'
+                     : ch.file.indexOf('9') === 0 ? '9' : '8u';
       b.textContent = ch.label;
       b.onclick = function () {
         b.classList.toggle('on');
@@ -63,6 +67,14 @@
     });
 
     $('breakSec').onchange = function () { cfg.breakSec = +this.value; };
+    $('speakLevel').onchange = function () {
+      SPEAK.setLevel(this.value);
+      if (this.value !== 'off') SPEAK.say('語音播報已開啟', true);
+    };
+    // 開場先讓老師知道抓到哪一個中文語音（沒有的話要換瀏覽器或裝語音包）
+    setTimeout(function () {
+      if (!SPEAK.available()) msg('這個瀏覽器不支援語音播報（建議用 Chrome 或 Edge）', 'err');
+    }, 1200);
     $('decideSec').onchange = function () { cfg.decideSec = +this.value; };
     $('animSpeed').onchange = function () { cfg.speed = +this.value; R.setSpeed(cfg.speed); };
     $('groupCount').onchange = function () { cfg.groups = +this.value; };
@@ -637,7 +649,9 @@
 
   function updateHUD() {
     renderOnlineDots();
-    $('hudRound').textContent = '第 ' + state.round + ' 輪 / ' + state.maxRounds;
+    $('hudRound').textContent = state.round > 0
+      ? ('第 ' + state.round + ' 輪 / ' + state.maxRounds)
+      : '準備開始';
     R.updateMinimap(state);
     pushRemote();                   // 把狀態推給各組平板
   }
@@ -880,6 +894,9 @@
         $('castDesc').textContent = def.desc;
         $('castResult').textContent = castResultText(r, def, item);
         SOUND.play(cardSound(def, r));
+        var tgtSay = (item.target && item.target.gid && state.players[item.target.gid])
+                     ? '，對' + SPEAK.groupSay(state.players[item.target.gid]) : '';
+        SPEAK.say(SPEAK.groupSay(p) + '，使用' + def.name + tgtSay, true);
         box.classList.remove('hidden');
 
         R.drawBoard(state); R.drawPlayers(state); R.updateMinimap(state);
@@ -926,10 +943,9 @@
     if (t.gid && state.players[t.gid]) where = '對 ' + state.players[t.gid].name + '　';
     else if (t.cell != null && B.CELLS[t.cell]) where = B.CELLS[t.cell].name + '　';
     else if (t.color && B.COLORS[t.color]) where = B.COLORS[t.color].name + '園區　';
-    // 白板只停 2.6 秒，說明取「第一句」就好，太長全班讀不完
-    var short = String(def.desc || '').split('。')[0];
-    if (short.length > 34) short = short.slice(0, 34) + '…';
-    return where + short + '。';
+    // 上面的 castDesc 已經完整顯示卡片說明了，這一行只補「對誰／對哪一格」。
+    // 沒有目標的卡就留白，不要硬擠一句「效果已生效」這種看不懂的話。
+    return where ? ('▸ ' + where.trim()) : '';
   }
 
   function nextRound() {
@@ -937,6 +953,7 @@
     if (state.phase === 'ended' || state.round >= state.maxRounds) { endSession(); return; }
     SOUND.play('round');
     BGM.play('game');
+    SPEAK.sayDetail('第' + SPEAK.num2cn(state.round + 1) + '輪開始');
     busy = true;
 
     // 依當前玩家所在地價決定難度（越貴的地出越難的題）
@@ -1090,13 +1107,23 @@
       }
       case 'buy': {
         var rb = E.buyLand(state, a.gid, state.players[a.gid].pos);
-        if (rb.ok) { SOUND.play('buy'); toast(state.players[a.gid].num + '組 買下 ' + B.CELLS[state.players[a.gid].pos].name, 2000); }
+        if (rb.ok) {
+          SOUND.play('buy');
+          var bn = B.CELLS[state.players[a.gid].pos].name;
+          toast(state.players[a.gid].num + '組 買下 ' + bn, 2000);
+          SPEAK.say(SPEAK.groupSay(state.players[a.gid]) + '，買下' + bn);
+        }
         markDecided(a.gid);
         break;
       }
       case 'build': {
         var rr = E.build(state, a.gid, state.players[a.gid].pos, a.times);
-        if (rr.ok) { SOUND.play('build'); toast(state.players[a.gid].num + '組 蓋到 ' + B.LEVEL_NAME[rr.level], 2000); }
+        if (rr.ok) {
+          SOUND.play('build');
+          toast(state.players[a.gid].num + '組 蓋到 ' + B.LEVEL_NAME[rr.level], 2000);
+          SPEAK.say(SPEAK.groupSay(state.players[a.gid]) + '，在' +
+                    B.CELLS[state.players[a.gid].pos].name + '蓋到' + SPEAK.levelSay(rr.level));
+        }
         markDecided(a.gid);
         break;
       }
@@ -1147,6 +1174,7 @@
     });
     SOUND.play(anyRight ? 'right' : 'wrong');
     BGM.play('game');                    // 答題結束，回到平常的背景音樂
+    SPEAK.sayDetail('正確答案是 ' + r.answer);
     status('揭曉！正解 ' + r.answer);
 
     setTimeout(function () {
@@ -1200,6 +1228,7 @@
     var wg = $('hudWaitGroup');
     if (noLimit) {
       $('wgText').textContent = state.players[gid].name + ' 購買中…';
+      SPEAK.say(SPEAK.groupSay(state.players[gid]) + '，正在創投商店購買', true);
       wg.classList.remove('hidden');
       $('btnSkipGroup').onclick = function () { SOUND.play('click'); decision.done = true; };
     }
@@ -1231,6 +1260,7 @@
     showPlayerHUD(gid);
     R.focusOn(gid, state);
     status(state.players[gid].name + ' 行動中' + (isBot(gid) ? '（電腦代打）' : ''));
+    SPEAK.say('輪到' + SPEAK.groupSay(state.players[gid]), true);
     doTurn(gid).then(function () {
       var r = E.endTurn(state);
       updateHUD();
@@ -1358,6 +1388,12 @@
 
     out.events.forEach(function (ev) {
       SOUND.play(landingSound(ev));
+      if (ev.type === 'rent' && state.players[ev.owner]) {
+        SPEAK.sayDetail(SPEAK.groupSay(p) + '，付過路費' + SPEAK.money2cn(ev.amount) +
+                        '給' + SPEAK.groupSay(state.players[ev.owner]));
+      }
+      if (ev.type === 'jail') SPEAK.say(SPEAK.groupSay(p) + '，被押去檢調約談所，停一輪');
+      if (ev.type === 'god') SPEAK.say(SPEAK.groupSay(p) + '，被' + ev.name + '附身');
       if (ev.type === 'rent') lines.push('付過路費 $' + ev.amount.toLocaleString() + ' 給 ' + state.players[ev.owner].name);
       if (ev.type === 'rp') lines.push('研發點數 +' + ev.amount);
       if (ev.type === 'tax') lines.push('繳營所稅 $' + ev.amount.toLocaleString());
@@ -1379,13 +1415,19 @@
     var reallyBot = isBot(gid) && !(everOnline[gid] && !cfg.solo);
     if (out.canBuy) {
       if (reallyBot) {
-        if (p.cash - out.buyPrice > 15000 && E.buyLand(state, gid, p.pos).ok) lines.push('買下 ' + cell.name);
+        if (p.cash - out.buyPrice > 15000 && E.buyLand(state, gid, p.pos).ok) {
+          lines.push('買下 ' + cell.name);
+          SPEAK.say(SPEAK.groupSay(p) + '，買下' + cell.name);
+        }
       } else { hasChoice = true; lines.push('可以買下 ' + cell.name + '（$' + out.buyPrice.toLocaleString() + '）'); }
     }
     if (out.canBuild) {
       if (reallyBot) {
         var r = E.build(state, gid, p.pos, 99);
-        if (r.ok) lines.push('蓋到 ' + B.LEVEL_NAME[r.level]);
+        if (r.ok) {
+          lines.push('蓋到 ' + B.LEVEL_NAME[r.level]);
+          SPEAK.say(SPEAK.groupSay(p) + '，在' + cell.name + '蓋到' + SPEAK.levelSay(r.level));
+        }
       } else { hasChoice = true; lines.push('可以蓋廠（每級 $' + out.upgradeCost.toLocaleString() + '）'); }
     }
     if (out.canMerge && state.cfg && state.cfg.allowMerge && !isBot(gid)) hasChoice = true;
@@ -1469,6 +1511,10 @@
     $('hudRank').classList.remove('hidden');
     SOUND.play('fanfare');
     BGM.play('win');
+    if (rank.length) {
+      SPEAK.say('本節結束，目前第一名是' + SPEAK.groupSay(state.players[rank[0].gid]) +
+                '，總財富' + SPEAK.money2cn(rank[0].wealth), true);
+    }
     status('本節結束，已存檔');
     busy = true;
     $('btnBackHome').onclick = backToSetup;
@@ -1481,6 +1527,7 @@
   function backToSetup() {
     SOUND.play('click');
     BGM.stop();
+    SPEAK.stop();
     clearInterval(timer);
     clearInterval(gamePump);
     clearInterval(lobbyPump);
@@ -1507,8 +1554,22 @@
 
   // ═══════════════════════════════════════
   window.addEventListener('DOMContentLoaded', function () {
+    // 網址加上 ?shot=1 會自動開一場單機試玩 —— 用來快速預覽畫面，平常不會觸發
+    if (location.search.indexOf('shot=1') >= 0) {
+      setTimeout(function () {
+        document.querySelectorAll('#chapterPicker div')[0].click();
+        setTimeout(function () {
+          document.getElementById('btnSolo').click();
+          setTimeout(function () {
+            var a = document.getElementById('btnAutoPick'); if (a) a.click();
+            setTimeout(function () { document.getElementById('btnStart').click(); }, 900);
+          }, 2200);
+        }, 900);
+      }, 600);
+    }
     SOUND.init(true);            // 白板接喇叭，預設開音效
     BGM.init();
+    SPEAK.init();                // 語音播報（用電腦內建語音，不花錢）
     buildSetup();
   });
 })();
