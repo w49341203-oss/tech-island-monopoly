@@ -16,7 +16,7 @@
     win:   'audio/bgm_win.mp3'          // 本節結束、頒獎
   };
 
-  var el = null, cur = null, fadeTimer = null;
+  var el = null, cur = null, prev = null, fadeTimer = null;
   var enabled = true;
   var VOL = 0.28;                        // 背景音樂要小聲，不能蓋過老師的聲音
   var LS_KEY = 'techisland:bgm';
@@ -27,6 +27,12 @@
       var raw = localStorage.getItem(LS_KEY);
       if (raw != null) enabled = JSON.parse(raw).on !== false;
     } catch (e) {}
+    // 開場先確認哪幾首真的有放。
+    // 不先問的話，切到一首沒放的曲子時會先把正在播的停掉、再發現檔案不存在，
+    // 結果就是「音樂放一放突然不見，而且再也不會回來」。
+    check().then(function (rows) {
+      rows.forEach(function (r) { if (!r.ok) missing[r.name] = 1; });
+    });
   }
   function savePref() {
     try { localStorage.setItem(LS_KEY, JSON.stringify({ on: enabled })); } catch (e) {}
@@ -38,7 +44,13 @@
     el.loop = true;
     el.preload = 'none';
     el.volume = 0;
-    el.addEventListener('error', function () { if (cur) missing[cur] = 1; });
+    el.addEventListener('error', function () {
+      if (!cur) return;
+      missing[cur] = 1;                 // 記住這首有問題，以後不要再切過來
+      var back = prev;                  // 退回上一首還會響的
+      cur = null;
+      if (back && !missing[back]) play(back);
+    });
     return el;
   }
 
@@ -57,11 +69,13 @@
   function play(name) {
     if (!enabled) return;
     var src = TRACKS[name];
+    // 這首沒放（或載入失敗）就什麼都不做，讓現在這首繼續放，不要換成無聲
     if (!src || missing[name]) return;
     if (cur === name && el && !el.paused) return;
     var a = ensure();
 
     function start() {
+      if (cur && cur !== name) prev = cur;
       cur = name;
       a.src = src;
       a.volume = 0;
@@ -100,8 +114,22 @@
     }));
   }
 
+  /** 現在的播放狀況（除錯用：在主控台輸入 BGM.now() 就看得到） */
+  function now() {
+    return {
+      現在播放: cur,
+      檔案: cur ? TRACKS[cur] : null,
+      有在響: !!(el && !el.paused),
+      音量: el ? Math.round(el.volume * 100) / 100 : null,
+      已播秒數: el ? Math.round(el.currentTime) : null,
+      總長度: el && el.duration ? Math.round(el.duration) : null,
+      開關: enabled,
+      找不到的檔案: Object.keys(missing)
+    };
+  }
+
   global.BGM = {
-    init: loadPref, play: play, stop: stop, check: check,
+    init: loadPref, play: play, stop: stop, check: check, now: now,
     setEnabled: setEnabled, isEnabled: isEnabled, setVolume: setVolume,
     TRACKS: TRACKS
   };

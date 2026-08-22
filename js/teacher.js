@@ -409,6 +409,7 @@
       if (q.length) q.forEach(handleAction);
       pushRemote();                     // 心跳：平板隨時都能同步到最新狀態
     }, 900);
+    BGM.play('game');
     status('連線模式：' + (S.getMode() === 'firebase' ? '雲端（平板可跨裝置連入）' : '本機'));
     setTimeout(runRound, 1200);        // 自動開始，不用按按鈕
   }
@@ -1074,6 +1075,7 @@
       return state.answers[g] && state.answers[g].correct;
     });
     SOUND.play(anyRight ? 'right' : 'wrong');
+    BGM.play('game');                    // 答題結束，回到平常的背景音樂
     status('揭曉！正解 ' + r.answer);
 
     setTimeout(function () {
