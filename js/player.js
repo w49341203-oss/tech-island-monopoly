@@ -201,6 +201,8 @@
     state = st;
     window.__ps = st;                 // 診斷用：可在主控台檢查平板收到的狀態
     window.__psAt = Date.now();
+    lastStateAt = Date.now();
+    if (connBad) { connBad = false; $('connWarn').classList.add('hidden'); }
     if (!my.gid) return;
     // 上一節是 9 組、這一節老師只開 6 組時，記著自己是第 8 組的平板會找不到自己。
     // 以前是無聲 return，那台平板整節課停在「正在回到遊戲…」，學生完全不知道怎麼辦。
@@ -862,7 +864,9 @@
     }
     // 商店
     if (cell.type === 'shop') {
-      html.push('<div class="pl-msg">🏪 創投商店（白板上只會顯示「購買中」，別人看不到你買什麼）</div>');
+      html.push('<div class="pl-msg">🏪 創投商店　<b>不限時間，慢慢挑</b>　' +
+                '（白板上只會顯示「購買中」，別人看不到你買什麼）<br>' +
+                '買好之後按最下面的「🛒 我買完了」才會換下一組。</div>');
       html.push('<div class="shop-grid">' + shopShelf().map(function (c) {
         var afford = me.rp >= c.cost;
         return '<div class="hand-card' + (afford ? '' : ' taken') + '" data-shop="' + c.id + '">' +
@@ -873,8 +877,10 @@
     }
     if (!html.length) html.push('<div class="pl-msg">這一格沒有可以做的事，等老師端播完就換下一組</div>');
     if (waitingMe) {
-      html.push('<button class="opt-btn" data-act="skip" style="background:#334155">' +
-                '✓ 我決定好了（換下一組）</button>');
+      var isShop = (cell.type === 'shop');
+      html.push('<button class="opt-btn" data-act="skip" style="background:' +
+                (isShop ? '#166534' : '#334155') + '">' +
+                (isShop ? '🛒 我買完了（換下一組）' : '✓ 我決定好了（換下一組）') + '</button>');
     }
 
     body.innerHTML = html.join('');
@@ -895,6 +901,50 @@
     body.querySelectorAll('[data-shop]').forEach(function (b) {
       b.onclick = function () { send({ type: 'shop', cardId: b.dataset.shop }); b.style.opacity = .4; };
     });
+  }
+
+  // ═══════════════════════════════════════
+  // 連線看門狗
+  // 收不到老師端的訊息時，畫面上要直接講出來。
+  // 以前這種情況只會「畫面靜止」，老師和學生都以為是遊戲壞了，
+  // 其實是這一台的連線斷了而已。
+  // ═══════════════════════════════════════
+  var lastStateAt = 0;
+  var connBad = false;
+  var STALE_MS = 15000;              // 15 秒沒收到任何狀態就算不對勁
+
+  function startConnWatch() {
+    setInterval(function () {
+      if (!my.gid || !lastStateAt) return;                 // 還沒進遊戲不用管
+      var gap = Date.now() - lastStateAt;
+      if (gap < STALE_MS) return;
+      if (!connBad) {
+        connBad = true;
+        var w = $('connWarn');
+        w.innerHTML = '⚠️ 收不到老師端的訊息（已經 <b id="connSec">' +
+                      Math.round(gap / 1000) + '</b> 秒）<br>正在自動重新連線…' +
+                      '<br><button id="connReload">還是不行？點我重新整理</button>';
+        w.classList.remove('hidden');
+        var rb = document.getElementById('connReload');
+        if (rb) rb.onclick = function () { location.reload(); };
+        tryReconnect();
+      }
+      var el = document.getElementById('connSec');
+      if (el) el.textContent = Math.round(gap / 1000);
+    }, 2000);
+  }
+
+  var reconnectAt = 0;
+  function tryReconnect() {
+    if (Date.now() - reconnectAt < 8000) return;           // 不要一直重連
+    reconnectAt = Date.now();
+    try {
+      if (room && room.gameId && S.getMode() === 'firebase') {
+        S.setMode('firebase', room.gameId);
+        S.watchState(onState);                             // 重新掛監聽（會先取消舊的）
+        send({ type: 'hello' });
+      }
+    } catch (e) {}
   }
 
   /** 最上方的階段提示：現在是道具時間？答題時間？還是別組在行動？ */
@@ -973,10 +1023,15 @@
   var decideTimer = null;
   function startDecideTimer(until) {
     stopDecideTimer();
+    var here = B.CELLS[state.players[my.gid].pos].name;
+    // until 是 null 代表這一格不限時間（創投商店），慢慢挑就好，不要用倒數逼學生
+    if (until == null) {
+      $('actTitle').textContent = '輪到你了 · ' + here + '　（不限時間，挑好按買完了）';
+      return;
+    }
     function tick() {
       var left = Math.max(0, Math.ceil((until - Date.now()) / 1000));
-      $('actTitle').textContent = '輪到你了 · ' +
-        B.CELLS[state.players[my.gid].pos].name + '　⏱ ' + left + ' 秒';
+      $('actTitle').textContent = '輪到你了 · ' + here + '　⏱ ' + left + ' 秒';
       if (left <= 0) stopDecideTimer();
     }
     tick();
@@ -1253,6 +1308,7 @@
     // 平板預設「靜音」：一個班九台同時響會吵到聽不見老師講話，
     // 想開的組自己按右上角的喇叭就好。
     SOUND.init(false);
+    startConnWatch();
     buildJoin();
     autoRejoin();
   });

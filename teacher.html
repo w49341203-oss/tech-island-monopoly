@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>科技島大富翁 — 老師端</title>
-<link rel="stylesheet" href="css/style.css?v=20260822-2051">
+<link rel="stylesheet" href="css/style.css?v=20260822-2104">
 </head>
 <body class="teacher">
 
@@ -133,6 +133,13 @@
     </div>
 
     <!-- 輪與輪之間的休息 -->
+    <!-- 創投商店不限時間，老師需要一個能強制往下走的出口 -->
+    <div class="hud-waitgroup hidden" id="hudWaitGroup">
+      <div class="wg-text" id="wgText">第 1 組 購買中…</div>
+      <div class="wg-hint">等他在平板上按「買完了」；平板沒反應時可以直接跳過</div>
+      <button id="btnSkipGroup">⏭ 跳過這一組</button>
+    </div>
+
     <div class="hud-break hidden" id="hudBreak">
       <div class="bk-title" id="bkTitle">第 1 輪結束</div>
       <div class="bk-sec" id="bkSec">60</div>
@@ -169,6 +176,7 @@
 
     <div class="hud-rank hidden" id="hudRank"></div>
     <div class="hud-ver">v1.1</div>
+    <div class="hud-dots" id="hudDots"></div>
     <div class="hud-code" id="hudCode"></div>
     <button class="hud-mute" id="btnMute" title="音效開關">🔊</button>
   </div>
@@ -188,16 +196,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260822-2051"></script>
-<script src="js/sound.js?v=20260822-2051"></script>
-<script src="js/bgm.js?v=20260822-2051"></script>
-<script src="js/board.js?v=20260822-2051"></script>
-<script src="js/characters.js?v=20260822-2051"></script>
-<script src="js/cards.js?v=20260822-2051"></script>
-<script src="js/questions.js?v=20260822-2051"></script>
-<script src="js/engine.js?v=20260822-2051"></script>
-<script src="js/render.js?v=20260822-2051"></script>
-<script src="js/store.js?v=20260822-2051"></script>
-<script src="js/teacher.js?v=20260822-2051"></script>
+<script src="js/firebase-config.js?v=20260822-2104"></script>
+<script src="js/sound.js?v=20260822-2104"></script>
+<script src="js/bgm.js?v=20260822-2104"></script>
+<script src="js/board.js?v=20260822-2104"></script>
+<script src="js/characters.js?v=20260822-2104"></script>
+<script src="js/cards.js?v=20260822-2104"></script>
+<script src="js/questions.js?v=20260822-2104"></script>
+<script src="js/engine.js?v=20260822-2104"></script>
+<script src="js/render.js?v=20260822-2104"></script>
+<script src="js/store.js?v=20260822-2104"></script>
+<script src="js/teacher.js?v=20260822-2104"></script>
 </body>
 </html>

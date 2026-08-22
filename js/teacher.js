@@ -35,7 +35,7 @@
   }
   /** 把所有會蓋在地圖上的面板收起來 */
   function hideAllPanels() {
-    ['hudBreak', 'hudItemPhase', 'hudCast', 'hudQuestion', 'hudOrder', 'hudDice', 'hudPlayer']
+    ['hudBreak', 'hudItemPhase', 'hudCast', 'hudQuestion', 'hudOrder', 'hudDice', 'hudPlayer', 'hudWaitGroup']
       .forEach(function (id) { var e = $(id); if (e) e.classList.add('hidden'); });
   }
   // 「開放破壞類道具」開關關掉時，這些卡片道具一律無效
@@ -409,6 +409,7 @@
     bindCellClick();
     updateHUD();
     $('hudCode').textContent = roomCode ? '場次編號 ' + roomCode : '';
+    renderOnlineDots();
     clearInterval(gamePump);
     gamePump = setInterval(function () {
       var q = S.drainLocalQueue();
@@ -603,7 +604,26 @@
     return Object.keys(state.players).filter(isOnline).length;
   }
 
+  /**
+   * 白板角落顯示每一組的連線狀況。
+   * 「有一組沒出現題目」時，老師看這裡就知道是那台平板斷線（灰的），
+   * 還是收得到但畫面有問題（綠的）。
+   */
+  function renderOnlineDots() {
+    var box = $('hudDots');
+    if (!box || !state || !state.players) return;
+    box.innerHTML = Object.keys(state.players).map(function (gid) {
+      var p = state.players[gid];
+      var on = isOnline(gid);
+      var ever = everOnline[gid];
+      var cls = on ? 'on' : (ever ? 'lost' : 'none');
+      var tip = on ? '連線正常' : (ever ? '斷線中' : '沒有平板');
+      return '<span class="dot ' + cls + '" title="' + tip + '">' + p.num + '</span>';
+    }).join('');
+  }
+
   function updateHUD() {
+    renderOnlineDots();
     $('hudRound').textContent = '第 ' + state.round + ' 輪 / ' + state.maxRounds;
     R.updateMinimap(state);
     pushRemote();                   // 把狀態推給各組平板
@@ -1152,27 +1172,43 @@
    * 落地之後，如果這一組有平板而且有事情可以做（買地／蓋廠／併購／逛商店），
    * 就等他決定。原本只等 1.6 秒，學生根本來不及按。
    */
-  function waitForDecision(gid, hasChoice) {
+  /**
+   * 等這一組做決定。
+   * noLimit=true 時不倒數（創投商店要慢慢挑），一直等到學生按「買完了」為止；
+   * 這種情況白板上會出現「跳過這一組」，免得某台平板當掉就把全班卡死。
+   */
+  function waitForDecision(gid, hasChoice, noLimit) {
     if (!hasChoice || isBot(gid)) return Promise.resolve();
-    var ms = (cfg.decideSec || 8) * 1000;
-    var deadline = Date.now() + ms;
+    var deadline = noLimit ? null : Date.now() + (cfg.decideSec || 8) * 1000;
     decision = { gid: gid, done: false };
-    state.decide = { gid: gid, until: deadline };     // 讓平板知道在等誰、還剩多久
+    state.decide = { gid: gid, until: deadline };     // until 是 null 就代表不限時間
     pushRemote();
 
+    var wg = $('hudWaitGroup');
+    if (noLimit) {
+      $('wgText').textContent = state.players[gid].name + ' 購買中…';
+      wg.classList.remove('hidden');
+      $('btnSkipGroup').onclick = function () { SOUND.play('click'); decision.done = true; };
+    }
+
     return new Promise(function (resolve) {
-      var iv = setInterval(function () {
+      var iv = regTimer(setInterval(function () {
         pumpActions();
-        var left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
-        status(state.players[gid].name + ' 決定中…　' + left + ' 秒');
-        if (decision.done || Date.now() >= deadline) {
+        if (noLimit) {
+          status(state.players[gid].name + ' 購買中…（等他按「買完了」）');
+        } else {
+          var left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+          status(state.players[gid].name + ' 決定中…　' + left + ' 秒');
+        }
+        if (decision.done || (deadline && Date.now() >= deadline)) {
           clearInterval(iv);
           decision = null;
           delete state.decide;
+          wg.classList.add('hidden');
           pushRemote();
           resolve();
         }
-      }, 250);
+      }, 250));
     });
   }
 
@@ -1340,7 +1376,8 @@
       } else { hasChoice = true; lines.push('可以蓋廠（每級 $' + out.upgradeCost.toLocaleString() + '）'); }
     }
     if (out.canMerge && state.cfg && state.cfg.allowMerge && !isBot(gid)) hasChoice = true;
-    if (cell.type === 'shop' && !isBot(gid)) hasChoice = true;
+    var noLimit = false;
+    if (cell.type === 'shop' && !isBot(gid)) { hasChoice = true; noLimit = true; }   // 商店慢慢挑，不倒數
     if (cell.type === 'bank' && !isBot(gid)) hasChoice = true;
 
     R.drawBoard(state);
@@ -1352,7 +1389,7 @@
 
     if (lines.length) toast(p.num + '組｜' + lines.join('　·　'), 2800);
 
-    return waitForDecision(gid, hasChoice).then(function () {
+    return waitForDecision(gid, hasChoice, noLimit).then(function () {
       R.drawBoard(state);
       R.drawPlayers(state);
       showPlayerHUD(gid);
