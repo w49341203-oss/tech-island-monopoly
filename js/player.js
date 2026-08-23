@@ -73,6 +73,9 @@
         codeInput.value = urlCode;
         var urlG = qs.get('g');
         if (urlG && /^[0-9]{1,2}$/.test(urlG)) autoJoinGroup = 'g' + (+urlG);
+        // 單機的房間只在這台電腦上（不上雲端），要用本機模式連——
+        // 就算網站有雲端設定也不能去雲端查（一定找不到）
+        if (qs.get('local') === '1') forceLocalRoom = true;
         setTimeout(doFind, 300);
       }
     } catch (e) {}
@@ -100,6 +103,8 @@
   }
 
   /** 第一步：用代碼查房間，拿到這一場實際開了幾組 */
+  var forceLocalRoom = false;   // 單機內嵌面板：強制走本機模式（房間不在雲端）
+
   function doFind() {
     var code = ($('jCode').value || '').trim();
     if (code.length !== 6) { pmsg('joinMsg', '請輸入白板上的 6 位數編號', 'err'); return; }
@@ -107,7 +112,7 @@
     S.initChannel(code);                    // 同一台電腦多分頁用代碼當頻道
     S.onLocalState(onState);
 
-    if (!S.firebaseReady()) {
+    if (forceLocalRoom || !S.firebaseReady()) {
       room = { gameId: 'local_' + code, groups: 10, local: true };
       S.setMode('local', room.gameId);
       showGroupPicker('本機模式（同一台電腦才連得到）');

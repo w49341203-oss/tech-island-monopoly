@@ -511,8 +511,10 @@
     var dock = $('selfDock');
     // 用「同一個資料夾的 player.html」拼網址（用字串取代的話，
     // 檔名不是 teacher.html 時會把自己嵌進自己，畫面無限套娃）
+    // local=1：單機的房間只存在這台電腦（不上雲端），
+    // 玩家頁一定要走本機模式連，不能去雲端查編號（會找不到）
     var url = location.pathname.replace(/[^/]*$/, '') + 'player.html' +
-              '?code=' + roomCode + '&embed=1&g=1';
+              '?code=' + roomCode + '&embed=1&g=1&local=1';
     if ($('sdFrame').getAttribute('src') !== url) $('sdFrame').setAttribute('src', url);
     dock.classList.remove('hidden', 'collapsed');
     document.body.classList.add('self-docked');
@@ -525,7 +527,12 @@
   }
 
   function startGame() {
-    if (cfg.solo) openSelfDock();      // 單機＝老師一定親自玩第 1 組
+    if (cfg.solo) {
+      openSelfDock();                  // 單機＝老師一定親自玩第 1 組
+      // 保險：把第 1 組直接釘成「真人組」。就算操作面板載入慢了幾秒，
+      // 電腦也絕不代打第 1 組（不然第一題可能被電腦搶答，角色也像被搶走）
+      everOnline['g1'] = true;
+    }
     clearInterval(lobbyPump);
     $('lobby').classList.add('hidden');
     $('setup').classList.add('hidden');
