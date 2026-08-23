@@ -193,6 +193,9 @@
     return unsub;
   }
 
+  // 舊版安全規則相容模式（見 sendAction 內說明）。整個分頁记住一次就好。
+  var legacyActions = false;
+
   /** 平板端：送出動作意圖 */
   function sendAction(gid, action) {
     if (mode !== 'firebase' || !db) {
@@ -210,8 +213,22 @@
     // 心跳固定寫同一份文件（一直覆蓋沒關係、也不用刪）；
     // 真正的動作每一筆一份新文件 —— 以前整組共用一份，連續兩個動作
     // （或動作跟心跳撞在一起）會互相覆蓋，前一個就永遠消失了。
-    if (action.type === 'hello') return col.doc('hb_' + gid).set(data);
-    return col.doc().set(data);
+    //
+    // ⚠️ 相容退路：主控台上如果還是「舊版」安全規則（只接受文件名稱剛好是
+    // 組別代號的寫入），新檔名會整批被拒 —— 2026-08-23 晚上真的發生過：
+    // 全班平板連報到都失敗、選角一直「送出失敗」。
+    // 所以被拒時自動退回舊制（一組一份、互相覆蓋的老寫法），遊戲照常玩；
+    // 等老師把新規則發布上去，下次重新整理就會自動用回新制。
+    if (legacyActions) return col.doc(gid).set(data);
+    var ref = (action.type === 'hello') ? col.doc('hb_' + gid) : col.doc();
+    return ref.set(data).catch(function (e) {
+      if (/permission|insufficient/i.test((e && e.message) || '')) {
+        console.warn('[STORE] 新版動作寫法被安全規則拒絕，退回舊制（請到 Firebase 主控台發布新版 firestore.rules）');
+        legacyActions = true;
+        return col.doc(gid).set(data);
+      }
+      throw e;
+    });
   }
 
   // 這一場的識別碼。老師端開房間時設定，用來分辨「這一場的動作」

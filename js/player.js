@@ -57,6 +57,7 @@
 
     $('btnFind').onclick = doFind;
     $('btnJoin').onclick = doJoin;
+    $('btnLeavePick').onclick = leaveRoom;
     $('btnBack').onclick = function () {
       $('step2').classList.add('hidden');
       $('step1').classList.remove('hidden');
@@ -203,6 +204,17 @@
     });
   }
 
+  /**
+   * 離開這一場，回到輸入編號的畫面。
+   * 老師重開新的一場時，平板還綁在舊場次的選角畫面上，以前完全沒有退路
+   * （連線警告只有「重新整理」，但重新整理會自動回到舊的那一間）。
+   * 用「清掉綁定 + 重新載入」最乾淨：所有監聽與計時器一次歸零。
+   */
+  function leaveRoom() {
+    try { localStorage.removeItem('techisland:me'); } catch (e) {}
+    location.href = location.pathname;    // 重新載入（不帶任何參數）
+  }
+
   /** 每 10 秒報到一次，老師端才知道這組的平板還在線上（沒在線的組會由電腦代打） */
   var hbTimer = null;
   function heartbeat() {
@@ -256,9 +268,39 @@
     pmsg('handMsg', '⚠️ ' + r.msg, 'err');
   }
 
+  /**
+   * 座位被別台平板佔走時要講出來。
+   * 白板一組只認一台平板（先到先贏），第二台送的任何動作都會被忽略 ——
+   * 但以前那一台完全不知道，畫面看起來正常、按什麼都沒反應（無聲的殭屍機）。
+   * 白板廣播的座位表帶著「不可逆代碼」，拿自己的裝置代號算一次就知道
+   * 佔位的是不是自己。不是自己、而且對方 3 分鐘內有動靜 → 顯示警告與離開鍵。
+   * （對方超過 3 分鐘沒動靜時白板會讓我接手，警告就自動消失。）
+   */
+  function checkSeat(st) {
+    var w = $('seatWarn');
+    if (!w || !my.gid || !st.seats) return;
+    var s = st.seats[my.gid];
+    var myTag = window.ENGINE ? window.ENGINE.devTag(myDev) : '';
+    var occupied = s && s.who && s.who !== myTag &&
+                   (Date.now() - clockSkew) - (s.at || 0) < 180000;
+    if (occupied && !w._shown) {
+      w._shown = true;
+      w.innerHTML = '⚠️ 第 ' + my.gid.slice(1) + ' 組已經有另一台平板在操作了，這一台按什麼都不會生效。<br>' +
+                    '<button id="seatLeave">⬅ 回到輸入編號，改選別組</button>' +
+                    '<span style="font-size:12px;opacity:.8">　（如果那一台壞了，等 3 分鐘就能用這一台接手）</span>';
+      w.classList.remove('hidden');
+      var b = document.getElementById('seatLeave');
+      if (b) b.onclick = leaveRoom;
+    } else if (!occupied && w._shown) {
+      w._shown = false;
+      w.classList.add('hidden');
+    }
+  }
+
   function onState(st) {
     if (!st || !st.players) return;
     if (typeof st.hostAt === 'number') clockSkew = Date.now() - st.hostAt;
+    checkSeat(st);
     st = graftPrivate(st);
     // 換了新的一場遊戲（識別碼不同）就整個重置。
     // 沒有這一段的話，上一場遊戲留在雲端／本機的舊狀態會跟新遊戲互相蓋來蓋去，
@@ -1213,10 +1255,13 @@
         var w = $('connWarn');
         w.innerHTML = '⚠️ 收不到老師端的訊息（已經 <b id="connSec">' +
                       Math.round(gap / 1000) + '</b> 秒）<br>正在自動重新連線…' +
-                      '<br><button id="connReload">還是不行？點我重新整理</button>';
+                      '<br><button id="connReload">還是不行？點我重新整理</button>' +
+                      '<button id="connLeave" style="margin-left:8px">老師開了新的一場？回到輸入編號</button>';
         w.classList.remove('hidden');
         var rb = document.getElementById('connReload');
         if (rb) rb.onclick = function () { location.reload(); };
+        var lb = document.getElementById('connLeave');
+        if (lb) lb.onclick = leaveRoom;
         tryReconnect();
       }
       var el = document.getElementById('connSec');
