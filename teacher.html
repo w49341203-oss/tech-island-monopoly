@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>科技島大富翁 — 老師端</title>
-<link rel="stylesheet" href="css/style.css?v=20260823-2239">
+<link rel="stylesheet" href="css/style.css?v=20260823-2253">
 </head>
 <body class="teacher">
 
@@ -104,8 +104,8 @@
 
 <!-- ══ 選角等待畫面 ══ -->
 <div id="lobby" class="screen lobby hidden">
-  <div class="room-code">
-    <div class="rc-label">請各組在平板上輸入這一場的編號</div>
+  <div class="room-code" id="roomCodeBox">
+    <div class="rc-label" id="rcLabel">請各組在平板上輸入這一場的編號</div>
     <div class="rc-code" id="roomCode">------</div>
     <div class="rc-url" id="roomUrl"></div>
   </div>
@@ -114,6 +114,7 @@
   <div class="lobby-actions">
     <button id="btnStart" class="big primary" disabled>全部選好了，開始遊戲</button>
     <button id="btnAutoPick" class="big ghost">幫還沒選的組隨機指定</button>
+    <button id="btnLobbyBack" class="big ghost">⬅ 回首頁</button>
     <div class="hint" id="lobbyHint" style="width:100%;text-align:center"></div>
   </div>
 </div>
@@ -217,17 +218,17 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260823-2239"></script>
-<script src="js/sound.js?v=20260823-2239"></script>
-<script src="js/speak.js?v=20260823-2239"></script>
-<script src="js/bgm.js?v=20260823-2239"></script>
-<script src="js/board.js?v=20260823-2239"></script>
-<script src="js/characters.js?v=20260823-2239"></script>
-<script src="js/cards.js?v=20260823-2239"></script>
-<script src="js/questions.js?v=20260823-2239"></script>
-<script src="js/engine.js?v=20260823-2239"></script>
-<script src="js/render.js?v=20260823-2239"></script>
-<script src="js/store.js?v=20260823-2239"></script>
-<script src="js/teacher.js?v=20260823-2239"></script>
+<script src="js/firebase-config.js?v=20260823-2253"></script>
+<script src="js/sound.js?v=20260823-2253"></script>
+<script src="js/speak.js?v=20260823-2253"></script>
+<script src="js/bgm.js?v=20260823-2253"></script>
+<script src="js/board.js?v=20260823-2253"></script>
+<script src="js/characters.js?v=20260823-2253"></script>
+<script src="js/cards.js?v=20260823-2253"></script>
+<script src="js/questions.js?v=20260823-2253"></script>
+<script src="js/engine.js?v=20260823-2253"></script>
+<script src="js/render.js?v=20260823-2253"></script>
+<script src="js/store.js?v=20260823-2253"></script>
+<script src="js/teacher.js?v=20260823-2253"></script>
 </body>
 </html>

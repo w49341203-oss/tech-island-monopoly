@@ -321,8 +321,19 @@
   function goLobby() {
     $('setup').classList.add('hidden');
     $('lobby').classList.remove('hidden');
-    $('roomCode').textContent = roomCode || '------';
-    $('roomUrl').textContent = location.href.replace(/teacher\.html.*$/, 'player.html');
+
+    // 單機試玩不會向雲端登記房間，平板輸入編號一定「找不到」——
+    // 所以單機模式不能顯示編號和網址（會誤導老師叫學生輸入），改顯示說明。
+    if (cfg.solo) {
+      $('rcLabel').textContent = '🖥️ 單機試玩：各組由電腦代打。想自己玩一組？';
+      $('roomCode').textContent = roomCode || '------';
+      $('roomUrl').textContent = '在「這一台電腦」開新視窗打開 player.html，輸入上面的編號加入任一組，' +
+                                 '那一組就換你操作（學生平板連不進單機模式；要全班玩請用「開新遊戲」）';
+    } else {
+      $('rcLabel').textContent = '請各組在平板上輸入這一場的編號';
+      $('roomCode').textContent = roomCode || '------';
+      $('roomUrl').textContent = location.href.replace(/teacher\.html.*$/, 'player.html');
+    }
 
     var resuming = state.round > 0;
     $('lobbyTitle').textContent = resuming
@@ -343,6 +354,11 @@
     BGM.play('lobby');
     $('btnAutoPick').onclick = autoPick;
     $('btnStart').onclick = function () { goFullscreen(); startGame(); };
+    $('btnLobbyBack').onclick = function () {
+      // 按錯模式（單機 vs 開新遊戲）不用重新整理，回首頁重選就好
+      clearInterval(lobbyPump);
+      backToSetup();
+    };
     if (cfg.solo) autoPick();
   }
 
@@ -416,8 +432,11 @@
     var n = Object.keys(state.players).length, on = onlineCount();
     var hint = $('lobbyHint');
     if (hint) {
-      hint.textContent = '目前 ' + on + ' / ' + n + ' 組的平板已連上'
-        + (cfg.autoPilot ? '　·　沒有平板的組會由電腦代打，可以直接開始' : '');
+      hint.textContent = cfg.solo
+        ? (on > 0 ? '你已經加入 ' + on + ' 組（那幾組由你操作，其他電腦代打）。點組別卡片可以換角色。'
+                  : '直接按開始＝全部電腦代打給你看。點組別卡片可以換角色。')
+        : ('目前 ' + on + ' / ' + n + ' 組的平板已連上'
+           + (cfg.autoPilot ? '　·　沒有平板的組會由電腦代打，可以直接開始' : ''));
     }
   }
 
@@ -679,11 +698,11 @@
   function botPlayCards() {
     Object.keys(state.players).forEach(function (gid) {
       if (!isBot(gid)) return;
-      // 只要這一組整場曾經連上過平板，就永遠不幫他們出牌。
+      // 只要這一組整場曾經連上過裝置，就永遠不幫他們出牌。
       // 平板只要漏兩次心跳（分頁切到背景、網路卡一下）就會被判定離線，
       // 這時電腦代打會出一張學生沒選過的牌，學生會完全不知道發生什麼事。
-      // 少出一張牌沒關係，出了一張沒人選的牌才是災難。
-      if (everOnline[gid] && !cfg.solo) return;
+      // 少出一張牌沒關係，出了一張沒人選的牌才是災難。（單機模式老師玩的那組同理）
+      if (everOnline[gid]) return;
       // 第 1 輪不代打出牌：有些組的平板開場才連上，第一次心跳到達前
       // 會被誤判成沒平板，電腦把他們的手牌花掉就再也拿不回來了
       if (!cfg.solo && state.round <= 1) return;
@@ -744,7 +763,9 @@
   }
   /** 這一組要不要由電腦代打？（單機試玩＝全部代打；否則只代打沒平板的組） */
   function isBot(gid) {
-    if (cfg.solo) return true;
+    // 單機試玩：預設全部代打，但老師若在同一台電腦開視窗加入某一組
+    //（本機模式，同一台電腦才連得到），那一組就交給老師親自玩
+    if (cfg.solo) return !everOnline[gid];
     return cfg.autoPilot && !isOnline(gid);
   }
   function onlineCount() {
@@ -1180,7 +1201,7 @@
   function botAnswer(left, total) {
     Object.keys(state.players).forEach(function (gid) {
       if (!isBot(gid)) return;
-      if (everOnline[gid] && !cfg.solo) return;   // 有平板的組不代答，讓學生自己來
+      if (everOnline[gid]) return;   // 有裝置的組不代答（單機模式老師自己玩的那組也一樣）
       // 只在最後 3 秒才代答：遊戲開始後才連進來的組，第一次心跳還沒到之前
       // 會被誤判成「沒平板」——電腦太早代答會把他們的作答權搶走
       //（一組只能作答一次，電腦答了學生就答不了）。
@@ -1451,8 +1472,8 @@
    */
   function waitForNext(gid) {
     var p = state.players[gid];
-    // 單機試玩是要讓白板自己跑給老師看的，不需要有人在旁邊按鍵
-    if (cfg.solo) return new Promise(function (res) { setTimeout(res, 900); });
+    // 單機試玩：電腦代打的組自動換下一位；老師親自玩的組照常等按鍵
+    if (cfg.solo && !everOnline[gid]) return new Promise(function (res) { setTimeout(res, 900); });
     if (sessionOver) return Promise.resolve();
 
     decision = { gid: gid, done: false };
@@ -1716,7 +1737,7 @@
 
     // 有沒有需要這一組自己決定的事？
     var hasChoice = false;
-    var reallyBot = isBot(gid) && !(everOnline[gid] && !cfg.solo);
+    var reallyBot = isBot(gid) && !everOnline[gid];
     if (out.canBuy) {
       if (reallyBot) {
         if (p.cash - out.buyPrice > 15000 && E.buyLand(state, gid, p.pos).ok) {
