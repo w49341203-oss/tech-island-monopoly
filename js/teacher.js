@@ -14,7 +14,8 @@
               itemSec: 30 };
   var greeted = {};             // 哪幾組已經響過「連進來」的提示音
   var everOnline = {};          // 哪幾組「整場曾經」連上過平板（斷線也算數）
-  var lastActionAt = {};        // 每組最後處理過的動作時間戳（防止同一筆被執行兩次）
+  var lastActionAt = {};        // 每組最後處理過的動作時間（白板自己的時鐘）
+  var lastActionSig = {};       // 每組最後處理過的動作內容（防止同一筆被執行兩次）
   var roomCode = null;          // 這一場的房間代碼（投影給學生輸入）
   var online = {};              // gid -> 最後一次收到該組訊息的時間
   // 平板每 15 秒回報一次。放到 120 秒代表可以連漏 7 次才判定離線 ——
@@ -258,7 +259,7 @@
   function openRoom(solo) {
     sessionOver = false;
     clearPhaseTimers();
-    online = {}; everOnline = {}; greeted = {}; lastActionAt = {};   // 新的一場重新認人
+    online = {}; everOnline = {}; greeted = {}; lastActionAt = {}; lastActionSig = {};
     if (state) state.seats = {};                                     // 座位也要重新認領
     var code = state.code;
     var gameId = S.makeGameId(code);
@@ -280,7 +281,7 @@
               '若那台已經關了，直接用原本那台電腦開就好（本機也有存檔）'
             : '⚠️ 雲端連線有問題，平板可能看不到最新畫面', 8000);
         });
-        S.watchActions(function (a) { handleAction(a); S.clearAction(a.gid); });
+        S.watchActions(function (a) { handleAction(fromNetwork(a)); S.clearAction(a.gid); });
         return S.openRoom(code, { groups: cfg.groups });
       }).then(function () {
         pushRemote();
@@ -1027,6 +1028,8 @@
     clearInterval(timer);
     state.question = q;
     state.answers = {};
+    state.questionAt = Date.now();     // 換題＝重新計時，不然大家的作答用時全部算成超時
+    state.hintLevel = {};              // 新的題目，提示重新開始買
     if (q.id) state.usedQuestions.push(q.id);
     showQuestion(q);
     toast('🔮 預測卡發動！換一題重新作答', 2600);
@@ -1090,13 +1093,28 @@
 
   /** 處理平板送來的動作 */
   function pumpActions() {
-    S.drainLocalQueue().forEach(function (a) { handleAction(a); });
+    S.drainLocalQueue().forEach(function (a) { handleAction(fromNetwork(a)); });
+  }
+
+  /**
+   * 從網路（雲端或同機分頁）收到的動作要先消毒。
+   * 學生可以偽造任何欄位，其中兩個特別危險：
+   *   · bot: true —— 白板內部用來標記「電腦代打」，帶著它就能繞過座位鎖
+   *   · dev 不帶 —— 以前沒帶裝置代號就整段跳過座位鎖，等於誰都能冒充任何一組
+   */
+  function fromNetwork(a) {
+    if (!a || typeof a !== 'object') return null;
+    var clean = {};
+    Object.keys(a).forEach(function (k) { if (k !== 'bot') clean[k] = a[k]; });
+    return clean;
   }
 
   function handleAction(a) {
     if (!a || !a.gid) return;
     // 收到不屬於這一場的組別代號就丟掉（以前會直接當掉整個白板）
     if (!state || !state.players || !state.players[a.gid]) return;
+    // 真人送來的動作一定要有裝置代號，否則無法認座位
+    if (!a.bot && !a.dev) return;
     // ── 座位鎖：一組只認一台平板 ──
     // 兩台裝置同時選同一組時，第一台先認領，之後別台送來的動作一律忽略，
     // 否則兩台會互相蓋掉對方的操作，白板也不知道該聽誰的。
@@ -1119,12 +1137,18 @@
     if (!a.bot) {
       online[a.gid] = Date.now();          // 有訊息＝這組有平板在線上
       everOnline[a.gid] = true;            // 整場記著：這組是有平板的真人組
-      // 平板網路瞬斷重連時，Firestore 會把還沒刪掉的動作重新送一次。
-      // 同一筆時間戳只認第一次，否則同一張牌會被打出兩次。
-      if (a.at) {
-        if (lastActionAt[a.gid] >= a.at) return;
-        lastActionAt[a.gid] = a.at;
-      }
+      // 平板網路瞬斷重連時，Firestore 會把還沒刪掉的動作重新送一次；
+      // 學生連點也會送出好幾筆一樣的。這裡要擋掉重複的那幾筆。
+      //
+      // 不可以用平板送來的時間戳當依據 —— 學生把 at 改成很久以後的未來，
+      // 那一組之後送什麼都會被判定成「比較舊」而整節課失效。
+      // 改成比對「內容一不一樣」，時間用白板自己的。
+      var sig = a.gid + '|' + a.type + '|' +
+                JSON.stringify([a.cardId, a.choice, a.amount, a.target, a.times, a.level]);
+      var nowMs = Date.now();
+      if (lastActionSig[a.gid] === sig && nowMs - (lastActionAt[a.gid] || 0) < 1500) return;
+      lastActionSig[a.gid] = sig;
+      lastActionAt[a.gid] = nowMs;
     }
     switch (a.type) {
       case 'answer': E.submitAnswer(state, a.gid, a.choice, a.timeMs); break;
@@ -1161,6 +1185,14 @@
         var cardResult = E.playCard(state, a.gid, a.cardId, a.target);
         if (cardResult && cardResult.ok && cardResult.rerollQuestion && state.phase === 'question') {
           redrawQuestion();                      // 門得列夫的預測卡：全班換一題重新作答
+        }
+        if (cardResult && cardResult.ok && cardResult.landAgainFor &&
+            state.players[cardResult.landAgainFor]) {
+          // 壓縮卡：被推到新的一格就要觸發那一格的效果（過路費、事件、輻射區）
+          E.landOn(state, cardResult.landAgainFor);
+          R.drawBoard(state); R.drawPlayers(state);
+          var mv = state.players[cardResult.landAgainFor];
+          toast(mv.num + '組 被推到 ' + B.CELLS[mv.pos].name, 2400);
         }
         if (cardResult && cardResult.ok && cardResult.landAgain) {
           // 瞬移卡：傳送過去之後要真的觸發那一格的效果（買地／過路費／事件）
@@ -1393,8 +1425,13 @@
         SOUND.play('diceStop');
         drawDie($('die1'), 130, 120, 96, r.d1, 0);
         drawDie($('die2'), 290, 120, 96, r.d2, 0);
-        sum.textContent = r.fixed ? ('🎲 良率控制器指定 ' + r.total + ' 點')
-                                   : (r.d1 + ' + ' + r.d2 + ' = ' + r.total);
+        // 有卡片加成時，「3 + 4 = 14」會讓全班以為白板算錯，要把過程寫出來
+        var base = r.d1 + ' + ' + r.d2 + ' = ' + (r.d1 + r.d2);
+        sum.textContent = r.fixed
+          ? ('🎲 良率控制器指定 ' + r.total + ' 點')
+          : (r.mods && r.mods.length
+              ? base + '　→　' + r.mods.join('、') + '　→　' + r.total
+              : r.d1 + ' + ' + r.d2 + ' = ' + r.total);
         sum.classList.remove('hidden');
         setTimeout(function () { box.classList.add('hidden'); res(); }, 500);
       }

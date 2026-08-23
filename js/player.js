@@ -206,8 +206,28 @@
   // 收到老師端狀態
   // ═══════════════════════════════════════
   var lastSeq = -1, lastNonce = null;
+  /**
+   * 手牌、買到的提示、感應卡看到的答案，現在都不在公開狀態裡了
+   * （以前整包廣播給全班，任何人按 F12 就看得到別組的牌和沒付錢的提示）。
+   * 白板改成放進 st.priv 這個「一組一份」的區塊，這裡接回原本的位置，
+   * 下面的畫面程式就完全不用改。
+   */
+  function graftPrivate(st) {
+    if (!st || !st.priv || !my.gid) return st;
+    var mine = st.priv[my.gid];
+    var me = st.players && st.players[my.gid];
+    if (!mine || !me) return st;
+    me.cards = mine.cards || [];
+    me.buff = me.buff || {};
+    if (mine.peek) me.buff.peek = mine.peek;
+    st.myHints = mine.hints || [];
+    st.allCards = mine.allCards || null;      // 觀測卡：這一輪看得到全部人的手牌
+    return st;
+  }
+
   function onState(st) {
     if (!st || !st.players) return;
+    st = graftPrivate(st);
     // 換了新的一場遊戲（識別碼不同）就整個重置。
     // 沒有這一段的話，上一場遊戲留在雲端／本機的舊狀態會跟新遊戲互相蓋來蓋去，
     // 造成畫面一直跳（一下選角、一下選好）。
@@ -322,6 +342,7 @@
 
     guard('手牌', function () {
       var sigHand = (me.cards || []).map(function (c) { return c.id + (c.char ? '*' : ''); }).join(',') +
+                  '|' + ((state.myHints || []).length) +
                     '|' + (me.playedThisRound || 0);
       if (changed('hand', sigHand)) renderHand(me);
     });
@@ -911,30 +932,47 @@
 
     if (me.buff && me.buff.peek) {
       pmsg('hintBox', '📡 感應卡：這一題的正確答案是 ' + me.buff.peek, 'ok');
+    } else if (state.myHints && state.myHints.length) {
+      // 已經買到的提示（提示內容只會送給付過錢的那一組）
+      pmsg('hintBox', state.myHints.map(function (h, i) {
+        return '💡 提示 ' + (i + 1) + '：' + h;
+      }).join('\n'), 'ok');
     }
 
     // 已經作答就把提示鎖起來：提示要花錢，答完再買也沒用，
     // 而且學生很容易在等其他組時不小心點到，白白扣錢。
-    var lockHint = answered || me.frozen > 0;
-    [['btnHint', 0], ['btnHint2', hintLevel < 1 ? 1 : 2]].forEach(function (x) {
-      var b = $(x[0]);
+    // 提示是「一段一段往下買」的：買到第幾段由白板決定，平板只負責按。
+    // 以前兩顆按鈕都固定送 level 0，等於可以一直重複買同一段、一直扣錢。
+    var bought = (state.myHints && state.myHints.length) || 0;
+    var total = (state.question && state.question.hintCount) || 0;
+    var soldOut = bought >= total;
+    var lockHint = answered || me.frozen > 0 || soldOut;
+    ['btnHint', 'btnHint2'].forEach(function (id, i) {
+      var b = $(id);
       if (!b) return;
+      if (i === 1) { b.classList.add('hidden'); return; }   // 只留一顆，按一次買下一段
+      b.classList.remove('hidden');
+      var cost = E.CFG.hintCost[Math.min(bought, E.CFG.hintCost.length - 1)] || 0;
+      b.textContent = soldOut
+        ? '提示已全部買完'
+        : '💡 買第 ' + (bought + 1) + ' 個提示（$' + cost.toLocaleString() + '）';
       b.disabled = lockHint;
       b.style.opacity = lockHint ? '.4' : '';
-      b.onclick = lockHint ? null : function () { doHint(x[1]); };
+      b.onclick = lockHint ? null : function () { doHint(); };
     });
   }
 
-  function doHint(level) {
+  function doHint() {
     if (answered) { pmsg('hintBox', '已經作答了，提示買了也沒用', 'err'); return; }
     if (state.phase !== 'question') { pmsg('hintBox', '現在不是作答時間', 'err'); return; }
-    var q = state.question;
-    if (!q || !q.hints || !q.hints[level]) { pmsg('hintBox', '這題沒有更多提示了', 'err'); return; }
-    var cost = E.CFG.hintCost[level];
+    var bought = (state.myHints && state.myHints.length) || 0;
+    var total = (state.question && state.question.hintCount) || 0;
+    if (bought >= total) { pmsg('hintBox', '這題沒有更多提示了', 'err'); return; }
+    var cost = E.CFG.hintCost[Math.min(bought, E.CFG.hintCost.length - 1)] || 0;
     if (state.players[my.gid].cash < cost) { pmsg('hintBox', '現金不足', 'err'); return; }
-    hintLevel = level + 1;
-    send({ type: 'hint', level: level });
-    pmsg('hintBox', '💡 ' + q.hints[level] + '（花了 $' + cost.toLocaleString() + '）', 'ok');
+    $('btnHint').disabled = true;
+    pmsg('hintBox', '⏳ 購買中…', '');
+    send({ type: 'hint' });
   }
 
   // ═══════════════════════════════════════
@@ -1208,6 +1246,7 @@
     // 否則第二次進來就找不到節點、整個函式當場拋錯，學生會變成點卡片沒反應。
     var used = me.playedThisRound || 0;
     var h3 = $('handList').parentNode.querySelector('h3');
+    me.cards = me.cards || [];
     if (h3) h3.innerHTML = '🎴 我的手牌（<span id="handCount">' + me.cards.length + '</span>/8）　' +
       '<span style="font-size:13px;color:' + (used >= 2 ? '#f87171' : '#93a4bb') + '">' +
       '本輪已出 ' + used + '/2 張</span>';

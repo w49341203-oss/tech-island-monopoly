@@ -190,6 +190,27 @@
     return amount;
   }
 
+  /**
+   * 把外面送進來的金額變成安全的正整數，不合格就回 null（呼叫端要擋掉）。
+   *
+   * 為什麼一定要有這一關：平板是學生自己的裝置，送上來的可能是字串、小數、
+   * 負數、NaN，或乾脆不帶這個欄位。而 JavaScript 有兩個很坑的行為：
+   *   · 比較時會偷偷把字串轉成數字：'1' > 0 是 true，所以檢查會通過
+   *   · 相加時卻是字串相接：97200 + '1' 會變成 '972001'（現金瞬間變十倍）
+   *   · Math.min(undefined, x) 是 NaN，而 NaN 跟任何數字比都是 false，
+   *     所以「錢不夠就不能買」那類檢查會全部放行 —— 現金變成 NaN 之後，
+   *     買地、併購全部免費。
+   * 實測（tools/測試引擎.js 第 26 節）確認這兩條路都真的走得通。
+   */
+  function money(v) {
+    if (typeof v !== 'number') return null;      // 只收真正的數字，不收字串
+    if (!isFinite(v)) return null;               // NaN、Infinity 一律擋掉
+    v = Math.floor(v);                           // 不收小數，避免出現 $99999.3
+    if (v <= 0) return null;
+    if (v > 1e9) return null;                    // 明顯不合理的天文數字
+    return v;
+  }
+
   function applyLoan(state, gid, amount) {
     var blk_ = actionBlocked(state, gid);
     if (blk_) return { ok: false, msg: blk_ };
@@ -197,8 +218,9 @@
     var cap = 0;
     landsOf(state, gid).forEach(function (i) { cap += B.landValue(i, state.board.level[i] || 0); });
     cap = Math.floor(cap * 0.5) - p.loan;
+    amount = money(amount);
+    if (amount == null) return { ok: false, msg: '金額不正確（要正整數）' };
     if (amount > cap) return { ok: false, msg: '超過額度上限（地產總值的 50%），最多可借 $' + Math.max(0, cap).toLocaleString() };
-    if (amount <= 0) return { ok: false, msg: '金額不正確' };
     p.cash += amount;
     p.loan += Math.round(amount * (1 + CFG.loanFee));
     p.loanDue = state.round + CFG.loanTerm;
@@ -210,6 +232,8 @@
     var blk_ = actionBlocked(state, gid);
     if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
+    amount = money(amount);
+    if (amount == null) return { ok: false, msg: '金額不正確（要正整數）' };
     amount = Math.min(amount, p.loan, p.cash + p.bank);
     if (amount <= 0) return { ok: false, msg: '沒有可還的金額' };
     payTo(state, gid, null, amount);
@@ -225,22 +249,49 @@
   function startRound(state, question) {
     state.round++;
     state.phase = 'question';
+    state.questionAt = Date.now();       // 白板自己的出題時間（用來校正平板送來的作答用時）
+    state.hintLevel = {};                // 新的一題，提示重新開始買
     state.question = question;
     state.answers = {};
     state.order = [];
     state.turnIndex = 0;
-    state.board.quakeColor = null;
+    // 註：地震卡設的 quakeColor 不在這裡清。
+    // 卡片是在「道具時間」打出的，而道具時間就在 startRound 之前，
+    // 以前在這裡清掉等於這張 140 點的卡 100% 沒有效果（實測確認）。
+    // 改成在 endRound 清，剛好讓它生效整整一輪。
     if (question && question.id) state.usedQuestions.push(question.id);
     log(state, '第 ' + state.round + ' 輪開始', 'round');
     return state;
   }
 
-  function submitAnswer(state, gid, choice, timeMs) {
+  /**
+   * 送出答案。
+   * 第四個參數 timeMs 是平板自己算的用時 —— 現在完全不採用（留著只是相容舊呼叫）。
+   * 第五個參數 nowMs 只給自動化測試用來模擬「誰先按下去」；
+   * 老師端呼叫時不會帶，所以平板永遠改不到行動順序。
+   */
+  function submitAnswer(state, gid, choice, timeMs, nowMs) {
     if (state.phase !== 'question') return { ok: false, msg: '現在不是作答時間' };
     if (state.answers[gid]) return { ok: false, msg: '已經作答過了' };   // 防連點／重複送出
     var p = state.players[gid];
     if (p.frozen > 0) return { ok: false, msg: '停機中，這輪不能行動' };
-    state.answers[gid] = { choice: choice, timeMs: timeMs, correct: null };
+    // 選項要真的是這一題有的（送 'Z' 或一個物件進來都不算數）
+    var keys = (state.question && state.question.optionKeys) || ['A', 'B', 'C', 'D'];
+    if (keys.indexOf(choice) < 0) return { ok: false, msg: '沒有這個選項' };
+
+    // 作答用時是平板自己算的 —— 學生送 -999999 就永遠排第一個行動、
+    // 永遠先挑到好地（實測確認排在真的 1.2 秒答對的人前面）。
+    // 這裡用白板自己的時鐘當上限校正，再夾在合理範圍內。
+    // 行動順序完全用白板自己的時鐘算，不採用平板送上來的數字。
+    // 只要有一部分採信平板，學生送 0 或負數就永遠排第一個行動、永遠先挑到好地
+    //（實測確認排在真的 1.2 秒答對的組前面）。
+    // 白板收到訊息的時間已經包含了網路延遲，但全班在同一個 wifi 上，
+    // 這個延遲對每一組都差不多，不會造成不公平。
+    var limit = ((state.question && state.question.seconds) || 15) * 1000;
+    var now = (typeof nowMs === 'number' && isFinite(nowMs)) ? nowMs : Date.now();
+    var t = state.questionAt ? (now - state.questionAt) : limit;
+    t = Math.max(250, Math.min(t, limit));
+    state.answers[gid] = { choice: choice, timeMs: Math.round(t), correct: null };
     return { ok: true };
   }
 
@@ -290,6 +341,51 @@
     return cand.length ? cand : (B.ADJ[p.pos] || [(p.pos + 1) % B.RING]);
   }
 
+  /**
+   * 反向路網：這一格的「前一格」有哪些。
+   * 地圖不是單純的一圈 —— 61 格裡只有 0~51 是主環，52~54 是海外支線、
+   * 55~60 是三條橫貫公路。用 %52 硬算會把山區的人算到完全無關的地方
+   * （實測：站在日本熊本廠被壓縮卡推 5 格，人會出現在創投商店）。
+   */
+  var RADJ = null;
+  function radj() {
+    if (RADJ) return RADJ;
+    RADJ = {};
+    Object.keys(B.ADJ).forEach(function (from) {
+      (B.ADJ[from] || []).forEach(function (to) {
+        (RADJ[to] = RADJ[to] || []).push(+from);
+      });
+    });
+    return RADJ;
+  }
+
+  /** 沿著路往回走 n 格（走不動就停在原地） */
+  function backSteps(state, pos, n) {
+    var r = radj();
+    for (var i = 0; i < n; i++) {
+      var prev = r[pos];
+      if (!prev || !prev.length) break;
+      pos = prev.length === 1 ? prev[0] : prev[Math.floor(rnd(state) * prev.length)];
+    }
+    return pos;
+  }
+
+  /** 沿著路網找出「距離這一格 n 格以內」的所有格子（前後都算） */
+  function nearbyCells(pos, n) {
+    var r = radj(), seen = {}, frontier = [pos];
+    seen[pos] = true;
+    for (var d = 0; d < n; d++) {
+      var next = [];
+      frontier.forEach(function (c) {
+        (B.ADJ[c] || []).concat(r[c] || []).forEach(function (x) {
+          if (!seen[x]) { seen[x] = true; next.push(x); }
+        });
+      });
+      frontier = next;
+    }
+    return Object.keys(seen).map(Number);
+  }
+
   function rollDice(state, gid) {
     var p = state.players[gid];
     var d1 = 1 + Math.floor(rnd(state) * 6), d2 = 1 + Math.floor(rnd(state) * 6);
@@ -303,13 +399,18 @@
       p.stepsLeft = total;
       return { d1: d1, d2: d2, total: total, fixed: true };
     }
-    if (p.buff.twindice) { total += 1 + Math.floor(rnd(state) * 6) + 1 + Math.floor(rnd(state) * 6); delete p.buff.twindice; }
-    if (p.buff.overheat) { total *= 2; delete p.buff.overheat; }
-    if (p.buff.engine > 0) { total += 2; }
-    if (p.buff.halfdice) { total = Math.floor(total / 2); delete p.buff.halfdice; }
-    if (p.buff.reverse) { total = (7 - d1) + (7 - d2); delete p.buff.reverse; }
+    // 記下用到了哪些加成，白板才寫得出「3 + 4 = 7 → 過熱卡 ×2 → 14」
+    var mods = [];
+    if (p.buff.twindice) {
+      total += 1 + Math.floor(rnd(state) * 6) + 1 + Math.floor(rnd(state) * 6);
+      delete p.buff.twindice; mods.push('雙骰卡 再加兩顆');
+    }
+    if (p.buff.overheat) { total *= 2; delete p.buff.overheat; mods.push('過熱卡 ×2'); }
+    if (p.buff.engine > 0) { total += 2; mods.push('引擎卡 +2'); }
+    if (p.buff.halfdice) { total = Math.floor(total / 2); delete p.buff.halfdice; mods.push('落地卡 ÷2'); }
+    if (p.buff.reverse) { total = (7 - d1) + (7 - d2); delete p.buff.reverse; mods.push('逆轉卡 點數反轉'); }
     p.stepsLeft = Math.max(1, total);
-    return { d1: d1, d2: d2, total: p.stepsLeft };
+    return { d1: d1, d2: d2, total: p.stepsLeft, mods: mods };
   }
 
   function setSteps(state, gid, n) {         // 良率控制器：自選點數
@@ -386,7 +487,7 @@
     switch (cell.type) {
       case 'land': return landCell(state, gid, idx, out);
       case 'shop':
-        out.shop = CARD.shelf(CFG.shopShelf, function () { return rnd(state); }).map(function (c) { return c.id; });
+        out.shop = shopShelfFor(state, idx);
         out.events.push({ type: 'shop' });
         break;
       case 'bank':
@@ -558,6 +659,11 @@
   function buyLand(state, gid, idx) {
     var blocked = actionBlocked(state, gid);
     if (blocked) return { ok: false, msg: blocked };
+    // 庫存之神：買地必流標。以前只有白板的提示文字有擋，引擎沒擋，
+    // 平板上的買地按鈕照樣出現、按下去也真的買到了。
+    if (state.players[gid] && state.players[gid].god === 'stock') {
+      return { ok: false, msg: '被庫存之神附身，這段期間買地一律流標' };
+    }
     var p = state.players[gid], cell = B.CELLS[idx];
     if (idx !== p.pos) return { ok: false, msg: '只能買自己站著的那一格' };
     if (cell.type !== 'land' || state.board.owner[idx]) return { ok: false, msg: '這塊地不能買' };
@@ -611,6 +717,8 @@
     if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
     if (B.CELLS[p.pos].type !== 'bank') return { ok: false, msg: '要停在銀行才能存款' };
+    amount = money(amount);
+    if (amount == null) return { ok: false, msg: '金額不正確（要正整數）' };
     amount = Math.min(amount, p.cash);
     if (amount <= 0) return { ok: false, msg: '沒有可存的現金' };
     p.cash -= amount; p.bank += amount;
@@ -621,6 +729,8 @@
     if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
     if (B.CELLS[p.pos].type !== 'bank') return { ok: false, msg: '要停在銀行才能提款' };
+    amount = money(amount);
+    if (amount == null) return { ok: false, msg: '金額不正確（要正整數）' };
     amount = Math.min(amount, p.bank);
     if (amount <= 0) return { ok: false, msg: '沒有可提的存款' };
     p.bank -= amount; p.cash += amount;
@@ -628,15 +738,35 @@
   }
 
   // ── 商店 ──
+  /**
+   * 這一格、這一輪的貨架長什麼樣。
+   * 用固定算式算出來（不是隨機抽），白板、平板、引擎三邊才會拿到同一份，
+   * 引擎才有辦法擋掉「買不在架上的卡」。
+   */
+  function shopShelfFor(state, pos) {
+    var seed = ((state.round || 0) * 31 + pos * 7 + 13) % 9973;
+    function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+    return CARD.shelf(CFG.shopShelf, rnd).map(function (c) { return c.id; });
+  }
+
   function buyFromShop(state, gid, cardId) {
     var blk_ = actionBlocked(state, gid);
     if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
     if (B.CELLS[p.pos].type !== 'shop') return { ok: false, msg: '要停在創投商店才能買' };
     if (p.cards.length >= CFG.handLimit) return { ok: false, msg: '手牌已滿（上限 ' + CFG.handLimit + ' 張）' };
-    var def = CARD.get(cardId);
-    if (!def) return { ok: false, msg: '沒有這張卡' };
-    if (p.rp < def.cost) return { ok: false, msg: '研發點數不足' };
+    // 只能買「公共卡」。角色專屬卡的 cost 統一是 0（本來就不是用買的），
+    // 以前 CARD.get 找不到公共卡時會退回去找專屬卡，於是 0 點就能把
+    // 瞬移卡、絕緣卡、複製卡整批搬回家 —— 實測一次可以買到手牌上限。
+    var def = null;
+    for (var ci = 0; ci < CARD.CARDS.length; ci++) {
+      if (CARD.CARDS[ci].id === cardId) { def = CARD.CARDS[ci]; break; }
+    }
+    if (!def) return { ok: false, msg: '創投商店沒有賣這張卡' };
+    // 而且只能買「這次貨架上真的有陳列」的那幾張，不能指定買任何一張
+    var shelf = shopShelfFor(state, p.pos);
+    if (shelf.indexOf(cardId) < 0) return { ok: false, msg: '這張卡不在這次的貨架上' };
+    if (!(p.rp >= def.cost)) return { ok: false, msg: '研發點數不足' };
     p.rp -= def.cost;
     p.cards.push({ id: cardId });
     log(state, '🏪 ' + p.name + ' 買了「' + def.name + '」（' + def.cost + ' 點）', 'card');
@@ -663,7 +793,7 @@
   }
 
   // ── 提示（求救）──
-  function buyHint(state, gid, level) {
+  function buyHint(state, gid, level) {   // level 參數留著相容舊呼叫，實際上不採用
     var p = state.players[gid];
     // 提示要花錢。答完之後買了也沒用，非作答時間更不該能買 ——
     // 學生很容易在等其他組時不小心點到，白白扣錢。
@@ -671,10 +801,19 @@
     if (state.answers && state.answers[gid]) return { ok: false, msg: '已經作答了，提示買了也沒用' };
     if (p.frozen > 0) return { ok: false, msg: '停機中不能買提示' };
     if (!state.question || !state.question.hints) return { ok: false, msg: '這題沒有提示' };
+
+    // 提示是一段一段往下買的。以前平板送什麼 level 就買什麼，
+    // 而平板上的按鈕永遠送 0 —— 等於同一段可以一直重複買，每按一次扣一次錢。
+    state.hintLevel = state.hintLevel || {};
+    var have = state.hintLevel[gid] || 0;
+    if (have >= state.question.hints.length) return { ok: false, msg: '提示已經全部買完了' };
+    level = have;                       // 只能買下一段，平板送什麼都不算數
+
     var cost = CFG.hintCost[level] || 0;
-    if (p.cash < cost) return { ok: false, msg: '現金不足' };
+    if (!(p.cash >= cost)) return { ok: false, msg: '現金不足' };
     payTo(state, gid, null, cost);      // 錢進政府補助池
-    return { ok: true, hint: state.question.hints[level], cost: cost };
+    state.hintLevel[gid] = have + 1;
+    return { ok: true, hint: state.question.hints[level], cost: cost, level: level };
   }
 
   // ─────────────────────────────────────────
@@ -685,6 +824,27 @@
     var def = CARD.get(cardId, true);
     if (!def) return { ok: false, msg: '沒有這張卡' };
     if (!hasCard(p, cardId)) return { ok: false, msg: '手上沒有這張卡' };
+
+    // 指定的目標要真的存在。平板可以送任何東西上來，
+    // 送一個不存在的格號（例如 9999）會讓後面的程式讀到 undefined，
+    // 整個白板就當在那裡，全班的遊戲一起停住。
+    if (target) {
+      if (target.cell != null) {
+        if (typeof target.cell !== 'number' || !isFinite(target.cell) ||
+            target.cell < 0 || target.cell >= B.CELLS.length ||
+            Math.floor(target.cell) !== target.cell) {
+          return { ok: false, msg: '沒有這一格' };
+        }
+      }
+      if (target.gid != null && !state.players[target.gid]) {
+        return { ok: false, msg: '沒有這一組' };
+      }
+      if (target.color != null && B.COLORS && B.COLORS.indexOf) {
+        // 色系要是地圖上真的有的
+        var okColor = B.CELLS.some(function (c) { return c.color === target.color; });
+        if (!okColor) return { ok: false, msg: '沒有這個園區' };
+      }
+    }
 
     // 遊戲還沒開始（選角、等待階段）不能出牌——防止學生在大廳就互丟道具
     // 只擋選角／等待開始的階段。道具階段時 round 可能還是 0（第一輪還沒開始），
@@ -706,10 +866,27 @@
     // 骰前生效的卡（過熱／雙骰／逆轉／引擎／良率控制器）會存成 buff，輪到自己骰時自動套用。
 
     var tp = (target && target.gid) ? state.players[target.gid] : null;
-    // 歐姆的絕緣卡：擋下對手對你使用的卡
-    if (tp && tp.gid !== gid && hasCard(tp, 'insulate')) {
-      removeCard(tp, 'insulate'); removeCard(p, cardId);
-      log(state, '🛡️ ' + tp.name + ' 用絕緣卡擋下了 ' + p.name + ' 的「' + def.name + '」', 'card');
+
+    // 歐姆的絕緣卡：擋下對手「針對你」使用的卡。
+    // 以前只看 target.gid，所以拆廠卡、挖角卡（指定的是「對手的一塊地」）、
+    // 輻射卡、工安圍籬（指定的是「一格」）全部照樣打穿，
+    // 而卡片說明寫的是「擋下對手對你使用的下一張卡片或道具」。
+    var victim = tp;
+    if (!victim && target && target.cell != null) {
+      // 指定一塊地：受害的是那塊地的主人；沒有主人就看誰站在上面
+      var own = state.board.owner[target.cell];
+      if (own && state.players[own]) victim = state.players[own];
+      if (!victim) {
+        for (var vg in state.players) {
+          if (state.players[vg].pos === target.cell) { victim = state.players[vg]; break; }
+        }
+      }
+    }
+    // 善意的卡不該被擋（同盟卡本來是要跟對方結盟的，擋了還白白吃掉一張絕緣卡）
+    var FRIENDLY = ['alliance'];
+    if (victim && victim.gid !== gid && FRIENDLY.indexOf(cardId) < 0 && hasCard(victim, 'insulate')) {
+      removeCard(victim, 'insulate'); removeCard(p, cardId);
+      log(state, '🛡️ ' + victim.name + ' 用絕緣卡擋下了 ' + p.name + ' 的「' + def.name + '」', 'card');
       return { ok: true, blocked: true };
     }
 
@@ -754,7 +931,10 @@
       }
       case 'compress': {
         if (!tp) return { ok: false, msg: '要指定一組' };
-        tp.pos = ((tp.pos - 5) % B.RING + B.RING) % B.RING; tp.prev = -1;
+        // 沿著路往回推 5 格。以前直接對 52 取餘數，人在山區或海外支線時
+        // 會被算到地圖另一頭（實測：熊本廠 → 創投商店）。
+        tp.pos = backSteps(state, tp.pos, 5); tp.prev = -1; tp.stepsLeft = 0;
+        r.landAgainFor = tp.gid;     // 推過去之後要結算那一格（跟瞬移卡同一個道理）
         break;
       }
       case 'teleport': {
@@ -911,11 +1091,12 @@
       if (p.virus > 0) {
         p.virus--;
         if (p.virus === 0) {
+          // 沿著路網找附近的格子。以前用 %52 硬算，人在南橫爆炸卻是北部的
+          // 鴻海、廣達降級 —— 全班會看不懂發生什麼事。
           var hit = [];
-          for (var d = -CFG.virusRadius; d <= CFG.virusRadius; d++) {
-            var c = ((p.pos + d) % B.RING + B.RING) % B.RING;
+          nearbyCells(p.pos, CFG.virusRadius).forEach(function (c) {
             if (state.board.level[c] > 0) { state.board.level[c]--; hit.push(c); }
-          }
+          });
           // 被炸到要送醫：直接移到花蓮慈濟醫院並住院一輪。
           // 原本只是原地停一輪，醫院那一格等於沒有存在意義。
           p.pos = B.HOSP; p.prev = -1; p.stepsLeft = 0;
@@ -929,8 +1110,13 @@
       for (var a in p.alliance) { p.alliance[a]--; if (p.alliance[a] <= 0) delete p.alliance[a]; }
       // 引擎卡倒數
       if (p.buff.engine > 0) { p.buff.engine--; if (!p.buff.engine) delete p.buff.engine; }
-      // 一次性 buff 清除
-      ['surge', 'pierce', 'brownout', 'observe', 'peek'].forEach(function (b) { delete p.buff[b]; });
+      // 一次性 buff 清除。
+      // 骰子類的卡（過熱、雙骰、逆轉、落地、良率控制器）本來只在真的擲到骰子時
+      // 才會被消耗，但答錯的組、停機的組、用瞬移卡的組整輪都不擲骰，
+      // 那張卡就會留到好幾輪之後才突然爆出來（白板顯示「3 + 4 = 14」，全班愣住）。
+      ['surge', 'pierce', 'brownout', 'observe', 'peek',
+       'overheat', 'twindice', 'reverse', 'halfdice', 'fixedDice']
+        .forEach(function (b) { delete p.buff[b]; });
 
       // 貸款到期：現金不足就自動賣掉最便宜的廠抵債
       if (p.loan > 0 && state.round >= p.loanDue) {
@@ -959,15 +1145,85 @@
       state.board.radiation[rc]--;
       if (state.board.radiation[rc] <= 0) delete state.board.radiation[rc];
     }
+    state.board.quakeColor = null;      // 地震只停產一輪
     state.phase = (state.round >= state.maxRounds) ? 'ended' : 'waiting';
     return { events: events, ended: state.phase === 'ended' };
   }
 
-  /** 給平板看的公開狀態：把正確答案拿掉，防止學生開瀏覽器主控台偷看 */
+  /**
+   * 給平板看的公開狀態。
+   *
+   * 這份東西會原封不動送到全班每一台平板，學生按 F12 就看得到整包內容，
+   * 所以「不該被看到的」一定要在這裡拿掉，光是畫面上不顯示是沒有用的。
+   * 以前只拿掉了正確答案，其他四樣照樣廣播出去（實測全部可以撈到）：
+   *   · 三段付費提示（第三段幾乎等於公布答案，等於提示不用花錢買）
+   *   · 感應卡偷看到的答案（存在 players.gX.buff.peek）
+   *   · 作答期間別組選了什麼（可以直接抄多數決）
+   *   · 別組的手牌（本來就該是秘密）與座位鎖的裝置代號（等於冒充別組的鑰匙）
+   */
   function publicState(state) {
     var pub = JSON.parse(JSON.stringify(state));
-    if (pub.question) delete pub.question.answer;
+
+    if (pub.question) {
+      delete pub.question.answer;
+      // 提示只送給「已經花錢買了」的那一組（放在下面的私人區），
+      // 這裡只告訴大家「這一題總共有幾段提示可以買」
+      pub.question.hintCount = (state.question.hints || []).length;
+      delete pub.question.hints;
+    }
+    delete pub.questionAt;
+
+    // 作答還沒結束之前，只送「有沒有交卷」，不送選了什麼
+    if (pub.phase === 'question' && pub.answers) {
+      Object.keys(pub.answers).forEach(function (g) {
+        pub.answers[g] = { answered: true, timeMs: pub.answers[g].timeMs };
+      });
+    }
+
+    Object.keys(pub.players || {}).forEach(function (g) {
+      var p = pub.players[g];
+      if (p.buff) delete p.buff.peek;                 // 感應卡看到的答案不外流
+      // 手牌是秘密：只送張數，內容改由下面的「私人區」單獨送給本人
+      p.handCount = (p.cards || []).length;
+      delete p.cards;
+    });
+
+    // 私人區：每一組只放自己的東西。
+    // 註：這份文件是全班共用的，所以一個真的會寫程式的學生還是有辦法
+    //     撈到別人的私人區。真正的防線在「這些資料改不了分數」——
+    //     手牌內容被看到最多是資訊優勢，改不了任何數值。
+    pub.priv = {};
+    Object.keys(state.players || {}).forEach(function (g) {
+      var sp = state.players[g];
+      pub.priv[g] = {
+        cards: JSON.parse(JSON.stringify(sp.cards || [])),
+        peek: (sp.buff && sp.buff.peek) || null,
+        hints: hintsFor(state, g)
+      };
+      // 觀測卡：這一輪看得到全部人的手牌（卡片說明就是這樣寫的）
+      if (sp.buff && sp.buff.observe) {
+        pub.priv[g].allCards = {};
+        Object.keys(state.players).forEach(function (o) {
+          pub.priv[g].allCards[o] = JSON.parse(JSON.stringify(state.players[o].cards || []));
+        });
+      }
+    });
+
+    if (pub.seats) {
+      // 座位鎖的裝置代號等於「冒充這一組」的鑰匙，不可以發給全班
+      Object.keys(pub.seats).forEach(function (g) {
+        pub.seats[g] = { taken: true };
+      });
+    }
     return pub;
+  }
+
+  /** 這一組已經買到的提示（沒買就是空的） */
+  function hintsFor(state, gid) {
+    var q = state.question;
+    if (!q || !q.hints) return [];
+    var lv = (state.hintLevel && state.hintLevel[gid]) || 0;
+    return q.hints.slice(0, lv);
   }
 
   global.ENGINE = {
@@ -981,6 +1237,7 @@
     buyFromShop: buyFromShop, sellCard: sellCard, buyHint: buyHint,
     playCard: playCard, endTurn: endTurn, endRound: endRound,
     wealth: wealth, ranking: ranking, landsOf: landsOf, hasFullColor: hasFullColor,
-    hasCard: hasCard, removeCard: removeCard
+    hasCard: hasCard, removeCard: removeCard, money: money, shopShelfFor: shopShelfFor,
+    backSteps: backSteps, nearbyCells: nearbyCells
   };
 })(typeof window !== 'undefined' ? window : globalThis);
