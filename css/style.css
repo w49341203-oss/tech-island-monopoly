@@ -512,6 +512,31 @@ body.player{overflow:auto}
 .cf-yes{background:#16a34a;color:#ffffff;border:2px solid #14532d}
 .cf-no{background:#ffffff;color:#b91c1c;border:2px solid #b91c1c}
 
+/* 單機試玩的側邊操作面板：內嵌玩家頁疊在地圖右側，可收合 */
+#selfDock{position:fixed;top:0;right:0;bottom:0;width:436px;z-index:120;
+  display:flex;flex-direction:column;background:#eaf6ff;
+  border-left:4px solid #2f9fe0;box-shadow:-10px 0 40px rgba(0,0,0,.35)}
+#selfDock.collapsed{width:46px}
+#selfDock.collapsed iframe{display:none}
+#selfDock.collapsed .sd-head span{display:none}
+.sd-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+  gap:6px;padding:8px 10px;background:linear-gradient(180deg,#2f9fe0,#1a7fb8);color:#ffffff;
+  font-size:16px;font-weight:900}
+.sd-head button{background:#ffffff;color:#0f3d5e;font-size:13px;font-weight:900;
+  padding:6px 10px;border-radius:10px;white-space:nowrap}
+#sdFrame{flex:1;border:0;width:100%;background:#dff1fb}
+
+/* 面板展開時，白板右側的固定元件全部往左讓位（不然會被蓋住） */
+body.self-docked .hud-minimap{right:458px}
+body.self-docked .hud-mute{right:458px}
+body.self-docked .hud-dots{right:458px}
+body.self-docked .hud-code{right:458px}
+body.self-docked .hud-rank{right:462px}
+body.self-docked .hud-question{right:730px}
+@media (max-width:1500px){
+  body.self-docked .hud-question{left:24px;right:700px}
+}
+
 /* 大公告（神明附身／機會／命運）：大圖跳出來＋大字，全班都看得到 */
 .hud-bigevent{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:60;
   display:flex;align-items:center;gap:26px;background:rgba(255,255,255,.97);
@@ -561,8 +586,11 @@ html, body{overscroll-behavior:none}
 #bankCard{flex:0 0 auto;max-height:44%;overflow-y:auto;overscroll-behavior:contain;
       max-width:860px;width:100%;margin:0 auto}
 
-/* 直式時整個畫面蓋住，請學生轉橫式（遊戲畫面為橫式設計） */
+/* 直式時整個畫面蓋住，請學生轉橫式（遊戲畫面為橫式設計）。
+   內嵌在白板旁的操作面板（body.embed）不適用：它本來就是窄長的。 */
 #rotateHint{display:none}
+body.embed #rotateHint{display:none !important}
+body.embed #btnFullP{display:none}
 @media (orientation: portrait){
   #rotateHint{display:flex;position:fixed;inset:0;z-index:999;background:#0f3d5e;
       color:#ffffff;align-items:center;justify-content:center;text-align:center;

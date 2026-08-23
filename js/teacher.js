@@ -325,10 +325,10 @@
     // 單機試玩不會向雲端登記房間，平板輸入編號一定「找不到」——
     // 所以單機模式不能顯示編號和網址（會誤導老師叫學生輸入），改顯示說明。
     if (cfg.solo) {
-      $('rcLabel').textContent = '🖥️ 單機試玩：各組由電腦代打。想自己玩一組？';
-      $('roomCode').textContent = roomCode || '------';
-      $('roomUrl').textContent = '在「這一台電腦」開新視窗打開 player.html，輸入上面的編號加入任一組，' +
-                                 '那一組就換你操作（學生平板連不進單機模式；要全班玩請用「開新遊戲」）';
+      $('rcLabel').textContent = '🖥️ 單機試玩（全部都在這台電腦上，不用平板）';
+      $('roomCode').textContent = '';
+      $('roomUrl').textContent = '按「開始遊戲」後，你操作第 1 組（畫面右側會出現你的操作面板），' +
+                                 '其他組由電腦代打。要全班用平板玩，請回首頁按「開新遊戲」。';
     } else {
       $('rcLabel').textContent = '請各組在平板上輸入這一場的編號';
       $('roomCode').textContent = roomCode || '------';
@@ -358,6 +358,13 @@
       // 按錯模式（單機 vs 開新遊戲）不用重新整理，回首頁重選就好
       clearInterval(lobbyPump);
       backToSetup();
+    };
+    // 單機試玩：收合／展開右側操作面板
+    $('sdToggle').onclick = function () {
+      var dock = $('selfDock');
+      var collapsed = dock.classList.toggle('collapsed');
+      document.body.classList.toggle('self-docked', !collapsed);
+      $('sdToggle').textContent = collapsed ? '⮜ 展開' : '⮞ 收合';
     };
     if (cfg.solo) autoPick();
   }
@@ -433,8 +440,7 @@
     var hint = $('lobbyHint');
     if (hint) {
       hint.textContent = cfg.solo
-        ? (on > 0 ? '你已經加入 ' + on + ' 組（那幾組由你操作，其他電腦代打）。點組別卡片可以換角色。'
-                  : '直接按開始＝全部電腦代打給你看。點組別卡片可以換角色。')
+        ? '你操作第 1 組，其他組電腦代打。點組別卡片可以換角色（第 1 組選你想玩的科學家）。'
         : ('目前 ' + on + ' / ' + n + ' 組的平板已連上'
            + (cfg.autoPilot ? '　·　沒有平板的組會由電腦代打，可以直接開始' : ''));
     }
@@ -500,7 +506,26 @@
   // ═══════════════════════════════════════
   // 遊戲畫面
   // ═══════════════════════════════════════
+  /** 單機試玩：開啟右側操作面板，內嵌玩家頁自動加入第 1 組 */
+  function openSelfDock() {
+    var dock = $('selfDock');
+    // 用「同一個資料夾的 player.html」拼網址（用字串取代的話，
+    // 檔名不是 teacher.html 時會把自己嵌進自己，畫面無限套娃）
+    var url = location.pathname.replace(/[^/]*$/, '') + 'player.html' +
+              '?code=' + roomCode + '&embed=1&g=1';
+    if ($('sdFrame').getAttribute('src') !== url) $('sdFrame').setAttribute('src', url);
+    dock.classList.remove('hidden', 'collapsed');
+    document.body.classList.add('self-docked');
+    $('sdToggle').textContent = '⮞ 收合';
+  }
+  function closeSelfDock() {
+    $('selfDock').classList.add('hidden');
+    $('sdFrame').setAttribute('src', 'about:blank');
+    document.body.classList.remove('self-docked');
+  }
+
   function startGame() {
+    if (cfg.solo) openSelfDock();      // 單機＝老師一定親自玩第 1 組
     clearInterval(lobbyPump);
     $('lobby').classList.add('hidden');
     $('setup').classList.add('hidden');
@@ -1850,6 +1875,7 @@
 
   function endSession() {
     if (sessionOver) return;              // 連按兩次不要重複結算
+    closeSelfDock();
     sessionOver = true;
     if (waitAbort) waitAbort();           // 正在等「下一位玩家」的話先解開，不然流程會卡住
     clearInterval(timer);
@@ -1897,6 +1923,7 @@
    * 本節結束後老師通常要換班或收工，以前只能重新整理才回得去。
    */
   function backToSetup() {
+    closeSelfDock();
     SOUND.play('click');
     BGM.stop();
     SPEAK.stop();

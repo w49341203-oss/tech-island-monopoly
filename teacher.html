@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>科技島大富翁 — 老師端</title>
-<link rel="stylesheet" href="css/style.css?v=20260823-2253">
+<link rel="stylesheet" href="css/style.css?v=20260823-2306">
 </head>
 <body class="teacher">
 
@@ -100,6 +100,15 @@
     <div id="setupMsg" class="msg"></div>
     <div class="copyright">© 2026 蕭妤真 · 科技島大富翁 · 僅供教育用途，歡迎教師參考改作，禁止商業使用</div>
   </div>
+</div>
+
+<!-- 單機試玩：老師的操作面板（內嵌玩家頁，疊在地圖右側，可收合） -->
+<div id="selfDock" class="hidden">
+  <div class="sd-head">
+    <span>🕹️ 我的操作面板（第 1 組）</span>
+    <button id="sdToggle" title="收合／展開">⮞ 收合</button>
+  </div>
+  <iframe id="sdFrame" title="玩家操作面板"></iframe>
 </div>
 
 <!-- ══ 選角等待畫面 ══ -->
@@ -218,17 +227,17 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260823-2253"></script>
-<script src="js/sound.js?v=20260823-2253"></script>
-<script src="js/speak.js?v=20260823-2253"></script>
-<script src="js/bgm.js?v=20260823-2253"></script>
-<script src="js/board.js?v=20260823-2253"></script>
-<script src="js/characters.js?v=20260823-2253"></script>
-<script src="js/cards.js?v=20260823-2253"></script>
-<script src="js/questions.js?v=20260823-2253"></script>
-<script src="js/engine.js?v=20260823-2253"></script>
-<script src="js/render.js?v=20260823-2253"></script>
-<script src="js/store.js?v=20260823-2253"></script>
-<script src="js/teacher.js?v=20260823-2253"></script>
+<script src="js/firebase-config.js?v=20260823-2306"></script>
+<script src="js/sound.js?v=20260823-2306"></script>
+<script src="js/speak.js?v=20260823-2306"></script>
+<script src="js/bgm.js?v=20260823-2306"></script>
+<script src="js/board.js?v=20260823-2306"></script>
+<script src="js/characters.js?v=20260823-2306"></script>
+<script src="js/cards.js?v=20260823-2306"></script>
+<script src="js/questions.js?v=20260823-2306"></script>
+<script src="js/engine.js?v=20260823-2306"></script>
+<script src="js/render.js?v=20260823-2306"></script>
+<script src="js/store.js?v=20260823-2306"></script>
+<script src="js/teacher.js?v=20260823-2306"></script>
 </body>
 </html>

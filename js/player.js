@@ -59,6 +59,24 @@
     $('btnJoin').onclick = doJoin;
     $('btnLeavePick').onclick = leaveRoom;
 
+    // 老師端單機試玩的內嵌面板會帶 ?code=編號&embed=1&g=1：
+    // 自動填編號、自動查房間、自動加入指定的組——老師完全不用操作
+    try {
+      var qs = new URLSearchParams(location.search);
+      var urlCode = qs.get('code');
+      if (qs.get('embed') === '1') {
+        // 內嵌在白板旁邊：直式提示與全螢幕不適用（寬度本來就窄）
+        document.body.classList.add('embed');
+      }
+      if (urlCode && /^[0-9]{6}$/.test(urlCode)) {
+        localStorage.removeItem('techisland:me');   // 開自己玩的視窗＝重新選組
+        codeInput.value = urlCode;
+        var urlG = qs.get('g');
+        if (urlG && /^[0-9]{1,2}$/.test(urlG)) autoJoinGroup = 'g' + (+urlG);
+        setTimeout(doFind, 300);
+      }
+    } catch (e) {}
+
     // 底部分頁列：功能一頁一頁切（整個畫面鎖住不捲動，防下拉誤觸重新整理）
     document.querySelectorAll('#pgTabs .pg-t').forEach(function (b) {
       b.onclick = function () { showPage(b.dataset.pg, true); };
@@ -128,7 +146,17 @@
   }
 
   /** 第二步：只列出這一場實際開的組別，避免選到不存在的組 */
+  var autoJoinGroup = null;   // ?g=1 自動加入的組（單機內嵌面板用）
+
   function showGroupPicker(info, seats) {
+    // 內嵌面板模式：直接加入指定的組，不用老師點
+    if (autoJoinGroup) {
+      var ag = autoJoinGroup;
+      autoJoinGroup = null;                 // 只自動一次，失敗就落回手動選組
+      my.gid = ag;
+      doJoin();
+      return;
+    }
     $('step1').classList.add('hidden');
     $('step2').classList.remove('hidden');
     $('foundInfo').textContent = info;
