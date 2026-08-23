@@ -7,11 +7,16 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>科技島大富翁 — 老師端</title>
-<link rel="stylesheet" href="css/style.css?v=20260823-2122">
+<link rel="stylesheet" href="css/style.css?v=20260823-2239">
 </head>
 <body class="teacher">
 
 <!-- ══ 設定畫面 ══ -->
+<!--
+  科技島大富翁 Tech Island Monopoly
+  © 2026 蕭妤真 · 科技島大富翁 · 僅供教育用途，歡迎教師參考改作，禁止商業使用
+  題庫內容為國中自然科教學用途整理；角色與美術為本專案原創（AI 輔助生成）。
+-->
 <div id="setup" class="screen setup">
   <div class="setup-box">
     <div class="brand">
@@ -93,6 +98,7 @@
       <button id="btnSolo" class="big ghost">單機試玩（不用平板）</button>
     </div>
     <div id="setupMsg" class="msg"></div>
+    <div class="copyright">© 2026 蕭妤真 · 科技島大富翁 · 僅供教育用途，歡迎教師參考改作，禁止商業使用</div>
   </div>
 </div>
 
@@ -140,6 +146,15 @@
 
     <!-- 輪與輪之間的休息 -->
     <!-- 創投商店不限時間，老師需要一個能強制往下走的出口 -->
+    <!-- 大公告：神明附身、機會、命運新聞（仿大富翁4 的大圖＋大字） -->
+    <div class="hud-bigevent hidden" id="hudBigEvent">
+      <div class="be-art" id="beArt"></div>
+      <div class="be-text">
+        <div class="be-title" id="beTitle"></div>
+        <div class="be-desc" id="beDesc"></div>
+      </div>
+    </div>
+
     <div class="hud-waitgroup hidden" id="hudWaitGroup">
       <div class="wg-text" id="wgText">第 1 組 行動中…</div>
       <div class="wg-hint" id="wgHint">等這一組在平板上做完，再按下面的按鍵（或直接按空白鍵）</div>
@@ -202,17 +217,17 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260823-2122"></script>
-<script src="js/sound.js?v=20260823-2122"></script>
-<script src="js/speak.js?v=20260823-2122"></script>
-<script src="js/bgm.js?v=20260823-2122"></script>
-<script src="js/board.js?v=20260823-2122"></script>
-<script src="js/characters.js?v=20260823-2122"></script>
-<script src="js/cards.js?v=20260823-2122"></script>
-<script src="js/questions.js?v=20260823-2122"></script>
-<script src="js/engine.js?v=20260823-2122"></script>
-<script src="js/render.js?v=20260823-2122"></script>
-<script src="js/store.js?v=20260823-2122"></script>
-<script src="js/teacher.js?v=20260823-2122"></script>
+<script src="js/firebase-config.js?v=20260823-2239"></script>
+<script src="js/sound.js?v=20260823-2239"></script>
+<script src="js/speak.js?v=20260823-2239"></script>
+<script src="js/bgm.js?v=20260823-2239"></script>
+<script src="js/board.js?v=20260823-2239"></script>
+<script src="js/characters.js?v=20260823-2239"></script>
+<script src="js/cards.js?v=20260823-2239"></script>
+<script src="js/questions.js?v=20260823-2239"></script>
+<script src="js/engine.js?v=20260823-2239"></script>
+<script src="js/render.js?v=20260823-2239"></script>
+<script src="js/store.js?v=20260823-2239"></script>
+<script src="js/teacher.js?v=20260823-2239"></script>
 </body>
 </html>

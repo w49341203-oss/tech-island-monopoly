@@ -51,6 +51,23 @@
     { id: 'stock',  name: '庫存之神', emoji: '📉', good: false, desc: '買地必流標、手上卡片掉一半' },
     { id: 'fx',     name: '匯損之神', emoji: '💸', good: false, desc: '每輪扣 $1,000、付過路費加倍' }
   ];
+  /**
+   * 幫神明挑一個降落的格子：只降在土地格或產業風向格
+   * （站在商店、醫院上會把那些格子的圖示擋住），而且一格只站一尊。
+   */
+  function godLandingCell(state) {
+    // 也避開有人正站著的格子：神明跟角色疊在同一格，畫面會重疊看不清，
+    // 而且看起來像「神明馬上又黏到人身上」
+    var occupied = {};
+    for (var og in state.players) occupied[state.players[og].pos] = true;
+    var cands = [];
+    B.CELLS.forEach(function (c, i) {
+      if ((c.type === 'land' || c.type === 'god') && !state.board.gods[i] && !occupied[i]) cands.push(i);
+    });
+    if (!cands.length) return null;
+    return cands[Math.floor(rnd(state) * cands.length)];
+  }
+
   function godById(id) {
     for (var i = 0; i < GODS.length; i++) if (GODS[i].id === id) return GODS[i];
     return null;
@@ -95,9 +112,12 @@
       usedQuestions: [],
       log: []
     };
-    // 神明住在格子上，學生遠遠就看得到那一格是哪一尊、值不值得走過去
-    B.CELLS.forEach(function (c, i) {
-      if (c.type === 'god') state.board.gods[i] = pick(state, GODS).id;
+    // 神明是「浮動」的：五尊各自隨機降落在地圖上（不固定在產業風向格），
+    // 踩到有神明的格子就被附身，附身結束後神明再隨機搬家。
+    // 學生遠遠就看得到哪一格站著哪一尊、值不值得走過去。
+    GODS.forEach(function (g) {
+      var cell = godLandingCell(state);
+      if (cell != null) state.board.gods[cell] = g.id;
     });
     var starts = B.randomStarts(n, function () { return rnd(state); });
     for (var i = 0; i < n; i++) {
@@ -120,13 +140,29 @@
   }
 
   /** 選角（不可重複） */
-  function pickCharacter(state, gid, charId) {
+  function pickCharacter(state, gid, charId, opts) {
     // 只能在開賽前選。遊戲開始後還能改的話，等於可以換一張新的專屬卡、重抽一手牌。
     if (state.round > 0 || (state.phase !== 'setup' && state.phase !== 'waiting')) {
       return { ok: false, msg: '遊戲已經開始了，不能換角色' };
     }
     if (state.players[gid] && state.players[gid].charId) {
-      return { ok: false, msg: '你已經選好角色了' };
+      // 老師端可以在開賽前幫任何一組「換」角色（opts.change）：
+      // 只換角色與那張專屬卡，三張道具牌保留 —— 不能藉由換角色重抽道具。
+      if (!(opts && opts.change)) return { ok: false, msg: '你已經選好角色了' };
+      var nc = global.charById(charId);
+      if (!nc) return { ok: false, msg: '找不到這位科學家' };
+      for (var k0 in state.players) {
+        if (k0 !== gid && state.players[k0].charId === charId) {
+          return { ok: false, msg: '這位科學家已經被別組選走了' };
+        }
+      }
+      var pl = state.players[gid];
+      pl.cards = pl.cards.filter(function (c) { return !c.char; });   // 收回舊的專屬卡
+      pl.cards.push({ id: nc.card, char: true });
+      pl.charId = charId;
+      pl.name = '第 ' + pl.num + ' 組 · ' + nc.name;
+      log(state, '🔁 第 ' + pl.num + ' 組換角色為 ' + nc.name, 'info');
+      return { ok: true, changed: true };
     }
     for (var k in state.players) {
       if (state.players[k].charId === charId) return { ok: false, msg: '這位科學家已經被選走了' };
@@ -403,12 +439,13 @@
     var mods = [];
     if (p.buff.twindice) {
       total += 1 + Math.floor(rnd(state) * 6) + 1 + Math.floor(rnd(state) * 6);
-      delete p.buff.twindice; mods.push('雙骰卡 再加兩顆');
+      delete p.buff.twindice; mods.push('加倍骰卡 再加兩顆');
     }
     if (p.buff.overheat) { total *= 2; delete p.buff.overheat; mods.push('過熱卡 ×2'); }
     if (p.buff.engine > 0) { total += 2; mods.push('引擎卡 +2'); }
     if (p.buff.halfdice) { total = Math.floor(total / 2); delete p.buff.halfdice; mods.push('落地卡 ÷2'); }
-    if (p.buff.reverse) { total = (7 - d1) + (7 - d2); delete p.buff.reverse; mods.push('逆轉卡 點數反轉'); }
+    // 逆轉卡：點數不變、方向反轉（原本的「點數反轉」期望值跟沒用一樣，完全沒意義）
+    if (p.buff.reverse) { delete p.buff.reverse; p.buff.walkBack = 1; mods.push('逆轉卡 反方向走'); }
     p.stepsLeft = Math.max(1, total);
     return { d1: d1, d2: d2, total: p.stepsLeft, mods: mods };
   }
@@ -431,6 +468,10 @@
   function step(state, gid) {
     var p = state.players[gid];
     if (!p.stepsLeft || p.stepsLeft <= 0) return { arrived: true };
+    // 逆轉卡：反方向走（沿反向路網一次退一格，病毒傳染、圍籬等路過效果照常）
+    if (p.buff.walkBack) {
+      return commitStep(state, gid, backSteps(state, p.pos, 1));
+    }
     var opts = nextOptions(state, gid);
     if (opts.length > 1) return { needFork: true, options: opts };
     return commitStep(state, gid, opts[0]);
@@ -484,6 +525,20 @@
       log(state, '☢️ ' + p.name + ' 踩到輻射區，扣 $' + CFG.radiationDamage.toLocaleString(), 'bad');
     }
 
+    delete p.buff.walkBack;      // 反方向走只影響這一次移動，落地就結束
+
+    // 神明是浮動的：任何格子上有神明，停下來就被附身（神明跟著人走）
+    state.board.gods = state.board.gods || {};
+    if (state.board.gods[idx]) {
+      var gGod = godById(state.board.gods[idx]);
+      delete state.board.gods[idx];              // 神明離開格子，跟著這個人
+      p.god = gGod.id; p.godTurns = CFG.godTurns;
+      if (gGod.id === 'stock') p.cards = p.cards.slice(0, Math.ceil(p.cards.length / 2));
+      if (gGod.id === 'grant' && p.cards.length < CFG.handLimit) p.cards.push({ id: pick(state, CARD.CARDS).id });
+      out.events.push({ type: 'god', id: gGod.id, name: gGod.name, good: !!gGod.good });
+      log(state, gGod.emoji + ' ' + p.name + ' 被' + gGod.name + '附身 ' + CFG.godTurns + ' 輪', 'god');
+    }
+
     switch (cell.type) {
       case 'land': return landCell(state, gid, idx, out);
       case 'shop':
@@ -494,7 +549,14 @@
         out.events.push({ type: 'bank' });
         break;
       case 'subsidy': p.rp += CFG.rpSubsidy; out.events.push({ type: 'rp', amount: CFG.rpSubsidy }); break;
-      case 'chest':   p.rp += CFG.rpChest;   out.events.push({ type: 'rp', amount: CFG.rpChest }); break;
+      case 'chest': {
+        // 機會寶箱：抽一件好事（大富翁的「機會」，偏好運）
+        var ch = pick(state, CHANCE);
+        ch.apply(state, gid);
+        out.events.push({ type: 'chance', text: ch.text });
+        log(state, '🎁 ' + p.name + '：' + ch.text, 'event');
+        break;
+      }
       case 'packet':  p.rp += CFG.rpPacket;  out.events.push({ type: 'rp', amount: CFG.rpPacket }); break;
       case 'patent': {
         var card = pick(state, CARD.CARDS);
@@ -513,16 +575,8 @@
         break;
       }
       case 'god': {
-        // 遇到的是「住在這一格」的那一尊（畫面上早就看得到）。
-        // 附身之後換一尊新的住進來，下一個踩到的人遇到的就不一樣。
-        state.board.gods = state.board.gods || {};
-        var g = godById(state.board.gods[p.pos]) || pick(state, GODS);
-        state.board.gods[p.pos] = pick(state, GODS).id;
-        p.god = g.id; p.godTurns = CFG.godTurns;
-        if (g.id === 'stock') p.cards = p.cards.slice(0, Math.ceil(p.cards.length / 2));
-        if (g.id === 'grant' && p.cards.length < CFG.handLimit) p.cards.push({ id: pick(state, CARD.CARDS).id });
-        out.events.push({ type: 'god', id: g.id, name: g.name, good: !!g.good });
-        log(state, g.emoji + ' ' + p.name + ' 被' + g.name + '附身 ' + CFG.godTurns + ' 輪', 'god');
+        // 神明是浮動的（附身邏輯在上面的通用檢查）。
+        // 走到這裡代表這一格現在沒有神明——產業風向格只是神明常出沒的地標。
         break;
       }
       case 'tax': {
@@ -927,13 +981,20 @@
       case 'pierce': p.buff.pierce = 1; break;
       case 'overheat': p.buff.overheat = 1; break;
       case 'twindice': p.buff.twindice = 1; break;
-      case 'reverse': p.buff.reverse = 1; break;
+      case 'reverse': p.buff.reverse = 1; break;   // 擲骰時轉成 walkBack（反方向走）
       case 'engine': p.buff.engine = 3; break;
-      case 'observe': p.buff.observe = 1; break;
+      case 'observe': p.buff.observe = 1; p.rp += 40; break;
       case 'float': {
-        // 現金不是負的就不收卡（以前直接吃掉，等於手滑白丟一張卡）
-        if (p.cash >= 0) return { ok: false, msg: '現金不是負的，這張卡現在用不到（先留著）' };
-        p.cash = 0;
+        // 雙模式：負債時把負現金與貸款一筆勾銷；正常時領急難救助金。
+        // （原本只有負債能用 —— 現金幾乎不會變負，等於一張永遠用不到的卡）
+        if (p.cash < 0) {
+          p.cash = 0;
+          p.loan = 0; p.loanDue = 0;
+          r.floatMode = '債務歸零';
+        } else {
+          p.cash += 8000;
+          r.floatMode = '獲得 $8,000 急難救助金';
+        }
         break;
       }
       case 'apple': if (tp) tp.buff.halfdice = 1; break;
@@ -1084,6 +1145,22 @@
   // ─────────────────────────────────────────
   // 新聞快報事件
   // ─────────────────────────────────────────
+  // 機會寶箱的事件池（偏好運——大富翁的「機會」）
+  var CHANCE = [
+    { text: '挖到寶！獲得 $10,000', apply: function (s, g) { s.players[g].cash += 10000; } },
+    { text: '研發靈感大爆發，研發點數 +' + CFG.rpChest, apply: function (s, g) { s.players[g].rp += CFG.rpChest; } },
+    { text: '創投看好你們，抽到一張卡片', apply: function (s, g) {
+        var p2 = s.players[g];
+        if (p2.cards.length < CFG.handLimit) p2.cards.push({ id: pick(s, CARD.CARDS).id }); } },
+    { text: '產品大賣，獲得 $15,000', apply: function (s, g) { s.players[g].cash += 15000; } },
+    { text: '政府表揚模範企業，獲得 $8,000 與 ' + CFG.rpPacket + ' 點',
+      apply: function (s, g) { s.players[g].cash += 8000; s.players[g].rp += CFG.rpPacket; } },
+    { text: '工程師士氣大振，隨機一塊自有地免費升一級', apply: function (s, g) {
+        var mine = landsOf(s, g).filter(function (i) { return (s.board.level[i] || 0) < 5; });
+        if (mine.length) s.board.level[mine[Math.floor(rnd(s) * mine.length)]] += 1; } },
+    { text: '匯率有利，獲得 $12,000', apply: function (s, g) { s.players[g].cash += 12000; } }
+  ];
+
   var NEWS = [
     { text: 'AI 需求爆發，獲得 $15,000 訂單', apply: function (s, g) { s.players[g].cash += 15000; } },
     { text: '匯率大幅波動，損失 $8,000', apply: function (s, g) { payTo(s, g, null, 8000); } },
@@ -1094,7 +1171,11 @@
         if (mine.length) s.board.level[mine[0]] = (s.board.level[mine[0]] || 0) + 1; } },
     { text: '專利訴訟敗訴，賠償 $12,000', apply: function (s, g) { payTo(s, g, null, 12000); } },
     { text: '接到大廠追加訂單，獲得 $20,000', apply: function (s, g) { s.players[g].cash += 20000; } },
-    { text: '園區限電，這輪收益減半', apply: function (s, g) { s.players[g].buff.brownout = 1; } }
+    { text: '園區限電，這輪收益減半', apply: function (s, g) { s.players[g].buff.brownout = 1; } },
+    { text: '股價大漲，獲得 $10,000', apply: function (s, g) { s.players[g].cash += 10000; } },
+    { text: '機台故障，維修費 $6,000', apply: function (s, g) { payTo(s, g, null, 6000); } },
+    { text: '挖到人才，研發點數 +50', apply: function (s, g) { s.players[g].rp += 50; } },
+    { text: '被駭客勒索，支付 $10,000 贖金', apply: function (s, g) { payTo(s, g, null, 10000); } }
   ];
 
   // ─────────────────────────────────────────
@@ -1121,12 +1202,24 @@
       var labs = landsOf(state, gid).filter(function (i) { return (state.board.level[i] || 0) >= 1; }).length;
       if (labs) p.rp += labs * CFG.rpLab;
 
-      // 神明附身倒數
+      // 神明附身倒數。結束時神明離開這個人，隨機降落在地圖上另一個格子
+      //（神明是浮動的，不會回到固定位置）。
       if (p.godTurns > 0) {
         if (p.god === 'fx') payTo(state, gid, null, 1000);
         if (p.god === 'grant' && p.cards.length < CFG.handLimit) p.cards.push({ id: pick(state, CARD.CARDS).id });
         p.godTurns--;
-        if (p.godTurns === 0) { p.god = null; }
+        if (p.godTurns === 0) {
+          var leavingGod = p.god;
+          p.god = null;
+          var landAt = godLandingCell(state);
+          if (landAt != null) {
+            state.board.gods[landAt] = leavingGod;
+            var lg = godById(leavingGod);
+            log(state, (lg ? lg.emoji + ' ' + lg.name : '神明') + ' 離開 ' + p.name +
+                       '，降落在 ' + B.CELLS[landAt].name, 'god');
+            events.push({ type: 'godMove', id: leavingGod, cell: landAt });
+          }
+        }
       }
       // 病毒倒數與爆炸
       if (p.virus > 0) {
@@ -1300,7 +1393,7 @@
   }
 
   global.ENGINE = {
-    CFG: CFG, GODS: GODS, godById: godById, NEWS: NEWS, publicState: publicState,
+    CFG: CFG, GODS: GODS, godById: godById, NEWS: NEWS, CHANCE: CHANCE, publicState: publicState,
     createGame: createGame, pickCharacter: pickCharacter,
     startRound: startRound, submitAnswer: submitAnswer, reveal: reveal,
     currentGid: currentGid, nextOptions: nextOptions, rollDice: rollDice, setSteps: setSteps,

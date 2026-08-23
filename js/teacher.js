@@ -36,7 +36,7 @@
   }
   /** 把所有會蓋在地圖上的面板收起來 */
   function hideAllPanels() {
-    ['hudBreak', 'hudItemPhase', 'hudCast', 'hudQuestion', 'hudOrder', 'hudDice', 'hudPlayer', 'hudWaitGroup']
+    ['hudBreak', 'hudItemPhase', 'hudCast', 'hudQuestion', 'hudOrder', 'hudDice', 'hudPlayer', 'hudWaitGroup', 'hudBigEvent']
       .forEach(function (id) { var e = $(id); if (e) e.classList.add('hidden'); });
   }
   // 「開放破壞類道具」開關關掉時，這些卡片道具一律無效
@@ -401,7 +401,14 @@
         if (im.complete && im.naturalWidth > 0) { im.style.display = 'block'; ph.style.display = 'none'; }
         else im.onload = function () { im.style.display = 'block'; ph.style.display = 'none'; };
       } else {
-        d.innerHTML = '<div class="g">第 ' + p.num + ' 組</div><div class="w">等待選角…</div>';
+        d.innerHTML = '<div class="g">第 ' + p.num + ' 組</div><div class="w">等待選角…（點我選）</div>';
+      }
+      // 開賽前點卡片可以幫這一組選（或換）角色 —— 單機試玩才有辦法自己挑，
+      // 正常模式也能幫沒平板的組手動指定
+      if (state.round === 0) {
+        d.style.cursor = 'pointer';
+        d.title = '點一下幫第 ' + p.num + ' 組選角色';
+        d.onclick = function () { showCharPicker(gid); };
       }
       grid.appendChild(d);
     });
@@ -412,6 +419,51 @@
       hint.textContent = '目前 ' + on + ' / ' + n + ' 組的平板已連上'
         + (cfg.autoPilot ? '　·　沒有平板的組會由電腦代打，可以直接開始' : '');
     }
+  }
+
+  /**
+   * 白板端的選角面板：老師點大廳的組別卡片，幫那一組選（或換）科學家。
+   * 沒有這個的話，單機試玩只能吃隨機分配的結果，什麼都不能挑。
+   */
+  function showCharPicker(gid) {
+    var old = document.getElementById('charPickOv');
+    if (old) old.remove();
+    var taken = {};
+    Object.keys(state.players).forEach(function (g) {
+      if (g !== gid && state.players[g].charId) taken[state.players[g].charId] = state.players[g].num;
+    });
+    var mine = state.players[gid].charId;
+
+    var ov = document.createElement('div');
+    ov.id = 'charPickOv';
+    ov.innerHTML =
+      '<div class="cpv-box">' +
+      '<h3>幫「第 ' + state.players[gid].num + ' 組」選一位科學家</h3>' +
+      '<div class="cpv-grid">' +
+      window.CHARACTERS.map(function (c) {
+        var t = taken[c.id];
+        var cls = 'cpv-card' + (t ? ' taken' : '') + (mine === c.id ? ' mine' : '');
+        return '<div class="' + cls + '" data-ch="' + c.id + '">' +
+               '<div class="e">' + c.emoji + '</div><div class="n">' + c.name + '</div>' +
+               '<div class="s">' + (t ? '第 ' + t + ' 組' : (mine === c.id ? '目前' : c.cardName || '')) + '</div></div>';
+      }).join('') +
+      '</div>' +
+      '<button id="cpvClose" class="ghost" style="margin-top:12px;width:100%">關閉（不改）</button>' +
+      '</div>';
+    document.body.appendChild(ov);
+
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    document.getElementById('cpvClose').onclick = function () { ov.remove(); };
+    ov.querySelectorAll('.cpv-card:not(.taken)').forEach(function (el2) {
+      el2.onclick = function () {
+        var r = E.pickCharacter(state, gid, el2.dataset.ch, { change: true });
+        if (!r.ok) { toast('⚠️ ' + r.msg, 2400); return; }
+        SOUND.play('click');
+        ov.remove();
+        renderLobby();
+        pushRemote();
+      };
+    });
   }
 
   function autoPick() {
@@ -1013,6 +1065,7 @@
   }
 
   function castResultText(r, def, item) {
+    if (r && r.ok && r.floatMode) return '🛟 ' + r.floatMode;
     if (!r) return '';
     if (r.blocked) return '🛡️ 被對方的絕緣卡擋下來了！（絕緣卡是自動觸發，不用學生點）';
     if (!r.ok) return '⚠️ ' + (r.msg || '沒有生效');
@@ -1602,6 +1655,27 @@
     }
   }
 
+  /**
+   * 大公告：神明附身、機會、命運新聞用的大圖大字動畫（仿大富翁4）。
+   * 一次一則，顯示 3 秒，配語音把「誰、發生什麼、效果是什麼」唸出來。
+   */
+  function showBigEvent(opt) {
+    return new Promise(function (res) {
+      if (sessionOver) return res();
+      var box = $('hudBigEvent');
+      $('beArt').innerHTML = opt.img ? '<img src="' + opt.img + '" alt="">' : (opt.emoji || '🎉');
+      $('beTitle').textContent = opt.title;
+      $('beDesc').textContent = opt.desc || '';
+      box.classList.remove('hidden');
+      if (opt.sound) SOUND.play(opt.sound);
+      if (opt.say) SPEAK.say(opt.say, true);
+      regTimer(setTimeout(function () {
+        box.classList.add('hidden');
+        res();
+      }, opt.ms || 3000));
+    });
+  }
+
   function settleLanding(gid) {
     var out = E.landOn(state, gid);
     var p = state.players[gid];
@@ -1616,7 +1690,7 @@
       }
       if (ev.type === 'jail') SPEAK.say(SPEAK.groupSay(p) + '，被押去檢調約談所，停一輪');
       if (ev.type === 'hospital') SPEAK.say(SPEAK.groupSay(p) + '，送醫住院，停一輪');
-      if (ev.type === 'god') SPEAK.say(SPEAK.groupSay(p) + '，被' + ev.name + '附身');
+      // 附身的大公告與語音在下面統一播（含效果說明），這裡不重複唸
       if (ev.type === 'rent') lines.push('付過路費 $' + ev.amount.toLocaleString() + ' 給 ' + state.players[ev.owner].name);
       if (ev.type === 'quake') {
         var qc = B.COLORS[B.CELLS[p.pos].color];
@@ -1673,7 +1747,41 @@
 
     if (lines.length) toast(p.num + '組｜' + lines.join('　·　'), 2800);
 
-    return waitForNext(gid).then(function () {
+    // 大事件的大公告（一次最多一種）：神明附身／機會／命運新聞
+    var bigChain = Promise.resolve();
+    out.events.forEach(function (ev) {
+      if (ev.type === 'god') {
+        var god = E.godById(ev.id);
+        bigChain = bigChain.then(function () {
+          return showBigEvent({
+            img: (window.RENDER.GOD_OK && window.RENDER.GOD_OK[ev.id]) ? 'images/gods/god_' + ev.id + '.png' : null,
+            emoji: god ? god.emoji : '👼',
+            title: p.name + '　被' + ev.name + '附身！',
+            desc: (god ? god.desc : '') + '（持續 ' + E.CFG.godTurns + ' 輪）',
+            say: SPEAK.groupSay(p) + '，被' + ev.name + '附身！' + (god ? god.desc : ''),
+            sound: ev.good ? 'godGood' : 'godBad'
+          });
+        });
+      }
+      if (ev.type === 'chance') {
+        bigChain = bigChain.then(function () {
+          return showBigEvent({
+            emoji: '🎁', title: p.name + '　機會！', desc: ev.text,
+            say: SPEAK.groupSay(p) + '，機會！' + ev.text, sound: 'income'
+          });
+        });
+      }
+      if (ev.type === 'news') {
+        bigChain = bigChain.then(function () {
+          return showBigEvent({
+            emoji: '📰', title: p.name + '　命運新聞！', desc: ev.text,
+            say: SPEAK.groupSay(p) + '，命運新聞！' + ev.text, sound: 'card'
+          });
+        });
+      }
+    });
+
+    return bigChain.then(function () { return waitForNext(gid); }).then(function () {
       R.drawBoard(state);
       R.drawPlayers(state);
       showPlayerHUD(gid);

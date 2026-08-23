@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b1220">
 <title>科技島大富翁 — 我的平板</title>
-<link rel="stylesheet" href="css/style.css?v=20260823-2122">
+<link rel="stylesheet" href="css/style.css?v=20260823-2239">
 </head>
 <body class="player">
 
@@ -27,6 +27,11 @@
 </div>
 
 <!-- ══ 加入遊戲 ══ -->
+<!--
+  科技島大富翁 Tech Island Monopoly
+  © 2026 蕭妤真 · 科技島大富翁 · 僅供教育用途，歡迎教師參考改作，禁止商業使用
+  題庫內容為國中自然科教學用途整理；角色與美術為本專案原創（AI 輔助生成）。
+-->
 <div id="join" class="player-wrap center">
   <div class="join-brand">
     <img src="images/characters/char_01_newton_idle.png" alt="">
@@ -36,6 +41,7 @@
     </div>
     <img src="images/characters/char_19_curie_idle.png" alt="">
   </div>
+  <div class="copyright">© 2026 蕭妤真 · 科技島大富翁 · 僅供教育用途，歡迎教師參考改作，禁止商業使用</div>
   <div class="pl-card">
     <h3>加入遊戲</h3>
 
@@ -90,6 +96,7 @@
     <button id="btnRankP">📊 戰況</button>
     <button id="btnMuteP">🔇</button>
     <button id="btnFullP">⛶ 全螢幕</button>
+    <button id="btnReload">🔄 重新整理</button>
   </div>
 
   <!-- 地圖一覽（點按鈕才開） -->
@@ -140,6 +147,7 @@
     </div>
   </div>
 
+  <div class="pg on" id="pgNow">
   <!-- 答題 -->
   <div class="pl-card hidden" id="qCard">
     <h3>第 <span id="qRound">1</span> 輪　<span id="qLeft"></span></h3>
@@ -157,7 +165,11 @@
     <h3 id="actTitle">輪到你了</h3>
     <div id="actBody"></div>
   </div>
+  <div class="pl-msg" id="nowIdle" style="text-align:center">
+    現在沒有需要你操作的事。出題或輪到你們時，畫面會自動跳到這一頁。</div>
+  </div><!-- /pgNow -->
 
+  <div class="pg" id="pgHand">
   <!-- 手牌 -->
   <div class="pl-card">
     <h3>🎴 我的手牌（<span id="handCount">0</span>/8）</h3>
@@ -167,12 +179,16 @@
     </button>
     <div class="pl-msg" id="handMsg"></div>
   </div>
+  </div><!-- /pgHand -->
 
+  <div class="pg" id="pgAssets">
   <!-- 資產 -->
   <div class="pl-card">
     <h3>🏭 我的產業（<span id="assetCount">0</span> 塊）</h3>
     <div class="assets" id="assetList"></div>
   </div>
+  </div><!-- /pgAssets -->
+  <div id="bankCard" class="hidden">
 
   <!-- 銀行 -->
   <div class="pl-card">
@@ -185,19 +201,34 @@
       <button id="btnRepay">還款</button>
     </div>
   </div>
+  </div><!-- /bankCard -->
+
+  <!-- 底部分頁列：功能一頁一頁切，整個畫面不捲動（防下拉誤觸重新整理）。
+       銀行不佔分頁：走到銀行格時才會出現在「現在」頁。 -->
+  <div class="pg-tabs" id="pgTabs">
+    <button class="pg-t on" data-pg="pgNow">🎯 現在</button>
+    <button class="pg-t" data-pg="pgHand">🎴 手牌</button>
+    <button class="pg-t" data-pg="pgAssets">🏭 資產</button>
+  </div>
+</div>
+
+<!-- 直式時的全畫面提示（遊戲畫面設計為橫式） -->
+<div id="rotateHint">
+  <div>📱↻<br>請把平板／手機<b>轉成橫式</b>再玩<br>
+  <span style="font-size:15px;opacity:.85">（畫面是為橫式設計的）</span></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260823-2122"></script>
-<script src="js/sound.js?v=20260823-2122"></script>
-<script src="js/board.js?v=20260823-2122"></script>
-<script src="js/render.js?v=20260823-2122"></script>
-<script src="js/characters.js?v=20260823-2122"></script>
-<script src="js/cards.js?v=20260823-2122"></script>
-<script src="js/engine.js?v=20260823-2122"></script>
-<script src="js/store.js?v=20260823-2122"></script>
-<script src="js/player.js?v=20260823-2122"></script>
+<script src="js/firebase-config.js?v=20260823-2239"></script>
+<script src="js/sound.js?v=20260823-2239"></script>
+<script src="js/board.js?v=20260823-2239"></script>
+<script src="js/render.js?v=20260823-2239"></script>
+<script src="js/characters.js?v=20260823-2239"></script>
+<script src="js/cards.js?v=20260823-2239"></script>
+<script src="js/engine.js?v=20260823-2239"></script>
+<script src="js/store.js?v=20260823-2239"></script>
+<script src="js/player.js?v=20260823-2239"></script>
 </body>
 </html>

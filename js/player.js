@@ -58,6 +58,16 @@
     $('btnFind').onclick = doFind;
     $('btnJoin').onclick = doJoin;
     $('btnLeavePick').onclick = leaveRoom;
+
+    // 底部分頁列：功能一頁一頁切（整個畫面鎖住不捲動，防下拉誤觸重新整理）
+    document.querySelectorAll('#pgTabs .pg-t').forEach(function (b) {
+      b.onclick = function () { showPage(b.dataset.pg, true); };
+    });
+    // 🔄 重新整理鍵：畫面鎖捲動之後，下拉重新整理不會再誤觸，
+    // 需要重整時（畫面怪怪的、老師說要重整）按這顆
+    $('btnReload').onclick = function () {
+      if (window.confirm('要重新整理畫面嗎？（會自動回到你的組別）')) location.reload();
+    };
     $('btnBack').onclick = function () {
       $('step2').classList.add('hidden');
       $('step1').classList.remove('hidden');
@@ -202,6 +212,35 @@
       pmsg(box, '送出失敗：' + e.message + '（請確認網路，或按重新整理）', 'err');
       throw e;
     });
+  }
+
+  /**
+   * 分頁切換。manual=true 是學生自己按的；自動跳頁（出題、輪到我）
+   * 只在「情境改變的那一刻」跳一次，之後學生要看哪頁隨他。
+   */
+  var curPage = 'pgNow';
+  function showPage(id, manual) {
+    if (!document.getElementById(id)) return;
+    curPage = id;
+    document.querySelectorAll('#play > .pg').forEach(function (p2) {
+      p2.classList.toggle('on', p2.id === id);
+    });
+    document.querySelectorAll('#pgTabs .pg-t').forEach(function (b) {
+      b.classList.toggle('on', b.dataset.pg === id);
+    });
+  }
+
+  var lastAutoPage = '';
+  function autoPage(st, me) {
+    // 需要學生注意的情境 → 自動跳到對的分頁（每個情境只跳一次）
+    var want = null, key = null;
+    if (st.phase === 'question' && st.question) { want = 'pgNow'; key = 'q' + st.question.id + '|' + st.round; }
+    else if (st.decide && st.decide.gid === my.gid) { want = 'pgNow'; key = 'turn' + st.round + '|' + me.pos; }
+    else if (st.phase === 'item' && st.itemUntil != null) { want = 'pgHand'; key = 'item' + st.round; }
+    if (want && key !== lastAutoPage) {
+      lastAutoPage = key;
+      showPage(want, false);
+    }
   }
 
   /**
@@ -425,6 +464,7 @@
     // ── 以下都是輔助資訊，各自獨立，壞一個不會擋住上面的題目 ──
     guard('上方資訊', function () { renderTop(me); });
     guard('被拒訊息', function () { showReject(state); });
+    guard('自動跳頁', function () { autoPage(state, me); });
 
     guard('手牌', function () {
       var sigHand = (me.cards || []).map(function (c) { return c.id + (c.char ? '*' : ''); }).join(',') +
@@ -583,6 +623,15 @@
    * iPad 的 Safari 不一定給網頁用，那就改教學生用「加入主畫面」，
    * 從主畫面圖示打開一樣是滿版無網址列。
    */
+  /** 進全螢幕時順便把螢幕鎖成橫向（Android 平板有效；iPad 不支援，靠轉橫提示） */
+  function lockLandscape() {
+    try {
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(function () {});
+      }
+    } catch (e) {}
+  }
+
   function goFullscreenP() {
     var el = document.documentElement;
     if (document.fullscreenElement || document.webkitFullscreenElement) {
@@ -597,7 +646,7 @@
       var p = req.call(el);
       if (p && p.catch) p.catch(function () { showAddToHomeTip(); });
     } catch (e) { showAddToHomeTip(); }
-    setTimeout(paintFsBtn, 400);
+    setTimeout(function () { paintFsBtn(); lockLandscape(); }, 400);
   }
 
   function paintFsBtn() {
@@ -947,7 +996,7 @@
       shop: '創投商店：用點數買卡', bank: '銀行：存提款、貸款',
       subsidy: '國科會補助 +40 點', chest: '寶箱 +100 點', packet: '點數包 +60 點',
       patent: '專利局：抽一張卡', news: '新聞快報：隨機事件',
-      god: '產業風向：神明附身 3 輪', tax: '國稅局：繳總資產 5%',
+      god: '產業風向：神明常出沒的地標（神明會在地圖上移動）', tax: '國稅局：繳總資產 5%',
       pool: '政府補助池：領走累積稅金', audit: '稽查：直接送檢調',
       jail: '檢調約談所：停 1 輪', hosp: '醫院：停 1 輪',
       airport: '桃園機場：可飛海外廠', fork: '岔路口：隨機決定走哪一條',
@@ -1106,15 +1155,42 @@
   // ═══════════════════════════════════════
   // 輪到我行動時的選項
   // ═══════════════════════════════════════
+  /**
+   * 「待確認」的購買。平板是學生手上的觸控螢幕，誤觸很常見，
+   * 所以所有花錢的動作（買地、蓋廠、併購、商店買卡）都要先出現
+   * 「確定／取消」再執行 —— 按下去不直接扣錢。
+   * 確認中其他按鈕全部鎖住：按了「蓋到滿」，「蓋一級」就不能再按。
+   */
+  var pendingBuy = null;   // { kind, label, cost, cardId, pos }
+
+  function clearPendingBuy() { pendingBuy = null; }
+
+  function confirmHtml() {
+    return '<div class="confirm-box">' +
+           '<div class="cf-q">' + pendingBuy.label + '</div>' +
+           '<div class="cf-row">' +
+           '<button class="cf-yes" data-cf="yes">✅ 確定（' + pendingBuy.cost + '）</button>' +
+           '<button class="cf-no" data-cf="no">❌ 取消</button>' +
+           '</div></div>';
+  }
+
   function renderAction(me) {
     var waitingMe = state.decide && state.decide.gid === my.gid;
     var isMyTurn = (state.phase === 'moving' && E.currentGid(state) === my.gid) || waitingMe;
     var card = $('actCard'), body = $('actBody');
+    // 「現在」頁的閒置說明：有題目或行動面板時收起來
+    var idle = $('nowIdle');
+    if (idle) {
+      var busyNow = isMyTurn || (state.phase === 'question') ||
+                    ($('qCard') && !$('qCard').classList.contains('hidden'));
+      idle.classList.toggle('hidden', !!busyNow);
+    }
     var cell = B.CELLS[me.pos];
     var html = [];
 
     if (!isMyTurn) {
       // 不是我的回合，但仍可看資訊
+      clearPendingBuy();
       card.classList.add('hidden');
       stopDecideTimer();
       return;
@@ -1125,12 +1201,15 @@
     // 學生可以趁機把路過的地買走、順便逛商店 —— 引擎已經擋掉了，
     // 但畫面上還是不該給他們按，不然會變成「我明明按了卻沒反應」。
     if (me.stepsLeft > 0 && !waitingMe) {
+      clearPendingBuy();
       card.classList.remove('hidden');
       stopDecideTimer();
       $('actTitle').textContent = '移動中…　還要走 ' + me.stepsLeft + ' 步';
       body.innerHTML = '<div class="pl-msg">🚶 走完停下來之後才能買地、蓋廠、逛商店</div>';
       return;
     }
+
+    if (pendingBuy && pendingBuy.pos !== me.pos) clearPendingBuy();
 
     card.classList.remove('hidden');
     $('actTitle').textContent = '輪到你了 · ' + cell.name;
@@ -1188,6 +1267,7 @@
                '<div class="c">' + c.cost + ' 點' + (afford ? '' : '（點數不足）') + '</div></div>';
       }).join('') + '</div>');
     }
+    if (pendingBuy) html.unshift(confirmHtml());
     if (!html.length) html.push('<div class="pl-msg">這一格沒有可以做的事，按下面的按鍵告訴老師就好</div>');
     if (waitingMe) {
       var isShop = (cell.type === 'shop');
@@ -1200,21 +1280,75 @@
     body.querySelectorAll('[data-fork]').forEach(function (b) {
       b.onclick = function () { send({ type: 'fork', cell: +b.dataset.fork }); b.disabled = true; };
     });
+
+    // 確認中：其他按鈕全部鎖住（只留確定／取消能按）。
+    // 「我好了」也一起鎖，避免掛著確認框卻叫老師換人。
+    if (pendingBuy) {
+      body.querySelectorAll('[data-act],[data-shop]').forEach(function (b) {
+        b.disabled = true;
+        b.style.opacity = '.45';
+        if (b.dataset.shop != null) b.style.pointerEvents = 'none';
+      });
+      var yes = body.querySelector('[data-cf="yes"]');
+      var no = body.querySelector('[data-cf="no"]');
+      if (yes) yes.onclick = function () {
+        yes.disabled = true; no.disabled = true;
+        var pb = pendingBuy;
+        clearPendingBuy();
+        if (pb.kind === 'buy') send({ type: 'buy' });
+        if (pb.kind === 'build1') send({ type: 'build', times: 1 });
+        if (pb.kind === 'buildall') send({ type: 'build', times: 99 });
+        if (pb.kind === 'merge') send({ type: 'merge' });
+        if (pb.kind === 'shop') send({ type: 'shop', cardId: pb.cardId });
+        // 送出後畫面等下一份狀態回來自然重畫；先給個回饋
+        yes.textContent = '⏳ 處理中…';
+      };
+      if (no) no.onclick = function () {
+        clearPendingBuy();
+        renderAction(state.players[my.gid]);
+      };
+      return;   // 確認中不綁其他按鈕的行為
+    }
+
     body.querySelectorAll('[data-act]').forEach(function (b) {
       b.onclick = function () {
         var a = b.dataset.act;
-        if (a === 'buy') send({ type: 'buy' });
-        if (a === 'build1') send({ type: 'build', times: 1 });
-        if (a === 'buildall') send({ type: 'build', times: 99 });
-        if (a === 'merge') send({ type: 'merge' });
+        // 花錢的動作一律先確認，不直接執行（觸控誤按太常見）
+        if (a === 'buy') {
+          var price = me.god === 'grant' ? Math.round(cell.price / 2) : cell.price;
+          pendingBuy = { kind: 'buy', pos: me.pos, cost: '$' + price.toLocaleString(),
+                         label: '確定要買下「' + cell.name + '」嗎？' };
+          renderAction(me); return;
+        }
+        if (a === 'build1') {
+          var c1b = B.upgradeCost(me.pos);
+          pendingBuy = { kind: 'build1', pos: me.pos, cost: '$' + c1b.toLocaleString(),
+                         label: '確定要在「' + cell.name + '」蓋一級嗎？' };
+          renderAction(me); return;
+        }
+        if (a === 'buildall') {
+          var c1a = B.upgradeCost(me.pos);
+          var lvA = state.board.level[me.pos] || 0;
+          var canA = Math.min(5 - lvA, Math.floor(me.cash / c1a));
+          pendingBuy = { kind: 'buildall', pos: me.pos,
+                         cost: '$' + (c1a * canA).toLocaleString() + '，共 ' + canA + ' 級',
+                         label: '確定要把「' + cell.name + '」一次蓋到滿嗎？' };
+          renderAction(me); return;
+        }
+        if (a === 'merge') {
+          var curV = B.landValue(me.pos, state.board.level[me.pos] || 0);
+          pendingBuy = { kind: 'merge', pos: me.pos, cost: '$' + (curV * 2).toLocaleString(),
+                         label: '確定要併購「' + cell.name + '」嗎？（付給對方兩倍地價）' };
+          renderAction(me); return;
+        }
         if (a === 'skip') {
           send({ type: 'skip' });
           // 換不換人是老師按的。這裡要講清楚，不然學生會以為沒送出一直按。
           b.textContent = '✅ 已告訴老師，等老師換下一位';
           b.style.background = '#166534';
           b.style.color = '#ffffff';
+          b.disabled = true;
         }
-        b.disabled = true;
       };
     });
     body.querySelectorAll('[data-shop]').forEach(function (b) {
@@ -1222,15 +1356,18 @@
         var id = b.dataset.shop;
         var meNow = state.players[my.gid];
         var cdef = shopShelf().filter(function (c) { return c.id === id; })[0];
-        // 買不起、手牌滿：本地就擋下來講原因，不要送出又假裝成功
+        // 買不起、手牌滿：本地就擋下來講原因，連確認框都不用出
         if (!cdef) return;
         if ((meNow.cards || []).length >= 8) { pmsg('handMsg', '⚠️ 手牌已滿（上限 8 張），先用掉再買', 'err'); return; }
         if (meNow.rp < cdef.cost) { pmsg('handMsg', '⚠️ 研發點數不足（要 ' + cdef.cost + ' 點）', 'err'); return; }
         if (b.dataset.cooling) return;      // 冷卻中不重送（防連點連寫雲端）
         b.dataset.cooling = '1';
-        b.style.opacity = .4;
-        setTimeout(function () { delete b.dataset.cooling; b.style.opacity = ''; }, 1500);
-        send({ type: 'shop', cardId: id });
+        setTimeout(function () { delete b.dataset.cooling; }, 800);
+        // 先確認再買（誤觸就取消，不會直接扣點數）
+        pendingBuy = { kind: 'shop', pos: me.pos, cardId: id,
+                       cost: cdef.cost + ' 點',
+                       label: '確定要買「' + cdef.emoji + ' ' + cdef.name + '」嗎？' };
+        renderAction(me);
       };
     });
   }
@@ -1560,6 +1697,10 @@
 
   function renderBank(me) {
     var atBank = B.CELLS[me.pos].type === 'bank';
+    // 銀行的操作介面只在「站在銀行格」時出現（停靠在分頁列上方），
+    // 平常不佔玩家頁面的空間
+    var bc = $('bankCard');
+    if (bc) bc.classList.toggle('hidden', !atBank);
     // 光站在銀行格還不夠：引擎要求「輪到自己、走完停下」才辦得了，
     // 按鈕亮著但按了沒反應，學生會以為壞掉 —— 條件跟引擎一致才誠實
     var myTurnHere = atBank && state.decide && state.decide.gid === my.gid;

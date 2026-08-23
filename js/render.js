@@ -269,8 +269,9 @@
         layers.cells.appendChild(badge);
       }
 
-      // 神明住在這一格：畫出來，學生遠遠就知道走過去會遇到什麼
-      if (c.type === 'god' && state && state.board.gods) {
+      // 神明住在這一格（浮動：任何格子都可能有）：
+      // 畫出來，學生遠遠就知道走過去會遇到什麼
+      if (state && state.board.gods && state.board.gods[i]) {
         var godId = state.board.gods[i];
         var god = godId && global.ENGINE ? global.ENGINE.godById(godId) : null;
         if (god) {
@@ -428,14 +429,37 @@
       items.push({ emoji: '🛡️', text: '', icon: ART_OK['icon:shield'] ? iconUrl('shield') : null,
                    bg: '#0b3a5e', ring: '#7dd3fc', fg: '#e0f2fe' });
     }
+    // 附身中：整尊神明立繪站在角色頭上（全班一眼看出誰得到哪尊神），
+    // 旁邊标剩餘輪數。小圓框看不出是哪一尊，所以直接畫全身。
     if (p.god) {
       var god = global.ENGINE ? global.ENGINE.godById(p.god) : null;
       if (god) {
-        items.push({ emoji: god.emoji, text: (p.godTurns || 0),
-                     img: GOD_OK[god.id] ? godUrl(god.id) : null,
-                     bg: god.good ? '#fff8dc' : '#3b2a4a',
-                     ring: god.good ? '#f5a623' : '#a855f7',
-                     fg: god.good ? '#8a5a00' : '#f0d0ff' });
+        var headY = -CHAR_H - 8;                  // 角色頭頂
+        if (GOD_OK[god.id]) {
+          var GH2 = 150, GW2 = GH2 * 512 / 768;
+          var gi = el('image', {
+            x: -GW2 / 2, y: headY - GH2, width: GW2, height: GH2,
+            preserveAspectRatio: 'xMidYMax meet'
+          });
+          href(gi, godUrl(god.id));
+          s.marks.appendChild(gi);
+        } else {
+          s.marks.appendChild(el('circle', { cx: 0, cy: headY - 40, r: 40,
+            fill: god.good ? '#fff8dc' : '#3b2a4a',
+            stroke: god.good ? '#f5a623' : '#a855f7', 'stroke-width': 7 }));
+          var ge = el('text', { x: 0, y: headY - 25, 'text-anchor': 'middle', 'font-size': 44 });
+          ge.textContent = god.emoji;
+          s.marks.appendChild(ge);
+        }
+        // 剩餘輪數牌
+        s.marks.appendChild(el('rect', { x: 30, y: headY - 46, width: 84, height: 40, rx: 12,
+          fill: god.good ? '#fff3b0' : '#3b2a4a',
+          stroke: god.good ? '#a35a00' : '#a855f7', 'stroke-width': 4 }));
+        var gt2 = el('text', { x: 72, y: headY - 17, 'text-anchor': 'middle',
+          'font-size': 26, 'font-weight': 900,
+          fill: god.good ? '#4a2c00' : '#f0d0ff' });
+        gt2.textContent = (p.godTurns || 0) + '輪';
+        s.marks.appendChild(gt2);
       }
     }
     if (p.frozen > 0) {
@@ -651,7 +675,7 @@
     focusOn: focusOn, camTo: camTo, setZoomOut: setZoomOut, isZoomOut: isZoomOut,
     initMinimap: initMinimap, updateMinimap: updateMinimap,
     preloadAvatars: preloadAvatars, hasAvatar: hasAvatar, avatarUrl: avatarUrl,
-    preloadGods: preloadGods, preloadArt: preloadArt,
+    preloadGods: preloadGods, preloadArt: preloadArt, GOD_OK: GOD_OK,
     setSpeed: setSpeed, setView: setView, mapBounds: mapBounds, drawMarks: drawMarks,
     flashCell: flashCell, POS: POS, VW: VW, VH: VH, el: el, shade: shade
   };

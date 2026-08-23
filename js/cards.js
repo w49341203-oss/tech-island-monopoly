@@ -33,8 +33,8 @@
 
   // ── 公共卡片（創投商店隨機陳列 10 張，一次買 1 張）──
   var CARDS = [
-    C({ id: 'observe', name: '觀測卡', emoji: '🔭', cost: 20,
-        desc: '看光全部人的現金、存款、資產與手牌，持續到本輪結束。' }),
+    C({ id: 'observe', name: '觀測卡', emoji: '🔭', cost: 50,
+        desc: '看光全部人的手牌（持續到本輪結束），並獲得研發點數 +40。' }),
     C({ id: 'induct', name: '感應卡', emoji: '📡', cost: 30, timing: 'onQuestion',
         desc: '偷看下一題的正確答案。', when: '答題階段' }),
     C({ id: 'license', name: '技術授權卡', emoji: '📄', cost: 40, timing: 'onPay',
@@ -69,11 +69,11 @@
     C({ id: 'apple', name: '落地卡', emoji: '🍎', owner: '牛頓', needTarget: 'player',
         desc: '指定一組，他下一輪的骰點減半（無條件捨去）。' }),
     C({ id: 'float', name: '浮起卡', emoji: '🛟', owner: '阿基米德',
-        desc: '現金為負時使用，債務一次歸零。' }),
+        desc: '負債時使用：現金歸零、貸款一筆勾銷。現金正常時使用：獲得 $8,000 急難救助金。' }),
     C({ id: 'bounce', name: '彈回卡', emoji: '↩️', owner: '虎克', timing: 'onPay',
         desc: '這次付出去的過路費，全額退回自己口袋。', when: '被收過路費時' }),
     C({ id: 'observe', name: '觀測卡', emoji: '🔭', owner: '伽利略',
-        desc: '看光全部人的現金、存款、資產與手牌。' }),
+        desc: '看光全部人的手牌，並把觀測數據寫成論文：研發點數 +40。' }),
     C({ id: 'transfer', name: '嫁禍卡', emoji: '🎭', owner: '帕斯卡', needTarget: 'player',
         desc: '把自己身上的負面狀態（勒索病毒、壞神附身、停機）轉給指定對手。' }),
     C({ id: 'compress', name: '壓縮卡', emoji: '🗜️', owner: '波以耳', needTarget: 'player',
@@ -104,12 +104,12 @@
         desc: '這一輪踩到任何人的地都不用付過路費。' }),
     C({ id: 'radiate', name: '輻射卡', emoji: '☢️', owner: '居禮夫人', needTarget: 'cell',
         desc: '指定一格佈下輻射，三輪內誰踩到誰扣 $5,000。' }),
-    C({ id: 'twindice', name: '雙骰卡', emoji: '🎲', owner: '亞佛加厥',
-        desc: '這一輪擲兩次骰，走兩次的總和。', when: '擲骰之前' }),
+    C({ id: 'twindice', name: '加倍骰卡', emoji: '🎲', owner: '亞佛加厥',
+        desc: '下一次擲骰多骰兩顆（共 4 顆），兩次的總和一起走。', when: '擲骰之前' }),
     C({ id: 'copycard', name: '複製卡', emoji: '🧬', owner: '李遠哲',
         desc: '複製全場上一張被打出的卡片，立刻使用。' }),
-    C({ id: 'reverse', name: '逆轉卡', emoji: '🎰', owner: '吳健雄',
-        desc: '讓自己這一輪的骰子結果反轉（1↔6、2↔5、3↔4）。', when: '擲骰之後' })
+    C({ id: 'reverse', name: '逆轉卡', emoji: '🔄', owner: '吳健雄',
+        desc: '宇稱不守恆：下一次擲骰後「反方向」走，可以回頭去撿剛路過的寶箱、商店。', when: '擲骰之前' })
   ];
   CHAR_CARDS.forEach(function (c) { c.kind = 'char'; c.cost = 0; });
 
