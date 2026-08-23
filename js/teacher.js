@@ -1772,7 +1772,9 @@
     var reallyBot = isBot(gid) && !everOnline[gid];
     if (out.canBuy) {
       if (reallyBot) {
-        if (p.cash - out.buyPrice > 15000 && E.buyLand(state, gid, p.pos).ok) {
+        // 門檻從 15000 降到 5000：電腦太保守的話，玩家收不到過路費、
+        // 也沒有搶地的緊張感（Helen 實測回報電腦太弱）
+        if (p.cash - out.buyPrice > 5000 && E.buyLand(state, gid, p.pos).ok) {
           lines.push('買下 ' + cell.name);
           SPEAK.say(SPEAK.groupSay(p) + '，買下' + cell.name);
         }
@@ -1788,6 +1790,17 @@
       } else { hasChoice = true; lines.push('可以蓋廠（每級 $' + out.upgradeCost.toLocaleString() + '）'); }
     }
     if (out.canMerge && state.cfg && state.cfg.allowMerge && !isBot(gid)) hasChoice = true;
+
+    // 電腦代打逛商店：點數夠就買 1~2 張架上的卡（不然電腦永遠不用道具，太弱）
+    if (reallyBot && cell.type === 'shop') {
+      var shelf2 = E.shopShelfFor(state, p.pos);
+      var bought2 = 0;
+      for (var si = 0; si < shelf2.length && bought2 < 2; si++) {
+        if (Math.random() < 0.5) continue;               // 不要每次都掃架上前兩張
+        if (E.buyFromShop(state, gid, shelf2[si]).ok) bought2++;
+      }
+      if (bought2) lines.push('在創投商店買了 ' + bought2 + ' 張卡');
+    }
     // 註：這裡不再用 hasChoice 決定「要不要等」——不管有沒有事情做，
     // 一律等老師按「下一位玩家」。以前猜錯就直接跳過，學生連畫面都看不到。
 
@@ -1864,8 +1877,32 @@
     autoSave();
     busy = false;
     if (r.ended) { endSession(); return; }
-    status('第 ' + state.round + ' 輪結束');
-    setTimeout(function () { if (!autoPaused) runRound(); }, 900);   // 自動下一輪
+
+    // 每輪一則產業新聞：大公告＋語音播完，才進下一輪
+    var newsChain = Promise.resolve();
+    r.events.forEach(function (e) {
+      if (e.type !== 'companyNews') return;
+      var who = e.gid && state.players[e.gid] ? state.players[e.gid] : null;
+      var money = e.amount >= 0 ? ('+$' + e.amount.toLocaleString()) : ('-$' + Math.abs(e.amount).toLocaleString());
+      newsChain = newsChain.then(function () {
+        return showBigEvent({
+          emoji: '📰',
+          title: '產業新聞：' + e.name,
+          desc: e.text + '　' + (who ? (who.name + '　' + money) : '（目前沒有玩家持有這家公司）'),
+          say: '產業新聞！' + e.name + '，' + e.text +
+               (who ? ('，' + SPEAK.groupSay(who) + (e.amount >= 0 ? '收入增加' : '損失') +
+                       SPEAK.money2cn(Math.abs(e.amount))) : ''),
+          sound: e.amount >= 0 ? 'income' : 'pay',
+          ms: 3400
+        });
+      });
+    });
+
+    newsChain.then(function () {
+      if (sessionOver) return;
+      status('第 ' + state.round + ' 輪結束');
+      regTimer(setTimeout(function () { if (!autoPaused) runRound(); }, 900));   // 自動下一輪
+    });
   }
 
   /** 自動存檔。存不進去一定要講，不能讓老師以為存好了、下週才發現整節課不見 */

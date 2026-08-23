@@ -515,7 +515,11 @@
 
     guard('銀行', function () {
       var here = B.CELLS[me.pos];
-      if (changed('bank', (here && here.type === 'bank') ? 'yes' : 'no')) renderBank(me);
+      // 重畫條件要含「輪到我了沒」：落地時還沒輪到你（按鈕鎖住是對的），
+      // 但等白板宣布輪到你時，若只看「站在銀行沒」就不會重畫，按鈕會永遠鎖著
+      var sigBank = ((here && here.type === 'bank') ? 'yes' : 'no') + '|' +
+                    ((state.decide && state.decide.gid === my.gid) ? 'my' : '-');
+      if (changed('bank', sigBank)) renderBank(me);
     });
 
     guard('行動選項', function () {
@@ -1729,19 +1733,16 @@
   }
 
   function renderBank(me) {
+    // 銀行介面只在「輪到我行動＋站在銀行」那段時間出現，
+    // 行動結束（老師換下一位）就整塊消失——不會一直掛在畫面上。
+    // 掛著不消失的話，下一輪答題時它還佔著半個畫面（實際發生過）。
     var atBank = B.CELLS[me.pos].type === 'bank';
-    // 銀行的操作介面只在「站在銀行格」時出現（停靠在分頁列上方），
-    // 平常不佔玩家頁面的空間
-    var bc = $('bankCard');
-    if (bc) bc.classList.toggle('hidden', !atBank);
-    // 光站在銀行格還不夠：引擎要求「輪到自己、走完停下」才辦得了，
-    // 按鈕亮著但按了沒反應，學生會以為壞掉 —— 條件跟引擎一致才誠實
     var myTurnHere = atBank && state.decide && state.decide.gid === my.gid;
-    $('bankHint').textContent = myTurnHere
-      ? '你現在在銀行，可以存提款與貸款。存款每輪 3% 利息，但貸款期間不發利息。'
-      : (atBank ? '在銀行了！等輪到你行動時就能辦理'
-                : '要停在銀行格（雲林、基隆），輪到自己行動時才能辦理');
-    ['btnDeposit', 'btnWithdraw', 'btnLoan', 'btnRepay'].forEach(function (id) { $(id).disabled = !myTurnHere; });
+    var bc = $('bankCard');
+    if (bc) bc.classList.toggle('hidden', !myTurnHere);
+    if (!myTurnHere) return;
+    $('bankHint').textContent = '你現在在銀行，可以存提款與貸款。存款每輪 3% 利息，但貸款期間不發利息。';
+    ['btnDeposit', 'btnWithdraw', 'btnLoan', 'btnRepay'].forEach(function (id) { $(id).disabled = false; });
 
     // ⚠️ 按下當下才讀取最新餘額。原本把 me 綁死在閉包裡，
     //    畫面幾輪沒重畫的話會用到舊的餘額上限。

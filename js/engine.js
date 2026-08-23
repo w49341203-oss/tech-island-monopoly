@@ -1161,6 +1161,21 @@
     { text: '匯率有利，獲得 $12,000', apply: function (s, g) { s.players[g].cash += 12000; } }
   ];
 
+  // 每輪一則的「產業新聞」：隨機挑地圖上一家公司報好壞消息，
+  // 擁有那家公司的玩家實拿實賠；沒人擁有就純播報（Helen 設計的注入機制，
+  // 讓全班總資產有起伏、也讓大家關注地圖上的公司）
+  var COMPANY_NEWS = [
+    { text: '接到國際大廠追加訂單，訂單暴增！', amount: 8000 },
+    { text: '新產品上市大賣，營收創新高！', amount: 10000 },
+    { text: '良率大幅提升，成本下降獲利增加', amount: 6000 },
+    { text: '獲選績優企業，拿到政府獎勵金', amount: 5000 },
+    { text: '搶下明年度大單，股價大漲', amount: 12000 },
+    { text: '廠房歲修停工，本季產量下滑', amount: -4000 },
+    { text: '原物料價格上漲，獲利被壓縮', amount: -5000 },
+    { text: '匯率不利出口，認列匯兌損失', amount: -6000 },
+    { text: '大客戶抽單轉往競爭對手', amount: -8000 }
+  ];
+
   var NEWS = [
     { text: 'AI 需求爆發，獲得 $15,000 訂單', apply: function (s, g) { s.players[g].cash += 15000; } },
     { text: '匯率大幅波動，損失 $8,000', apply: function (s, g) { payTo(s, g, null, 8000); } },
@@ -1286,6 +1301,24 @@
         events.push({ gid: gid, type: 'charCard', id: c.card });
       }
     }
+    // ── 每輪一則產業新聞 ──
+    (function () {
+      var lands = [];
+      B.CELLS.forEach(function (c, i) { if (c.type === 'land') lands.push(i); });
+      var cell = lands[Math.floor(rnd(state) * lands.length)];
+      var ev = COMPANY_NEWS[Math.floor(rnd(state) * COMPANY_NEWS.length)];
+      var owner = state.board.owner[cell] || null;
+      if (owner && state.players[owner]) {
+        if (ev.amount >= 0) state.players[owner].cash += ev.amount;
+        else payTo(state, owner, null, -ev.amount);   // 賠的錢進補助池，之後有人踩池子領回
+      }
+      events.push({ type: 'companyNews', cell: cell, name: B.CELLS[cell].name,
+                    text: ev.text, amount: ev.amount, gid: owner });
+      log(state, '📰 產業新聞：' + B.CELLS[cell].name + ' ' + ev.text +
+                 (owner ? '（' + state.players[owner].name + (ev.amount >= 0 ? ' +$' : ' -$') +
+                          Math.abs(ev.amount).toLocaleString() + '）' : '（目前沒有玩家持有）'), 'event');
+    })();
+
     // 輻射倒數
     for (var rc in state.board.radiation) {
       state.board.radiation[rc]--;
