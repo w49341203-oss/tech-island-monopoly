@@ -245,7 +245,9 @@
     // 續玩：組數、角色、資產全部沿用存檔，不用重選。
     // 章節可以換（這次要考哪幾章由老師決定），沒勾就沿用存檔原本的。
     cfg.groups = Object.keys(st.players).length;
-    cfg.solo = false;
+    // 單機存的檔要用單機續玩（面板才會回來）；全班的檔照常走連線模式。
+    // 以前這裡硬設 false，單機存檔續玩後右側操作面板就消失了（實際發生過）。
+    cfg.solo = !!(st.cfg && st.cfg.solo);
     if (cfg.chapters.length) state.chapters = cfg.chapters;
     else cfg.chapters = st.chapters || [];
     if (!cfg.chapters.length) { msg('請先勾選這次要考的章節', 'err'); return; }
@@ -255,11 +257,12 @@
     state.cfg = state.cfg || {};
     state.cfg.allowMerge = cfg.allowMerge;
     state.cfg.allowSabotage = cfg.allowSabotage;
+    state.cfg.solo = cfg.solo;
     state.phase = 'waiting';
 
     msg('讀取成功：編號 ' + code + '、第 ' + st.round + ' 輪、' + cfg.groups + ' 組', 'ok');
     Q.load(cfg.chapters).then(function () {
-      openRoom(false);            // 續玩也要開新房間，學生才連得進來
+      openRoom(cfg.solo);         // 續玩也要開房間（單機檔開本機房間，全班檔開雲端房間）
     }).catch(function (e) { msg('題庫載入失敗：' + e.message, 'err'); });
   }
 
