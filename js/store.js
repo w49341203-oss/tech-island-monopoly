@@ -205,9 +205,20 @@
     if (!gameId) {
       return Promise.reject(new Error('還沒連上房間（gameId 是空的）'));
     }
-    return db.collection('games').doc(gameId).collection('actions').doc(gid)
-      .set(Object.assign({ gid: gid, at: Date.now() }, action));
+    var col = db.collection('games').doc(gameId).collection('actions');
+    var data = Object.assign({ gid: gid, at: Date.now() }, action);
+    // 心跳固定寫同一份文件（一直覆蓋沒關係、也不用刪）；
+    // 真正的動作每一筆一份新文件 —— 以前整組共用一份，連續兩個動作
+    // （或動作跟心跳撞在一起）會互相覆蓋，前一個就永遠消失了。
+    if (action.type === 'hello') return col.doc('hb_' + gid).set(data);
+    return col.doc().set(data);
   }
+
+  // 這一場的識別碼。老師端開房間時設定，用來分辨「這一場的動作」
+  // 與上一場的殘留 —— 不再比較兩台裝置的時鐘（老師筆電時間快 5 分鐘，
+  // 全班的動作就會被當垃圾整批刪掉，等於全班斷線）。
+  var expectNonce = null;
+  function setActionNonce(n) { expectNonce = n || null; }
 
   /** 老師端：監聽平板送來的動作 */
   function watchActions(cb) {
@@ -218,8 +229,6 @@
     // 上一場沒清乾淨的動作如果被當成新動作執行，白板上就會出現
     // 「學生沒有碰平板，卻有人出了一張牌」。所以第一批一律不執行，只清掉。
     var first = true;
-    var STALE_MS = 5 * 60 * 1000;          // 五分鐘前的動作一定是上一場留下來的
-    var since = Date.now();
     var ref = db.collection('games').doc(gameId).collection('actions');
     actionUnsub = ref.onSnapshot(function (snap) {
       if (first) {
@@ -230,13 +239,16 @@
       snap.docChanges().forEach(function (ch) {
         if (ch.type !== 'added' && ch.type !== 'modified') return;
         var data = ch.doc.data();
-        // 第二層保險：萬一第一批是從本機快取來的空清單，殘留文件會出現在第二批。
-        // 太舊的一律當成上一場的垃圾，刪掉不執行。
-        if (data && data.at && data.at < since - STALE_MS) {
+        // 帶著別場識別碼的動作是殘留的垃圾（平板還開著上一場的頁面之類），
+        // 刪掉不執行。心跳在還沒收到狀態前沒有識別碼，放行沒關係——
+        // 它只是報到，不會改變遊戲。
+        if (data && data.nonce && expectNonce && data.nonce !== expectNonce) {
           ch.doc.ref.delete().catch(function () {});
           return;
         }
         cb(data);
+        // 真正的動作處理完就刪掉那一份文件（心跳文件留著一直覆蓋就好）
+        if (data && data.type !== 'hello') ch.doc.ref.delete().catch(function () {});
       });
     }, function (err) {
       console.warn('[STORE] 動作監聽中斷：', err && err.message);
@@ -246,11 +258,8 @@
     return actionUnsub;
   }
 
-  /** 老師端：處理完後清掉該組的動作 */
-  function clearAction(gid) {
-    if (mode !== 'firebase' || !db) return Promise.resolve();
-    return db.collection('games').doc(gameId).collection('actions').doc(gid).delete();
-  }
+  /** （保留給舊呼叫相容）動作文件現在由 watchActions 處理完直接刪，這裡不用做事 */
+  function clearAction() { return Promise.resolve(); }
 
   // ── 本機模式：同一台電腦的多分頁同步（老師自己用一台筆電開多個分頁測試）──
   var localQueue = [];
@@ -365,7 +374,7 @@
     pushState: pushState, watchState: watchState,
     initChannel: initChannel, onLocalState: onLocalState, broadcastState: broadcastState,
     openRoom: openRoom, touchRoom: touchRoom, findRoom: findRoom,
-    sendAction: sendAction, watchActions: watchActions, clearAction: clearAction,
+    sendAction: sendAction, watchActions: watchActions, setActionNonce: setActionNonce, clearAction: clearAction,
     drainLocalQueue: drainLocalQueue
   };
 })(typeof window !== 'undefined' ? window : globalThis);

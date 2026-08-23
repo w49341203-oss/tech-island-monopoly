@@ -166,7 +166,7 @@ button.big::before{border-radius:17px 17px 46% 46% / 17px 17px 22px 22px}
 .msg.err{color:var(--bad)} .msg.ok{color:var(--good)}
 
 /* ═══ 選角等待 ═══ */
-.lobby{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+.lobby{display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:18px;
         padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .lobby h2{font-size:30px;margin:0;color:#0f6fb5;text-shadow:0 2px 0 #fff}
 .room-code{background:linear-gradient(180deg,#ffffff,#fff6de);border-radius:26px;padding:16px 44px;
@@ -175,7 +175,7 @@ button.big::before{border-radius:17px 17px 46% 46% / 17px 17px 22px 22px}
 .rc-code{font-size:clamp(44px,7vw,72px);font-weight:900;color:#a85a00;
          text-shadow:0 3px 0 #fff, 0 5px 10px rgba(224,123,0,.3);
          letter-spacing:12px;line-height:1.1;font-variant-numeric:tabular-nums}
-.rc-url{font-size:15px;color:var(--dim);margin-top:8px;word-break:break-all}
+.rc-url{font-size:22px;color:var(--dim);margin-top:8px;word-break:break-all}
 .fs-tip{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
          background:linear-gradient(180deg,#ffe07a,#ffb020);color:#5a3a12;border-radius:14px;
          padding:12px 22px;font-size:16px;font-weight:900;z-index:200;cursor:pointer;
@@ -194,7 +194,7 @@ button.big::before{border-radius:17px 17px 46% 46% / 17px 17px 22px 22px}
 .lobby-card .g{font-size:19px;font-weight:900}
 .lobby-card .c{font-size:15px;color:#a85a00;font-weight:800}
 .lobby-card .w{font-size:14px;color:var(--dim)}
-.lobby-actions{display:flex;gap:12px}
+.lobby-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 
 /* ═══ 遊戲畫面：只有地圖 ═══ */
 .game{background:#38b6ff}
@@ -287,7 +287,8 @@ button.big::before{border-radius:17px 17px 46% 46% / 17px 17px 22px 22px}
 .hud-dice svg{width:min(520px,42vw);height:auto}
 .dice-sum{font-size:52px;font-weight:900;color:#a85a00;margin-top:10px}
 
-.hud-ver{left:26px;bottom:6px;font-size:12px;color:rgba(255,255,255,.9);font-weight:700;letter-spacing:1px;
+.hud-ver{left:26px;bottom:6px;font-size:14px;color:#0f3d5e;background:rgba(255,255,255,.85);
+         border-radius:8px;padding:2px 8px;font-weight:800;letter-spacing:1px;
          text-shadow:0 1px 3px rgba(0,50,90,.8)}
 .hud-rank{border:3px solid #7cc4ea;box-shadow:inset 0 3px 0 rgba(255,255,255,.9), var(--shadow);top:50%;right:26px;transform:translateY(-50%);background:rgba(255,255,255,.96);
           border-radius:20px;padding:22px 26px;min-width:420px}
@@ -360,7 +361,7 @@ body.player{overflow:auto}
 .bk-sec.manual{font-size:34px;line-height:1.5;margin-top:12px}
 .bk-hint{font-size:16px;color:var(--dim);margin-bottom:14px}
 .bk-rank{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
-.bk-rank .bk-p{background:#ffffff;border-radius:12px;padding:8px 13px;font-size:15px;font-weight:800}
+.bk-rank .bk-p{background:#ffffff;border-radius:12px;padding:10px 16px;font-size:22px;font-weight:800}
 .bk-rank .bk-p.top{background:#ffe9a8;color:#a85a00}
 .hud-mute{position:absolute;right:22px;top:388px;z-index:40;
            width:56px;height:56px;font-size:24px;border-radius:50%;padding:0;
@@ -413,6 +414,7 @@ body.player{overflow:auto}
 .mp-row{background:#ffffff;border-radius:11px;padding:10px 12px;display:flex;
         align-items:center;gap:10px;font-size:14px}
 .mp-row.mine{background:#d3f4ee}
+.mp-spy{flex-basis:100%;font-size:13px;color:#1a5276;background:#eaf6ff;border-radius:8px;padding:6px 9px;margin-top:6px}
 .mp-row.free{border:1px dashed #bfe4f8}
 .mp-dot{width:12px;height:12px;border-radius:50%;flex:none}
 .mp-name{font-weight:800;min-width:96px}
@@ -427,7 +429,8 @@ body.player{overflow:auto}
 .hud-dots .dot.on{background:#4ade80}
 .hud-dots .dot.lost{background:#f87171}
 .hud-dots .dot.none{background:#b9cfe0;color:#4a6f8f}
-.pl-ver{position:fixed;right:8px;bottom:6px;z-index:5;font-size:10px;color:rgba(15,61,94,.55);pointer-events:none}
+.pl-ver{position:fixed;right:8px;bottom:6px;z-index:5;font-size:12px;color:#0f3d5e;
+        background:rgba(255,255,255,.85);border-radius:8px;padding:2px 6px;pointer-events:none}
 #ended{padding:22px 16px;min-height:100vh;display:flex;align-items:center;justify-content:center}
 .ended-box{width:100%;max-width:520px;background:#ffffff;border-radius:20px;padding:24px 20px;
            border:2px solid var(--gold);text-align:center}
@@ -498,6 +501,16 @@ body.player{overflow:auto}
 .pick-card{background:#eaf6ff;border-radius:14px;padding:10px;text-align:center;cursor:pointer;
            border:2px solid transparent}
 .pick-card.taken{opacity:.32;cursor:not-allowed}
+.hand-card.taken{opacity:.35;cursor:not-allowed}
+
+/* 作答中 toast 提示條改貼底部：原本固定在 top:120px，剛好壓在題目正中央，
+   預測卡、買提示的提示一跳出來，全班就有 2.6 秒看不到題目 */
+.hud-question:not(.hidden) ~ .hud-toast{top:auto;bottom:170px}
+
+/* 本節結束的排名面板出現時，把右側的靜音鍵與連線圓點讓開
+   （它們是固定位置，排名一長必定被壓在下面） */
+.hud-rank:not(.hidden) ~ .hud-mute{display:none}
+.hud-rank:not(.hidden) ~ #hudDots{display:none}
 .pick-card.on{border-color:#a85a00}
 .pick-card img{width:100%;height:110px;object-fit:contain;object-position:bottom}
 .pick-card .n{font-size:14px;font-weight:900;margin-top:5px}

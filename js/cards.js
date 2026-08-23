@@ -2,7 +2,7 @@
  * 分兩套系統（照大富翁4）：
  *   道具 tool ── 放到地圖上、影響「移動」
  *   卡片 card ── 影響「錢、地產、狀態」
- * 另有 22 張角色專屬卡（char），每 5 輪自動發一張給該角色
+ * 另有 22 張角色專屬卡（char），每 10 輪自動發一張給該角色
  *
  * needTarget: null | 'player' | 'cell' | 'ownLand' | 'enemyLand' | 'color'
  * timing: 'anytime'（自己的行動階段）| 'onPay'（被收過路費時）| 'onQuestion'（答題階段）
@@ -64,7 +64,7 @@
         desc: '全體玩家的「現金」平分。⚠️ 只平分現金，不動銀行存款——想反制就要提早把錢存進銀行。' })
   ];
 
-  // ── 角色專屬卡（每 5 輪自動發一張）──
+  // ── 角色專屬卡（每 10 輪自動發一張）──
   var CHAR_CARDS = [
     C({ id: 'apple', name: '落地卡', emoji: '🍎', owner: '牛頓', needTarget: 'player',
         desc: '指定一組，他下一輪的骰點減半（無條件捨去）。' }),
@@ -116,6 +116,12 @@
   // 商店販售的品項 = 公共卡片 + 四大道具
   var SHOP_POOL = CARDS.concat(TOOLS);
 
+  // 破壞類卡片清單（老師可以在開場設定關閉）。
+  // 只在這裡定義一份，引擎與白板都用它，才不會兩邊清單不同步。
+  // （內容照搬白板原本的 SABOTAGE_CARDS，行為不變）
+  var SABOTAGE = ['virus', 'barrier', 'demolish', 'quake', 'blackout',
+                  'radiate', 'apple', 'compress', 'brownout'];
+
   var ALL = {};
   TOOLS.concat(CARDS).forEach(function (c) { ALL[c.id] = c; });
   var CHAR_BY_ID = {};
@@ -140,6 +146,7 @@
 
   global.CARDS = {
     TOOLS: TOOLS, CARDS: CARDS, CHAR_CARDS: CHAR_CARDS, SHOP_POOL: SHOP_POOL,
+    SABOTAGE: SABOTAGE,
     get: get, shelf: shelf, HAND_LIMIT: 8
   };
 })(typeof window !== 'undefined' ? window : globalThis);

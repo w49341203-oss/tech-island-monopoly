@@ -30,7 +30,7 @@
     rpSubsidy: 40,
     rpChest: 100,
     rpPacket: 60,
-    rpNews: 25,
+    rpNews: 80,                  // 新聞快報的研發補助（原本事件寫死 80、這裡寫 25，以實際為準統一）
     mergerMult: 2,           // 併購 = 現值 ×2
     radiationDamage: 5000,
     virusFuse: 5,            // 病毒倒數
@@ -45,7 +45,7 @@
   };
 
   var GODS = [
-    { id: 'order',  name: '訂單之神', emoji: '📈', good: true,  desc: '踩到別人的地完全不用付過路費' },
+    { id: 'order',  name: '訂單之神', emoji: '📈', good: true,  desc: '踩到別人的地完全不用付過路費；自己的地收過路費 ×2' },
     { id: 'grant',  name: '補助之神', emoji: '🎁', good: true,  desc: '每輪送卡片、買地半價還附贈蓋一層、蓋房多一級' },
     { id: 'build',  name: '建廠之神', emoji: '🏗️', good: true,  desc: '每經過自己的地自動升一級' },
     { id: 'stock',  name: '庫存之神', emoji: '📉', good: false, desc: '買地必流標、手上卡片掉一半' },
@@ -609,6 +609,12 @@
     var rent = B.baseRent(idx, state.board.level[idx] || 0, hasFullColor(state, idx));
     if (p.god === 'fx') rent *= 2;
     var op = state.players[owner];
+    // 地主被關在檢調所或住院中，收不到過路費（規則文件與大富翁4皆如此）
+    if (op.frozen > 0) {
+      out.events.push({ type: 'ownerFrozen', owner: owner });
+      log(state, '🏥 ' + op.name + ' 停機中，收不到 ' + p.name + ' 的過路費', 'info');
+      return out;
+    }
     if (op.god === 'order') rent *= 2;
     if (op.buff.surge) rent *= 2;
     if (op.buff.brownout) rent = Math.round(rent / 2);
@@ -758,11 +764,19 @@
     // 只能買「公共卡」。角色專屬卡的 cost 統一是 0（本來就不是用買的），
     // 以前 CARD.get 找不到公共卡時會退回去找專屬卡，於是 0 點就能把
     // 瞬移卡、絕緣卡、複製卡整批搬回家 —— 實測一次可以買到手牌上限。
+    // 貨架賣的是「公共卡＋道具卡」（SHOP_POOL）。之前只查公共卡，
+    // 結果貨架上陳列的勒索病毒、巡檢機器人等道具卡買不到，點了也沒反應。
     var def = null;
-    for (var ci = 0; ci < CARD.CARDS.length; ci++) {
-      if (CARD.CARDS[ci].id === cardId) { def = CARD.CARDS[ci]; break; }
+    for (var ci = 0; ci < CARD.SHOP_POOL.length; ci++) {
+      if (CARD.SHOP_POOL[ci].id === cardId) { def = CARD.SHOP_POOL[ci]; break; }
     }
     if (!def) return { ok: false, msg: '創投商店沒有賣這張卡' };
+    // 負債中不能買卡（規則文件明定；也防止破產的組還在囤卡）
+    if (p.cash < 0) return { ok: false, msg: '現金是負的，先處理債務才能買卡' };
+    // 老師關閉破壞類道具時，商店也不賣（不然點數白花）
+    if (state.cfg && state.cfg.allowSabotage === false && CARD.SABOTAGE.indexOf(cardId) >= 0) {
+      return { ok: false, msg: '這節課老師關閉了破壞類道具' };
+    }
     // 而且只能買「這次貨架上真的有陳列」的那幾張，不能指定買任何一張
     var shelf = shopShelfFor(state, p.pos);
     if (shelf.indexOf(cardId) < 0) return { ok: false, msg: '這張卡不在這次的貨架上' };
@@ -846,6 +860,11 @@
       }
     }
 
+    // 停機中（被關、住院）不能出牌 —— 規則文件明定「完全不能動作」。
+    // 唯一例外是嫁禍卡：它的用途就是把停機轉給別人。
+    if (p.frozen > 0 && cardId !== 'transfer') {
+      return { ok: false, msg: '停機中不能出牌（嫁禍卡除外）' };
+    }
     // 遊戲還沒開始（選角、等待階段）不能出牌——防止學生在大廳就互丟道具
     // 只擋選角／等待開始的階段。道具階段時 round 可能還是 0（第一輪還沒開始），
     // 不能用 round 判斷，否則第一輪的道具時間會出不了牌。
@@ -893,10 +912,12 @@
     var r = { ok: true };
     switch (cardId) {
       case 'equalize': {
-        var total = 0, n = 0;
-        for (var k in state.players) { total += state.players[k].cash; n++; }
-        var avg = Math.round(total / n);
-        for (var k2 in state.players) state.players[k2].cash = avg;
+        var total = 0, ids = [];
+        for (var k in state.players) { total += state.players[k].cash; ids.push(k); }
+        // 用「無條件捨去＋餘數逐一分配」，總額一毛不差（四捨五入會憑空多錢或蒸發）
+        var avg = Math.floor(total / ids.length);
+        var rem = total - avg * ids.length;
+        ids.forEach(function (k2, i2) { state.players[k2].cash = avg + (i2 < rem ? 1 : 0); });
         log(state, '🔄 ' + p.name + ' 打出均富卡！全體現金平分為 $' + avg.toLocaleString() + '（存款不受影響）', 'big');
         r.avg = avg;
         break;
@@ -909,7 +930,12 @@
       case 'reverse': p.buff.reverse = 1; break;
       case 'engine': p.buff.engine = 3; break;
       case 'observe': p.buff.observe = 1; break;
-      case 'float': if (p.cash < 0) p.cash = 0; break;
+      case 'float': {
+        // 現金不是負的就不收卡（以前直接吃掉，等於手滑白丟一張卡）
+        if (p.cash >= 0) return { ok: false, msg: '現金不是負的，這張卡現在用不到（先留著）' };
+        p.cash = 0;
+        break;
+      }
       case 'apple': if (tp) tp.buff.halfdice = 1; break;
       case 'blackout': {
         if (!tp) return { ok: false, msg: '要指定一組' };
@@ -948,7 +974,11 @@
       }
       case 'transfer': {
         if (!tp) return { ok: false, msg: '要指定一組' };
-        if (p.virus > 0) { tp.virus = p.virus; p.virus = 0; }
+        if (p.virus > 0) {
+          // 對方已經中毒的話，取比較快爆炸的那個倒數（覆蓋會等於幫他延後爆炸）
+          tp.virus = tp.virus > 0 ? Math.min(tp.virus, p.virus) : p.virus;
+          p.virus = 0;
+        }
         if (p.god === 'stock' || p.god === 'fx') { tp.god = p.god; tp.godTurns = p.godTurns; p.god = null; p.godTurns = 0; }
         if (p.frozen > 0) { tp.frozen = p.frozen; p.frozen = 0; }
         break;
@@ -992,13 +1022,20 @@
         break;
       }
       case 'robot': {
+        // 從自己站的這一格開始掃（含自己），一路往前 10 格。
+        // 以前漏掉兩件事：起點那一格沒掃（自救會失敗）、
+        // 玩家身上的勒索病毒沒清（說明明明寫了會清）。
         var pos = p.pos;
-        for (var s = 1; s <= 10; s++) {
-          var nx = (B.ADJ[pos] || [(pos + 1) % B.RING])[0];
-          delete state.board.barrier[nx];
-          delete state.board.radiation[nx];
-          for (var g2 in state.players) if (state.players[g2].pos === nx) { state.players[g2].god = null; state.players[g2].godTurns = 0; }
-          pos = nx;
+        for (var s = 0; s <= 10; s++) {
+          delete state.board.barrier[pos];
+          delete state.board.radiation[pos];
+          for (var g2 in state.players) {
+            if (state.players[g2].pos === pos) {
+              state.players[g2].god = null; state.players[g2].godTurns = 0;
+              state.players[g2].virus = 0;
+            }
+          }
+          pos = (B.ADJ[pos] || [(pos + 1) % B.RING])[0];
         }
         break;
       }
@@ -1023,9 +1060,13 @@
       case 'predict': r.rerollQuestion = true; break;
       case 'copycard': {
         if (!state.lastCardPlayed) return { ok: false, msg: '目前還沒有人打出過卡片' };
+        // 複製卡自己會離手，所以手牌不會超過上限；但保險起見還是檢查
+        if (p.cards.length > CFG.handLimit) return { ok: false, msg: '手牌已滿' };
+        var copiedDef = CARD.get(state.lastCardPlayed, true) || {};
         removeCard(p, cardId);
-        p.cards.push({ id: state.lastCardPlayed });
-        log(state, '🧬 ' + p.name + ' 複製了「' + (CARD.get(state.lastCardPlayed, true) || {}).name + '」', 'card');
+        // 帶上 char 旗標：複製到角色專屬卡時，出牌時才找得到正確的卡片定義
+        p.cards.push({ id: state.lastCardPlayed, char: !!copiedDef.owner });
+        log(state, '🧬 ' + p.name + ' 複製了「' + (copiedDef.name || state.lastCardPlayed) + '」', 'card');
         return { ok: true, copied: state.lastCardPlayed };
       }
       case 'license': case 'pardon': case 'insulate': case 'bounce':
@@ -1046,7 +1087,7 @@
   var NEWS = [
     { text: 'AI 需求爆發，獲得 $15,000 訂單', apply: function (s, g) { s.players[g].cash += 15000; } },
     { text: '匯率大幅波動，損失 $8,000', apply: function (s, g) { payTo(s, g, null, 8000); } },
-    { text: '獲得政府研發補助 +80 點', apply: function (s, g) { s.players[g].rp += 80; } },
+    { text: '獲得政府研發補助 +' + CFG.rpNews + ' 點', apply: function (s, g) { s.players[g].rp += CFG.rpNews; } },
     { text: '缺工潮，支付加班費 $5,000', apply: function (s, g) { payTo(s, g, null, 5000); } },
     { text: '技術突破，隨機一塊自有地免費升一級', apply: function (s, g) {
         var mine = landsOf(s, g).filter(function (i) { return (s.board.level[i] || 0) < 5; });
@@ -1110,28 +1151,40 @@
       for (var a in p.alliance) { p.alliance[a]--; if (p.alliance[a] <= 0) delete p.alliance[a]; }
       // 引擎卡倒數
       if (p.buff.engine > 0) { p.buff.engine--; if (!p.buff.engine) delete p.buff.engine; }
-      // 一次性 buff 清除。
-      // 骰子類的卡（過熱、雙骰、逆轉、落地、良率控制器）本來只在真的擲到骰子時
-      // 才會被消耗，但答錯的組、停機的組、用瞬移卡的組整輪都不擲骰，
-      // 那張卡就會留到好幾輪之後才突然爆出來（白板顯示「3 + 4 = 14」，全班愣住）。
-      ['surge', 'pierce', 'brownout', 'observe', 'peek',
-       'overheat', 'twindice', 'reverse', 'halfdice', 'fixedDice']
+      // 一次性 buff 清除（當輪有效的那幾種）。
+      // 骰子類的卡（過熱、雙骰、逆轉、落地、良率控制器）依卡片說明是
+      // 「下一次擲骰時生效」，所以保留到真的擲骰才消耗 ——
+      // 答錯或停機那一輪沒擲骰，卡的效果會順延，不會白出。
+      // 白板骰子畫面會把算式寫清楚（3 + 4 = 7 → 過熱卡 ×2 → 14），不會看不懂。
+      ['surge', 'pierce', 'brownout', 'observe', 'peek']
         .forEach(function (b) { delete p.buff[b]; });
 
-      // 貸款到期：現金不足就自動賣掉最便宜的廠抵債
+      // 貸款到期：現金不足就自動賣掉最便宜的廠抵債。
+      // 這裡不能走 repayLoan()——那是給玩家按的，會先檢查「輪到你了沒、
+      // 站在銀行沒」，系統結算永遠不會通過，結果變成：錢夠也還不掉、
+      // 錢不夠會把土地全部賣光但債還在，之後利息永久凍結（實際發生過）。
       if (p.loan > 0 && state.round >= p.loanDue) {
-        var need = p.loan;
-        if (p.cash + p.bank >= need) { repayLoan(state, gid, need); }
-        else {
+        var settle = function () {
+          var pay = Math.min(p.loan, p.cash + p.bank);
+          if (pay <= 0) return;
+          var fromCash = Math.min(pay, p.cash);
+          p.cash -= fromCash;
+          p.bank -= (pay - fromCash);
+          p.loan -= pay;
+          if (p.loan <= 0) { p.loan = 0; p.loanDue = 0; }
+        };
+        settle();
+        if (p.loan > 0) {
           var mine = landsOf(state, gid).sort(function (x, y) { return B.CELLS[x].price - B.CELLS[y].price; });
           while (p.loan > 0 && mine.length) {
             var sell = mine.shift();
             p.cash += B.landValue(sell, state.board.level[sell] || 0);
             delete state.board.owner[sell]; delete state.board.level[sell];
             log(state, '⚠️ ' + p.name + ' 貸款到期，強制賣出 ' + B.CELLS[sell].name + ' 抵債', 'bad');
-            if (p.cash >= p.loan) { repayLoan(state, gid, p.loan); }
+            settle();
           }
         }
+        if (p.loan > 0) log(state, '💸 ' + p.name + ' 資產賣光仍欠 $' + p.loan.toLocaleString() + '，下輪繼續追討', 'bad');
       }
       // 角色專屬卡：每 10 輪發一張
       if (state.round % CFG.charCardEvery === 0 && p.charId && p.cards.length < CFG.handLimit) {
@@ -1183,11 +1236,16 @@
     Object.keys(pub.players || {}).forEach(function (g) {
       var p = pub.players[g];
       if (p.buff) delete p.buff.peek;                 // 感應卡看到的答案不外流
-      // 手牌是秘密：只送張數，內容改由下面的「私人區」單獨送給本人
+      // 手牌是秘密：只送張數，內容改由下面的「私人區」單獨送給本人。
+      // 但「有沒有絕緣卡」是刻意公開的（地圖上的盾牌標記，要讓全班
+      // 知道打這一組會被擋），所以留一個旗標，平板的地圖才畫得出來。
+      p.shield = (state.players[g].cards || []).some(function (c) { return c.id === 'insulate'; });
       p.handCount = (p.cards || []).length;
       delete p.cards;
     });
 
+    // 被拒絕的操作訊息（「點數不足」「還沒輪到你」…）也放進私人區，
+    // 平板才能顯示原因 —— 以前全部無聲吞掉，學生只覺得「按了沒反應」。
     // 私人區：每一組只放自己的東西。
     // 註：這份文件是全班共用的，所以一個真的會寫程式的學生還是有辦法
     //     撈到別人的私人區。真正的防線在「這些資料改不了分數」——
@@ -1198,7 +1256,8 @@
       pub.priv[g] = {
         cards: JSON.parse(JSON.stringify(sp.cards || [])),
         peek: (sp.buff && sp.buff.peek) || null,
-        hints: hintsFor(state, g)
+        hints: hintsFor(state, g),
+        reject: (state.rejects && state.rejects[g]) || null
       };
       // 觀測卡：這一輪看得到全部人的手牌（卡片說明就是這樣寫的）
       if (sp.buff && sp.buff.observe) {
@@ -1209,13 +1268,27 @@
       }
     });
 
+    delete pub.rejects;                 // 各組被拒的原因只放各自的私人區，不整包廣播
     if (pub.seats) {
-      // 座位鎖的裝置代號等於「冒充這一組」的鑰匙，不可以發給全班
+      // 座位鎖的裝置代號等於「冒充這一組」的鑰匙，不可以直接發給全班。
+      // 但平板選組畫面需要知道「這一組是不是被別台佔走」，
+      // 所以發一個算得出來、還原不回去的短代碼（雜湊），
+      // 平板拿自己的裝置代號算同一條公式就能比對是不是自己。
       Object.keys(pub.seats).forEach(function (g) {
-        pub.seats[g] = { taken: true };
+        var seat = state.seats[g] || {};
+        pub.seats[g] = { taken: true, who: devTag(seat.dev), at: seat.at || 0 };
       });
     }
     return pub;
+  }
+
+  /** 裝置代號 → 不可逆的 6 碼標籤（平板端用同一條公式比對自己） */
+  function devTag(dev) {
+    if (!dev) return '';
+    var h = 5381;
+    var s = String(dev);
+    for (var i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+    return h.toString(36).slice(0, 6);
   }
 
   /** 這一組已經買到的提示（沒買就是空的） */
@@ -1238,6 +1311,6 @@
     playCard: playCard, endTurn: endTurn, endRound: endRound,
     wealth: wealth, ranking: ranking, landsOf: landsOf, hasFullColor: hasFullColor,
     hasCard: hasCard, removeCard: removeCard, money: money, shopShelfFor: shopShelfFor,
-    backSteps: backSteps, nearbyCells: nearbyCells
+    backSteps: backSteps, nearbyCells: nearbyCells, devTag: devTag
   };
 })(typeof window !== 'undefined' ? window : globalThis);

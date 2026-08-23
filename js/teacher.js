@@ -40,8 +40,9 @@
       .forEach(function (id) { var e = $(id); if (e) e.classList.add('hidden'); });
   }
   // 「開放破壞類道具」開關關掉時，這些卡片道具一律無效
-  var SABOTAGE_CARDS = ['virus', 'barrier', 'demolish', 'quake', 'blackout',
-                        'radiate', 'apple', 'compress', 'brownout'];
+  // 破壞類卡片清單只在 cards.js 定義一份（引擎的商店檢查也用同一份），
+  // 兩邊清單不同步的話會發生「白板擋了、商店照賣」這種怪事
+  var SABOTAGE_CARDS = window.CARDS.SABOTAGE;
   var $ = function (id) { return document.getElementById(id); };
 
   // ═══════════════════════════════════════
@@ -192,9 +193,18 @@
     st.itemReady = {};
     st.pendingCards = [];
     st.seats = {};                 // 續玩時座位重新認領（上次那幾台平板不一定還在）
+    st.log = st.log || [];         // 雲端存檔沒有 log（省流量被刪掉了），不補會當掉
+    st.paused = false;             // 暫停旗標絕不能跟著存檔復活（全班平板會卡在暫停中）
+    delete st.decide;              // 「某組行動中」也是執行中狀態，載入時要清掉
+    st.rejects = {};
     Object.keys(st.players || {}).forEach(function (g) {
       var p = st.players[g];
       p.buff = p.buff || {};
+      // 換電腦續玩：雲端存的是「公開版」狀態，手牌被搬進 priv 私人區，
+      // 不接回來的話全班的手牌會整批消失（實際發生過）
+      if ((!p.cards || !p.cards.length) && st.priv && st.priv[g] && st.priv[g].cards) {
+        p.cards = st.priv[g].cards;
+      }
       p.cards = p.cards || [];
       p.cash = p.cash || 0;
       p.bank = p.bank || 0;
@@ -202,6 +212,7 @@
       p.loan = p.loan || 0;
       p.playedThisRound = 0;
     });
+    delete st.priv;                // 手牌接回來之後，私人區就不用留了
     return st;
   }
 
@@ -276,12 +287,17 @@
         S.setMode('firebase', gameId);
         S.setWriteErrorHandler(function (e) {
           var denied = /permission|insufficient/i.test(e.message || '');
+          // permission-denied 有四種可能，不能一律說「被別台開著」——
+          // 老師會照著錯的方向處理（例如規則根本沒發布，她卻在找另一台電腦）
           toast(denied
-            ? '⚠️ 雲端拒絕寫入：這一場正被另一台電腦開著。請關掉那一台，等 10 分鐘後再接續；' +
-              '若那台已經關了，直接用原本那台電腦開就好（本機也有存檔）'
-            : '⚠️ 雲端連線有問題，平板可能看不到最新畫面', 8000);
+            ? '⚠️ 雲端拒絕寫入（' + (e.code || 'permission-denied') + '）。可能原因：' +
+              '① 這一場正被另一台電腦開著（關掉那台等 10 分鐘再試）　' +
+              '② Firebase 的安全規則還沒發布或已過期（到主控台重新發布 firestore.rules）　' +
+              '③ 這台電腦的匿名身分換了（清過快取/無痕視窗；等 10 分鐘就能接手）'
+            : '⚠️ 雲端連線有問題，平板可能看不到最新畫面', 12000);
         });
-        S.watchActions(function (a) { handleAction(fromNetwork(a)); S.clearAction(a.gid); });
+        S.setActionNonce(state.nonce);      // 只收「這一場」的動作，別場殘留直接刪
+        S.watchActions(function (a) { handleAction(fromNetwork(a)); });
         return S.openRoom(code, { groups: cfg.groups });
       }).then(function () {
         pushRemote();
@@ -616,6 +632,9 @@
       // 這時電腦代打會出一張學生沒選過的牌，學生會完全不知道發生什麼事。
       // 少出一張牌沒關係，出了一張沒人選的牌才是災難。
       if (everOnline[gid] && !cfg.solo) return;
+      // 第 1 輪不代打出牌：有些組的平板開場才連上，第一次心跳到達前
+      // 會被誤判成沒平板，電腦把他們的手牌花掉就再也拿不回來了
+      if (!cfg.solo && state.round <= 1) return;
       var p = state.players[gid];
       if (!p.cards.length) return;
       if (Math.random() < 0.45) return;          // 不是每輪都出，留一點變化
@@ -708,6 +727,7 @@
   }
 
   function showPlayerHUD(gid) {
+    if (sessionOver) return;   // 結束本節後，殘留的流程不能再把面板叫回來蓋住排名
     var p = state.players[gid], ch = window.charById(p.charId);
     $('hudPlayer').classList.remove('hidden');
     if (ch) {
@@ -772,6 +792,7 @@
   // ═══════════════════════════════════════
   /** 一輪的完整流程：道具階段 → 出題 → 揭曉 → 依序行動 → 結算 → 自動下一輪 */
   function runRound() {
+    if (busy) return;      // 防重入：900ms 空檔按「暫停→繼續」會被觸發兩次，同一輪跑兩遍
     if (sessionOver) { busy = false; return; }
     if (autoPaused) { busy = false; return; }
     if (state.phase === 'ended' || state.round >= state.maxRounds) { endSession(); return; }
@@ -792,6 +813,7 @@
     var sec = cfg.breakSec == null ? 60 : cfg.breakSec;
     var manual = (sec === 0);
 
+    $('hudPlayer').classList.add('hidden');   // 左下角的玩家資訊卡只在有人行動時出現
     var box = $('hudBreak');
     $('bkTitle').textContent = '第 ' + state.round + ' 輪結束';
     $('bkRank').innerHTML = E.ranking(state).slice(0, 5).map(function (x, i) {
@@ -814,6 +836,7 @@
 
       function finish() {
         if (done) return;
+        if (autoPaused) return;            // 暫停中不能開始下一輪（先按「繼續」）
         done = true;
         clearInterval(iv);
         box.classList.add('hidden');
@@ -853,8 +876,13 @@
   /** 道具階段：固定秒數，各組在平板上出牌，白板顯示倒數與誰用了什麼 */
   function itemPhase() {
     if (sessionOver) return Promise.resolve();
-    // 全班都沒有平板連進來（單機試玩）就不用等 30 秒，直接短暫帶過
-    var anyTablet = Object.keys(state.players).some(isOnline);
+    // 全班都沒有平板連進來（單機試玩）就不用等 30 秒，直接短暫帶過。
+    // 判斷要用「整場曾經連上過」（everOnline）而不是當下的心跳 ——
+    // 全班平板同時鎖屏或 Wi-Fi 掉兩分鐘，當下心跳全滅，
+    // 道具時間就會被誤縮成 4 秒，整輪沒有人出得了牌。
+    var anyTablet = Object.keys(state.players).some(function (g) {
+      return everOnline[g] || isOnline(g);
+    });
     var sec = anyTablet ? (cfg.itemSec || 30) : 4;
     if (!sec) return Promise.resolve();
     var box = $('hudItemPhase');
@@ -878,8 +906,12 @@
         if (autoPaused) return;
         left--;
 
-        // 在線的組全部表態完就提早結束（沒有平板的組不算，他們不會出牌）
-        var onlineGids = Object.keys(state.players).filter(isOnline);
+        // 在線的組全部表態完就提早結束（沒有平板的組不算，他們不會出牌）。
+        // 名單用「曾經連上過」算：iPad 鎖屏兩分鐘心跳就斷了，
+        // 用當下心跳算會把還在挑牌的那一組踢出等待名單、提早結束。
+        var onlineGids = Object.keys(state.players).filter(function (g) {
+          return isOnline(g) || everOnline[g];
+        });
         var allReady = onlineGids.length > 0 && onlineGids.every(function (g) {
           return state.itemReady[g] || (state.players[g].playedThisRound || 0) >= 2;
         });
@@ -923,6 +955,7 @@
 
     return queue.reduce(function (chain, item, idx) {
       return chain.then(function () {
+        if (sessionOver) return;           // 老師按了結束本節：別再播效果、別再改狀態
         var p = state.players[item.gid];
         var def = CARD.get(item.cardId, item.char);
         if (!p || !def) return;
@@ -952,7 +985,8 @@
 
         R.drawBoard(state); R.drawPlayers(state); R.updateMinimap(state);
         pushRemote();
-        return new Promise(function (res) { setTimeout(res, 2600); });
+        // 計時器要登記進 phaseTimers，「結束本節」的 clearPhaseTimers 才清得掉
+        return new Promise(function (res) { regTimer(setTimeout(res, 2600)); });
       });
     }, Promise.resolve()).then(function () {
       box.classList.add('hidden');
@@ -1036,6 +1070,7 @@
   }
 
   function showQuestion(q) {
+    $('hudPlayer').classList.add('hidden');   // 出題時收掉左下角的玩家資訊卡
     var box = $('hudQuestion');
     box.classList.remove('hidden');
     $('qText').textContent = q.text;
@@ -1053,6 +1088,7 @@
 
     clearInterval(timer);
     timer = setInterval(function () {
+      if (autoPaused) return;              // 老師按暫停：作答倒數也要凍結（平板顯示暫停中）
       left--;
       $('qSec').textContent = Math.max(0, left);
       $('qBar').style.width = (left / total * 100) + '%';
@@ -1061,7 +1097,18 @@
       botAnswer(left, total);
       pumpActions();
       renderLights();
-      if (left <= 0) { clearInterval(timer); SOUND.play('timeUp'); doReveal(); }
+      if (left <= 0) {
+        clearInterval(timer);
+        SOUND.play('timeUp');
+        // 別立刻揭曉：學生在最後一秒按的答案還在網路上飛（校園 Wi-Fi 常要 1~2 秒）。
+        // 留 1.3 秒寬限，這段時間 phase 還是 question、照樣收答案 ——
+        // 不然那一組平板顯示「已送出」，白板卻把答案丟掉，整輪不能行動。
+        regTimer(setTimeout(function () {
+          if (sessionOver) return;
+          pumpActions();                    // 本機模式的最後一批也收進來
+          doReveal();
+        }, 1300));
+      }
     }, 1000);
   }
 
@@ -1081,6 +1128,10 @@
     Object.keys(state.players).forEach(function (gid) {
       if (!isBot(gid)) return;
       if (everOnline[gid] && !cfg.solo) return;   // 有平板的組不代答，讓學生自己來
+      // 只在最後 3 秒才代答：遊戲開始後才連進來的組，第一次心跳還沒到之前
+      // 會被誤判成「沒平板」——電腦太早代答會把他們的作答權搶走
+      //（一組只能作答一次，電腦答了學生就答不了）。
+      if (!cfg.solo && left > 3) return;
       if (state.answers[gid] || state.players[gid].frozen > 0) return;
       if (Math.random() < 0.28) {
         var q = state.question;
@@ -1152,10 +1203,12 @@
     }
     switch (a.type) {
       case 'answer': E.submitAnswer(state, a.gid, a.choice, a.timeMs); break;
-      case 'hint': E.buyHint(state, a.gid, a.level); break;
+      case 'hint': reject(a.gid, E.buyHint(state, a.gid, a.level)); break;
       case 'card': {
         if (state.cfg && state.cfg.allowSabotage === false && SABOTAGE_CARDS.indexOf(a.cardId) >= 0) {
-          break;                                 // 老師關閉了破壞類道具
+          // 以前這裡無聲 break，學生的牌看起來「按了沒反應」——要講出原因
+          reject(a.gid, { ok: false, msg: '這節課老師關閉了破壞類道具，這張卡出不了' });
+          break;
         }
         var pl = state.players[a.gid];
         if ((pl.playedThisRound || 0) >= 2) break;   // 每輪最多出 2 張
@@ -1201,13 +1254,18 @@
           R.focusOn(a.gid, state);
           toast(state.players[a.gid].num + '組 瞬移到 ' + B.CELLS[state.players[a.gid].pos].name, 2400);
         }
+        if (cardResult && cardResult.ok && a.cardId === 'quake' && state.board.quakeColor) {
+          var qz = B.COLORS[state.board.quakeColor];
+          toast('🌊 ' + (qz ? qz.name : '') + '園區地震！這一輪全區停產，踩到不用付過路費', 3600);
+          SPEAK.say((qz ? qz.name : '') + '園區地震，這一輪全區停產', true);
+        }
         if (cardResult && cardResult.ok && cardResult.fixedDice) {
           toast(state.players[a.gid].num + '組 良率控制器：下次骰 ' + cardResult.fixedDice + ' 點', 2400);
         }
         break;
       }
       case 'buy': {
-        var rb = E.buyLand(state, a.gid, state.players[a.gid].pos);
+        var rb = reject(a.gid, E.buyLand(state, a.gid, state.players[a.gid].pos));
         if (rb.ok) {
           SOUND.play('buy');
           var bn = B.CELLS[state.players[a.gid].pos].name;
@@ -1217,7 +1275,7 @@
         break;
       }
       case 'build': {
-        var rr = E.build(state, a.gid, state.players[a.gid].pos, a.times);
+        var rr = reject(a.gid, E.build(state, a.gid, state.players[a.gid].pos, a.times));
         if (rr.ok) {
           SOUND.play('build');
           toast(state.players[a.gid].num + '組 蓋到 ' + B.LEVEL_NAME[rr.level], 2000);
@@ -1239,11 +1297,11 @@
         state.itemReady[a.gid] = true;
         break;
       }
-      case 'deposit': E.deposit(state, a.gid, a.amount); break;
-      case 'withdraw': E.withdraw(state, a.gid, a.amount); break;
-      case 'loan': E.applyLoan(state, a.gid, a.amount); break;
-      case 'repay': E.repayLoan(state, a.gid, a.amount); break;
-      case 'shop': E.buyFromShop(state, a.gid, a.cardId); break;   // 買卡不結束決定，可以連買
+      case 'deposit': reject(a.gid, E.deposit(state, a.gid, a.amount)); break;
+      case 'withdraw': reject(a.gid, E.withdraw(state, a.gid, a.amount)); break;
+      case 'loan': reject(a.gid, E.applyLoan(state, a.gid, a.amount)); break;
+      case 'repay': reject(a.gid, E.repayLoan(state, a.gid, a.amount)); break;
+      case 'shop': reject(a.gid, E.buyFromShop(state, a.gid, a.cardId)); break;   // 買卡不結束決定，可以連買
       case 'fork': pendingFork = a.cell; break;
       case 'pick': E.pickCharacter(state, a.gid, a.charId); renderLobby(); break;
       case 'hello':
@@ -1276,7 +1334,12 @@
     status('揭曉！正解 ' + r.answer);
 
     setTimeout(function () {
-      if (!r.order.length) { status('這輪沒有人答對，直接結算'); finishRound(); return; }
+      if (!r.order.length) {
+        $('hudQuestion').classList.add('hidden');   // 題目掛著不收會蓋住休息面板
+        status('這輪沒有人答對，直接結算');
+        finishRound();
+        return;
+      }
       showOrder(r.order);
     }, 1800);
   }
@@ -1303,6 +1366,19 @@
   var pendingFork = null;
   var decision = null;          // { gid: 'g1', done: false } —— 這一組有沒有按「我好了」
   var waitAbort = null;         // 正在等老師按鍵時，用它可以強制結束等待
+
+  /**
+   * 操作被拒時把原因記進 state.rejects[gid]，publicState 會把它放進
+   * 那一組的私人區，平板看到就顯示紅字。
+   * 以前所有失敗都無聲吞掉，學生只覺得「按了沒反應」，回報不完的怪問題
+   * 其實都是這個。
+   */
+  function reject(gid, r) {
+    if (!r || r.ok || !r.msg) return r;
+    state.rejects = state.rejects || {};
+    state.rejects[gid] = { msg: r.msg, at: Date.now() };
+    return r;
+  }
 
   /** 這一組在平板上按了「我好了／我買完了」。只是通知老師，不會自己換人。 */
   function markDecided(gid) {
@@ -1542,6 +1618,11 @@
       if (ev.type === 'hospital') SPEAK.say(SPEAK.groupSay(p) + '，送醫住院，停一輪');
       if (ev.type === 'god') SPEAK.say(SPEAK.groupSay(p) + '，被' + ev.name + '附身');
       if (ev.type === 'rent') lines.push('付過路費 $' + ev.amount.toLocaleString() + ' 給 ' + state.players[ev.owner].name);
+      if (ev.type === 'quake') {
+        var qc = B.COLORS[B.CELLS[p.pos].color];
+        lines.push('🌊 ' + (qc ? qc.name : '這一區') + '園區地震停產，這次不用付過路費');
+        SPEAK.say(SPEAK.groupSay(p) + '，這一區地震停產，不用付過路費');
+      }
       if (ev.type === 'rp') lines.push('研發點數 +' + ev.amount);
       if (ev.type === 'tax') lines.push('繳營所稅 $' + ev.amount.toLocaleString());
       if (ev.type === 'pool') lines.push('領走補助池 $' + ev.amount.toLocaleString());
@@ -1648,6 +1729,11 @@
     hideAllPanels();                      // 免得排名跟休息面板疊在一起
     delete state.breakUntil;
     delete state.itemUntil;
+    // 暫停旗標絕不能跟著存檔：下次續玩全班平板會永遠卡在「老師暫停中」
+    state.paused = false;
+    autoPaused = false;
+    pausedLeft = null;
+    delete state.decide;
     state.phase = 'ended';
     pushRemote();                         // 平板也要知道這一節結束了
     autoSave();
@@ -1661,7 +1747,7 @@
                '<span class="wl">$' + x.wealth.toLocaleString() + '</span></div>';
       }).join('') +
       '<div class="rank-code">下次接續請輸入編號　' + state.code + '</div>' +
-      '<div style="margin-top:10px;font-size:14px;color:#93a4bb">已自動存檔，下次可以接著玩。期末再看總財富定勝負。</div>' +
+      '<div style="margin-top:10px;font-size:15px;color:var(--dim)">已自動存檔，下次可以接著玩。期末再看總財富定勝負。</div>' +
       '<div class="rank-actions">' +
         '<button id="btnBackHome" class="big primary">回到首頁</button>' +
       '</div>';

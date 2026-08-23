@@ -23,6 +23,12 @@
     } catch (e) { return 'd' + Math.random().toString(36).slice(2, 10); }
   })();
   var state = null;
+  // 平板跟老師電腦的時鐘差多少（正值＝平板比較快）。
+  // 所有倒數都是「老師端的絕對時間戳 - 現在時間」算的，
+  // 平板的錶快 40 秒的話，道具時間一開始就會被判定超時、整節課出不了牌。
+  // 老師端每次推送狀態都帶著自己的時間（hostAt），拿來校正就好。
+  var clockSkew = 0;
+  function hostNow() { return Date.now() - clockSkew; }
   var answered = false, lastRound = -1, lastPhase = '';
   var selectedCard = null, hintLevel = 0;
 
@@ -126,8 +132,12 @@
 
     for (var i = 1; i <= n; i++) (function (k) {
       var s = seats['g' + k];
-      // 已經被別台平板佔走的組別不能選（超過 3 分鐘沒動靜的視為空出來）
-      var taken = s && s.dev && s.dev !== myDev && (Date.now() - (s.at || 0) < 180000);
+      // 已經被別台平板佔走的組別不能選（超過 3 分鐘沒動靜的視為空出來）。
+      // 白板不再把裝置代號廣播出來（那等於冒充別組的鑰匙），
+      // 改成比對不可逆的短代碼：拿自己的裝置代號算同一條公式就知道是不是自己。
+      var myTag = window.ENGINE ? window.ENGINE.devTag(myDev) : '';
+      var taken = s && (s.taken || s.dev) && (s.who || s.dev) !== (s.who != null ? myTag : myDev) &&
+                  (Date.now() - (s.at || 0) < 180000);
       var b = chip('第 ' + k + ' 組' + (taken ? '（已有平板）' : ''), false, function () {
         if (taken) {
           pmsg('joinMsg', '第 ' + k + ' 組已經有一台平板了，請選別組', 'err');
@@ -175,7 +185,16 @@
       }
       return Promise.resolve();
     }
-    action = Object.assign({ dev: myDev }, action);
+    action = Object.assign({ dev: myDev, nonce: state ? state.nonce : undefined }, action);
+    // 節流：同一種動作 800ms 內只送一次（心跳除外）。
+    // 學生連點按鈕就是連續的雲端寫入，額度會被白白吃掉。
+    if (action.type !== 'hello') {
+      var tk = action.type + '|' + (action.cardId || '');
+      var nowT = Date.now();
+      send._last = send._last || {};
+      if (send._last[tk] && nowT - send._last[tk] < 800) return Promise.resolve();
+      send._last[tk] = nowT;
+    }
     return S.sendAction(my.gid, action).catch(function (e) {
       console.warn('[send] ' + action.type + ' 失敗：' + e.message);
       var box = document.getElementById('pick').classList.contains('hidden') ? 'handMsg' : 'pickMsg';
@@ -222,11 +241,24 @@
     if (mine.peek) me.buff.peek = mine.peek;
     st.myHints = mine.hints || [];
     st.allCards = mine.allCards || null;      // 觀測卡：這一輪看得到全部人的手牌
+    st.myReject = mine.reject || null;        // 被拒絕的操作原因（「點數不足」…）
     return st;
+  }
+
+  // 操作被白板拒絕時顯示原因。只顯示 8 秒內的新訊息，
+  // 而且同一則只顯示一次（狀態每秒都會重送，不能每次都跳）。
+  var lastRejectAt = 0;
+  function showReject(st) {
+    var r = st.myReject;
+    if (!r || !r.at || r.at === lastRejectAt) return;
+    if (Date.now() - (r.at - clockSkew) > 8000) return;
+    lastRejectAt = r.at;
+    pmsg('handMsg', '⚠️ ' + r.msg, 'err');
   }
 
   function onState(st) {
     if (!st || !st.players) return;
+    if (typeof st.hostAt === 'number') clockSkew = Date.now() - st.hostAt;
     st = graftPrivate(st);
     // 換了新的一場遊戲（識別碼不同）就整個重置。
     // 沒有這一段的話，上一場遊戲留在雲端／本機的舊狀態會跟新遊戲互相蓋來蓋去，
@@ -298,6 +330,17 @@
     // 這裡以前用簽章擋住重複呼叫，結果只要進過一次選角畫面就再也回不到遊戲畫面
     //（那台平板整節課停在選角，題目當然不會出現）。show() 只是切 class，直接每次呼叫。
     if (sig.screen !== 'play') { resetSig(); sig.screen = 'play'; }
+
+    // 地圖是整片蓋住畫面的遮罩。除了答題之外，「輪到自己行動」與「道具時間」
+    // 也要自動收掉 —— 不然學生開著地圖研究，買地按鈕出現了他看不到，
+    // 老師就會空等這一組。
+    var mustSee = (state.decide && state.decide.gid === my.gid) ||
+                  (state.phase === 'item' && state.itemUntil != null);
+    if (mustSee && sig.autoClosed !== state.phase + '|' + (state.decide && state.decide.gid)) {
+      sig.autoClosed = state.phase + '|' + (state.decide && state.decide.gid);
+      var mp = $('mapPanel');
+      if (mp && !mp.classList.contains('hidden')) mp.classList.add('hidden');
+    }
     show('play');
 
     // ══════════════════════════════════════════════════════
@@ -339,6 +382,7 @@
 
     // ── 以下都是輔助資訊，各自獨立，壞一個不會擋住上面的題目 ──
     guard('上方資訊', function () { renderTop(me); });
+    guard('被拒訊息', function () { showReject(state); });
 
     guard('手牌', function () {
       var sigHand = (me.cards || []).map(function (c) { return c.id + (c.char ? '*' : ''); }).join(',') +
@@ -363,7 +407,8 @@
       var sigAct = state.phase + '|' + E.currentGid(state) + '|' + me.pos + '|' +
                    (me.stepsLeft || 0) + '|' + (state.board.owner[me.pos] || '-') + '|' +
                    (state.board.level[me.pos] || 0) + '|' +
-                   (state.decide ? state.decide.gid : '-') + '|' + me.cash;
+                   (state.decide ? state.decide.gid : '-') + '|' + me.cash + '|' + me.rp +
+                   '|' + ((me.cards || []).length);
       if (changed('action', sigAct)) renderAction(me);
     });
 
@@ -603,14 +648,33 @@
       };
     });
     $('btnRankP').onclick = function () {
+      // 觀測卡：這一輪看得到全部人的存款與手牌（平常只看得到現金與地數）
+      var spy = state.allCards;
       var rows = E.ranking(state).map(function (x, i) {
         var p = state.players[x.gid];
+        var extra = '';
+        if (spy) {
+          var hand = spy[x.gid] || [];
+          extra = '<div class="mp-spy">🏦 存款 $' + (p.bank || 0).toLocaleString() +
+                  '　🎴 手牌 ' + hand.length + ' 張' +
+                  (hand.length
+                    ? '：' + hand.map(function (c) {
+                        var def = CARD.get(c.id, true);
+                        return def ? (def.emoji + def.name) : c.id;
+                      }).join('、')
+                    : '（空的）') + '</div>';
+        }
         return '<div class="mp-row' + (x.gid === my.gid ? ' mine' : '') + '">' +
                '<b style="min-width:26px">' + (i + 1) + '</b>' +
                '<span class="mp-name">' + p.name + '</span>' +
                '<span class="mp-right"><b>$' + x.wealth.toLocaleString() + '</b><br>' +
-               '現金 $' + p.cash.toLocaleString() + '　地 ' + E.landsOf(state, x.gid).length + ' 塊</span></div>';
+               '現金 $' + p.cash.toLocaleString() + '　地 ' + E.landsOf(state, x.gid).length + ' 塊</span>' +
+               extra + '</div>';
       }).join('');
+      if (spy) {
+        rows = '<div class="pl-msg" style="background:#0b3a5e;color:#e0f2fe">' +
+               '🔭 觀測卡生效中：這一輪看得到全部人的存款與手牌</div>' + rows;
+      }
       $('mapPanel').classList.remove('hidden');
       showMapView('list');
       $('mapList').innerHTML = rows;
@@ -721,6 +785,21 @@
       });
       t.textContent = ch.emoji;
       g.appendChild(t);
+
+      // 狀態標記：白板看得到誰有炸彈、誰被神附身，平板也要看得到
+      var marks = [];
+      if (p.virus > 0) marks.push('💣');
+      if (p.god) marks.push((window.ENGINE.godById(p.god) || {}).emoji || '👼');
+      if (p.frozen > 0) marks.push('⛔');
+      if (p.shield) marks.push('🛡️');
+      if (marks.length) {
+        var mt = window.RENDER.el('text', {
+          x: pos.x + 52, y: pos.y - 120, 'text-anchor': 'middle', 'font-size': 44,
+          stroke: '#ffffff', 'stroke-width': 6, 'paint-order': 'stroke'
+        });
+        mt.textContent = marks.join('');
+        g.appendChild(mt);
+      }
       var n = window.RENDER.el('text', {
         x: pos.x, y: pos.y - 138, 'text-anchor': 'middle',
         'font-size': 40, 'font-weight': 800, fill: '#0b1220',
@@ -766,7 +845,7 @@
     var c = B.CELLS[i], box = $('mapInfo');
     var owner = state.board.owner[i], lv = state.board.level[i] || 0;
     var html = '<b>' + i + '　' + c.name + '</b>' +
-               (c.place ? '　<span style="color:#93a4bb">' + c.place + '</span>' : '') + '<br>';
+               (c.place ? '　<span style="color:var(--dim)">' + c.place + '</span>' : '') + '<br>';
     if (c.type === 'land') {
       var rent = B.baseRent(i, lv, E.hasFullColor(state, i));
       if (owner) {
@@ -807,7 +886,7 @@
             Math.round(c.price * B.RENT_RATE).toLocaleString();
       } else {
         dot = '#64748b';
-        right = '<span style="color:#93a4bb">' + cellDesc(c) + '</span>';
+        right = '<span style="color:var(--dim)">' + cellDesc(c) + '</span>';
       }
       rows.push('<div class="mp-row' + (isMine ? ' mine' : '') +
         (c.type === 'land' && !owner ? ' free' : '') + '">' +
@@ -930,6 +1009,13 @@
       $('qLeft').textContent = '快作答！答對才能骰骰子';
     }
 
+    if (state.allCards) {
+      var rb = $('btnRankP');
+      if (rb) rb.textContent = '🔭 戰況（看得到手牌）';
+    } else {
+      var rb2 = $('btnRankP');
+      if (rb2) rb2.textContent = '📊 戰況';
+    }
     if (me.buff && me.buff.peek) {
       pmsg('hintBox', '📡 感應卡：這一題的正確答案是 ' + me.buff.peek, 'ok');
     } else if (state.myHints && state.myHints.length) {
@@ -1017,9 +1103,16 @@
 
     // 買地
     if (cell.type === 'land' && !state.board.owner[me.pos]) {
-      var price = me.god === 'grant' ? Math.round(cell.price / 2) : cell.price;
-      html.push('<button class="opt-btn" data-act="buy">🏗️ 買下 ' + cell.name +
-                '（$' + price.toLocaleString() + '）</button>');
+      if (me.god === 'stock') {
+        // 被庫存之神附身時買地一律流標。引擎會擋，但按鈕還亮著的話
+        // 學生只會覺得「我明明按了卻沒反應」，要直接講清楚原因。
+        html.push('<div class="pl-msg">📉 被庫存之神附身，這段期間買地一律流標，' +
+                  '要等附身結束（還有 ' + (me.godTurns || 0) + ' 輪）</div>');
+      } else {
+        var price = me.god === 'grant' ? Math.round(cell.price / 2) : cell.price;
+        html.push('<button class="opt-btn" data-act="buy">🏗️ 買下 ' + cell.name +
+                  '（$' + price.toLocaleString() + '）</button>');
+      }
     }
     // 蓋廠
     if (state.board.owner[me.pos] === my.gid) {
@@ -1056,7 +1149,7 @@
     if (!html.length) html.push('<div class="pl-msg">這一格沒有可以做的事，按下面的按鍵告訴老師就好</div>');
     if (waitingMe) {
       var isShop = (cell.type === 'shop');
-      html.push('<button class="opt-btn" data-act="skip" style="background:' +
+      html.push('<button class="opt-btn" data-act="skip" style="color:#ffffff;background:' +
                 (isShop ? '#166534' : '#334155') + '">' +
                 (isShop ? '🛒 我買完了' : '✓ 我好了') + '</button>');
     }
@@ -1077,12 +1170,26 @@
           // 換不換人是老師按的。這裡要講清楚，不然學生會以為沒送出一直按。
           b.textContent = '✅ 已告訴老師，等老師換下一位';
           b.style.background = '#166534';
+          b.style.color = '#ffffff';
         }
         b.disabled = true;
       };
     });
     body.querySelectorAll('[data-shop]').forEach(function (b) {
-      b.onclick = function () { send({ type: 'shop', cardId: b.dataset.shop }); b.style.opacity = .4; };
+      b.onclick = function () {
+        var id = b.dataset.shop;
+        var meNow = state.players[my.gid];
+        var cdef = shopShelf().filter(function (c) { return c.id === id; })[0];
+        // 買不起、手牌滿：本地就擋下來講原因，不要送出又假裝成功
+        if (!cdef) return;
+        if ((meNow.cards || []).length >= 8) { pmsg('handMsg', '⚠️ 手牌已滿（上限 8 張），先用掉再買', 'err'); return; }
+        if (meNow.rp < cdef.cost) { pmsg('handMsg', '⚠️ 研發點數不足（要 ' + cdef.cost + ' 點）', 'err'); return; }
+        if (b.dataset.cooling) return;      // 冷卻中不重送（防連點連寫雲端）
+        b.dataset.cooling = '1';
+        b.style.opacity = .4;
+        setTimeout(function () { delete b.dataset.cooling; b.style.opacity = ''; }, 1500);
+        send({ type: 'shop', cardId: id });
+      };
     });
   }
 
@@ -1136,6 +1243,14 @@
     var el = $('phaseBanner');
     if (!el) return;
     clearInterval(bannerTimer);
+    // 「✓ 這輪不出牌了」的顯示控制要放在最前面：
+    // 下面一堆 early return（暫停、休息、公布效果…）會跳過後半段，
+    // 按鈕就會停留在上一個道具階段的狀態，掛在畫面上讓學生白按。
+    var doneBtn0 = $('btnItemDone');
+    if (doneBtn0) {
+      var showDone0 = state.phase === 'item' && state.itemUntil != null && !state.paused;
+      doneBtn0.classList.toggle('hidden', !showDone0);
+    }
     if (state.paused) {
       el.className = 'phase-banner';
       el.textContent = '⏸ 老師暫停中　請看白板';
@@ -1160,7 +1275,7 @@
       } else {
         var tickBreak = function () {
           if (state.breakUntil == null) { el.textContent = '☕ 休息中'; return; }
-          var s = Math.max(0, Math.ceil((state.breakUntil - Date.now()) / 1000));
+          var s = Math.max(0, Math.ceil((state.breakUntil - hostNow()) / 1000));
           // 倒數到 0 還沒收到新狀態，代表這台平板暫時沒收到老師端的訊息。
           // 卡在「0 秒」會讓學生以為當機，講明白在等什麼比較好。
           el.textContent = s > 0 ? ('☕ 休息中　' + s + ' 秒後開始下一輪')
@@ -1179,7 +1294,6 @@
     var doneBtn = $('btnItemDone');
     if (doneBtn) {
       var showDone = state.phase === 'item' && state.itemUntil != null;
-      doneBtn.classList.toggle('hidden', !showDone);
       if (showDone && !(state.itemReady && state.itemReady[my.gid])) {
         doneBtn.disabled = false;
         doneBtn.textContent = '✓ 這輪不出牌了';
@@ -1188,7 +1302,7 @@
     if (state.phase === 'item') {
       el.className = 'phase-banner item';
       var tick = function () {
-        var left = Math.max(0, Math.ceil((state.itemUntil - Date.now()) / 1000));
+        var left = Math.max(0, Math.ceil((state.itemUntil - hostNow()) / 1000));
         el.textContent = '🎴 道具時間　' + left + ' 秒　（本輪還可出 ' +
           Math.max(0, 2 - (state.players[my.gid].playedThisRound || 0)) + ' 張）';
         if (left <= 0) clearInterval(bannerTimer);
@@ -1231,11 +1345,16 @@
     if (decideTimer) { clearInterval(decideTimer); decideTimer = null; }
   }
 
-  /** 商店貨架：由狀態種子決定，每次進去都不一樣但老師端與平板一致 */
+  /** 商店貨架：由狀態種子決定，每次進去都不一樣但老師端與平板一致。
+   *  老師關閉破壞類道具時，那幾張不上架（引擎也會拒賣，兩邊一致）。 */
   function shopShelf() {
     var seed = (state.round * 31 + state.players[my.gid].pos * 7 + 13) % 9973;
     function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
-    return CARD.shelf(10, rnd);
+    var shelf = CARD.shelf(10, rnd);
+    if (state.cfg && state.cfg.allowSabotage === false) {
+      shelf = shelf.filter(function (c) { return CARD.SABOTAGE.indexOf(c.id) < 0; });
+    }
+    return shelf;
   }
 
   // ═══════════════════════════════════════
@@ -1248,7 +1367,7 @@
     var h3 = $('handList').parentNode.querySelector('h3');
     me.cards = me.cards || [];
     if (h3) h3.innerHTML = '🎴 我的手牌（<span id="handCount">' + me.cards.length + '</span>/8）　' +
-      '<span style="font-size:13px;color:' + (used >= 2 ? '#f87171' : '#93a4bb') + '">' +
+      '<span style="font-size:14px;color:' + (used >= 2 ? 'var(--bad)' : 'var(--dim)') + '">' +
       '本輪已出 ' + used + '/2 張</span>';
     var box = $('handList');
     box.innerHTML = '';
@@ -1282,7 +1401,7 @@
       pmsg('handMsg', '正在公布這一輪的道具效果，請等下一輪再出牌', 'err');
       return;
     }
-    if (state.phase === 'item' && state.itemUntil != null && Date.now() > state.itemUntil) {
+    if (state.phase === 'item' && state.itemUntil != null && hostNow() > state.itemUntil + 1500) {
       pmsg('handMsg', '道具時間結束了，下一輪再出牌', 'err');
       return;
     }
@@ -1396,10 +1515,14 @@
 
   function renderBank(me) {
     var atBank = B.CELLS[me.pos].type === 'bank';
-    $('bankHint').textContent = atBank
+    // 光站在銀行格還不夠：引擎要求「輪到自己、走完停下」才辦得了，
+    // 按鈕亮著但按了沒反應，學生會以為壞掉 —— 條件跟引擎一致才誠實
+    var myTurnHere = atBank && state.decide && state.decide.gid === my.gid;
+    $('bankHint').textContent = myTurnHere
       ? '你現在在銀行，可以存提款與貸款。存款每輪 3% 利息，但貸款期間不發利息。'
-      : '要停在銀行格（雲林、基隆）才能存提款與申請貸款';
-    ['btnDeposit', 'btnWithdraw', 'btnLoan', 'btnRepay'].forEach(function (id) { $(id).disabled = !atBank; });
+      : (atBank ? '在銀行了！等輪到你行動時就能辦理'
+                : '要停在銀行格（雲林、基隆），輪到自己行動時才能辦理');
+    ['btnDeposit', 'btnWithdraw', 'btnLoan', 'btnRepay'].forEach(function (id) { $(id).disabled = !myTurnHere; });
 
     // ⚠️ 按下當下才讀取最新餘額。原本把 me 綁死在閉包裡，
     //    畫面幾輪沒重畫的話會用到舊的餘額上限。

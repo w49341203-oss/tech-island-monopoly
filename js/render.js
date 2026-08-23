@@ -218,6 +218,21 @@
       e.style.cursor = 'pointer';
       layers.cells.appendChild(e);
 
+      // 地震停產中的園區：整格打叉，遠遠就看得出這一區這輪收不到過路費
+      if (state && state.board.quakeColor && c.color === state.board.quakeColor) {
+        layers.cells.appendChild(el('ellipse', {
+          cx: p.x, cy: p.y, rx: CELL_RX, ry: CELL_RY,
+          fill: '#1f2937', 'fill-opacity': .45
+        }));
+        var qt = el('text', {
+          x: p.x, y: p.y + 12, 'text-anchor': 'middle', 'font-size': 34,
+          'font-weight': 900, fill: '#fff',
+          stroke: '#7f1d1d', 'stroke-width': 6, 'paint-order': 'stroke'
+        });
+        qt.textContent = '🌊 停產';
+        layers.labels.appendChild(qt);
+      }
+
       var lv = (state && state.board.level[i]) || 0;
       if (lv > 0) layers.buildings.appendChild(drawBuilding(p.x, p.y - 16, lv, color));
 
@@ -407,7 +422,9 @@
                    bg: '#7f1d1d', ring: '#ff6b6b', fg: '#ffe4e4' });
     }
     // 手上有絕緣卡＝下一次被攻擊會自動擋掉，這是很重要的資訊，要看得到
-    if (p.cards && p.cards.some(function (c) { return c.id === 'insulate'; })) {
+    // 白板有完整手牌可以直接看；平板收到的是公開狀態（手牌被拿掉了），
+    // 改看 shield 旗標 —— 兩邊看到的盾牌才會一樣。
+    if (p.shield || (p.cards && p.cards.some(function (c) { return c.id === 'insulate'; }))) {
       items.push({ emoji: '🛡️', text: '', icon: ART_OK['icon:shield'] ? iconUrl('shield') : null,
                    bg: '#0b3a5e', ring: '#7dd3fc', fg: '#e0f2fe' });
     }
