@@ -827,8 +827,9 @@
 
   function updateHUD() {
     renderOnlineDots();
+    // 「不限」模式（9999）不顯示分母，玩到老師按「結束本節」為止
     $('hudRound').textContent = state.round > 0
-      ? ('第 ' + state.round + ' 輪 / ' + state.maxRounds)
+      ? ('第 ' + state.round + ' 輪' + (state.maxRounds >= 9999 ? '' : ' / ' + state.maxRounds))
       : '準備開始';
     R.updateMinimap(state);
     pushRemote();                   // 把狀態推給各組平板
