@@ -758,6 +758,11 @@
     var b = $('btnFullP');
     if (!b || b._bound) return;
     b._bound = true;
+    // 用「安裝成 App」（主畫面圖示）開啟時本來就是滿版，全螢幕鈕沒有意義，藏掉
+    var installed = (window.navigator && window.navigator.standalone) ||
+      (window.matchMedia && (matchMedia('(display-mode: standalone)').matches ||
+                             matchMedia('(display-mode: fullscreen)').matches));
+    if (installed) { b.classList.add('hidden'); return; }
     b.onclick = goFullscreenP;
     paintFsBtn();
     document.addEventListener('fullscreenchange', paintFsBtn);
@@ -1796,14 +1801,23 @@
     }).join('') : '<div class="pl-msg">還沒有買到任何地</div>';
   }
 
+  var bankCollapsed = false;   // 銀行卡片收合狀態（整張卡會蓋住中間操作區，要能收起來）
   function renderBank(me) {
     // 銀行介面只在「輪到我行動＋站在銀行」那段時間出現，
     // 行動結束（老師換下一位）就整塊消失——不會一直掛在畫面上。
     // 掛著不消失的話，下一輪答題時它還佔著半個畫面（實際發生過）。
     var atBank = B.CELLS[me.pos].type === 'bank';
     var myTurnHere = atBank && state.decide && state.decide.gid === my.gid;
+    if (!myTurnHere) bankCollapsed = false;   // 離開銀行／換人就重置，下次走到銀行會自動展開
     var bc = $('bankCard');
     if (bc) bc.classList.toggle('hidden', !myTurnHere);
+    // 收合＝只留一條「展開銀行選項」的細列（不整個藏掉：誤按收合的話那一輪還存得了款）
+    var bb = $('bankBody'), bo = $('btnBankOpen');
+    if (bb) bb.classList.toggle('hidden', bankCollapsed);
+    if (bo) bo.classList.toggle('hidden', !myTurnHere || !bankCollapsed);
+    var bx = $('btnBankClose');
+    if (bx) bx.onclick = function () { bankCollapsed = true; renderBank(state.players[my.gid]); };
+    if (bo) bo.onclick = function () { bankCollapsed = false; renderBank(state.players[my.gid]); };
     if (!myTurnHere) return;
     $('bankHint').textContent = '你現在在銀行，可以存提款與貸款。存款每輪 3% 利息，但貸款期間不發利息。';
     ['btnDeposit', 'btnWithdraw', 'btnLoan', 'btnRepay'].forEach(function (id) { $(id).disabled = false; });
