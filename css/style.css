@@ -511,6 +511,14 @@ body.player{overflow:auto}
 .cf-row button{flex:1;padding:14px 8px;font-size:17px;font-weight:900;border-radius:12px}
 .cf-yes{background:#16a34a;color:#ffffff;border:2px solid #14532d}
 .cf-no{background:#ffffff;color:#b91c1c;border:2px solid #b91c1c}
+/* 錢不夠的選項：變灰、不能按（亮著會讓學生以為壞掉） */
+.opt-btn.cant{opacity:.45;cursor:not-allowed;background:#e2e8f0;color:#475569}
+/* 玩家端浮動提示：不管在哪個分頁都看得到 */
+#plToast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-20px);
+  z-index:600;background:#7f1d1d;color:#ffffff;font-size:16px;font-weight:900;
+  padding:12px 22px;border-radius:14px;box-shadow:0 10px 34px rgba(0,0,0,.45);
+  opacity:0;pointer-events:none;transition:all .25s}
+#plToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* 單機試玩的側邊操作面板：內嵌玩家頁疊在地圖右側，可收合 */
 #selfDock{position:fixed;top:0;right:0;bottom:0;width:436px;z-index:120;

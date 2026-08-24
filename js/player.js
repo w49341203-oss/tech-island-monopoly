@@ -59,6 +59,13 @@
     $('btnJoin').onclick = doJoin;
     $('btnLeavePick').onclick = leaveRoom;
 
+    // 一打開就檢查雲端元件有沒有載成功（v9 失敗會自動退回 v8；
+    // 連 v8 都不行的老古董，要在學生輸入編號「之前」就講清楚）
+    if (S.firebaseReady() && !window.firebase) {
+      pmsg('joinMsg', '⚠️ 這台裝置的瀏覽器太舊，載不進雲端連線元件，沒辦法加入班級遊戲。' +
+                      '請換一台平板，或請老師協助更新系統。', 'err');
+    }
+
     // 老師端單機試玩的內嵌面板會帶 ?code=編號&embed=1&g=1：
     // 自動填編號、自動查房間、自動加入指定的組——老師完全不用操作
     try {
@@ -338,6 +345,22 @@
     if (Date.now() - (r.at - clockSkew) > 8000) return;
     lastRejectAt = r.at;
     pmsg('handMsg', '⚠️ ' + r.msg, 'err');
+    plToast('⚠️ ' + r.msg);          // 手牌頁的訊息區在別頁看不到，浮動提示才保證看得到
+  }
+
+  /** 浮動提示：不管學生在哪一個分頁都看得到（被拒絕、錯誤訊息用） */
+  var plToastTimer = null;
+  function plToast(text) {
+    var t = document.getElementById('plToast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'plToast';
+      document.body.appendChild(t);
+    }
+    t.textContent = text;
+    t.classList.add('show');
+    clearTimeout(plToastTimer);
+    plToastTimer = setTimeout(function () { t.classList.remove('show'); }, 3200);
   }
 
   /**
@@ -1268,8 +1291,15 @@
                   '要等附身結束（還有 ' + (me.godTurns || 0) + ' 輪）</div>');
       } else {
         var price = me.god === 'grant' ? Math.round(cell.price / 2) : cell.price;
-        html.push('<button class="opt-btn" data-act="buy">🏗️ 買下 ' + cell.name +
-                  '（$' + price.toLocaleString() + '）</button>');
+        if (me.cash >= price) {
+          html.push('<button class="opt-btn" data-act="buy">🏗️ 買下 ' + cell.name +
+                    '（$' + price.toLocaleString() + '）</button>');
+        } else {
+          // 錢不夠就直接變灰。亮著的話學生按下去會被引擎拒絕，
+          // 畫面又沒有任何變化，看起來就像當機（實際發生過）。
+          html.push('<button class="opt-btn cant" disabled>🏗️ 買下 ' + cell.name +
+                    '（$' + price.toLocaleString() + '）—— 現金不足</button>');
+        }
       }
     }
     // 蓋廠
@@ -1278,8 +1308,13 @@
       if (lv < 5) {
         var c1 = B.upgradeCost(me.pos);
         var canAll = Math.min(5 - lv, Math.floor(me.cash / c1));
-        html.push('<button class="opt-btn" data-act="build1">🏭 蓋一級（$' + c1.toLocaleString() +
-                  '）目前 ' + B.LEVEL_NAME[lv] + '</button>');
+        if (me.cash >= c1) {
+          html.push('<button class="opt-btn" data-act="build1">🏭 蓋一級（$' + c1.toLocaleString() +
+                    '）目前 ' + B.LEVEL_NAME[lv] + '</button>');
+        } else {
+          html.push('<button class="opt-btn cant" disabled>🏭 蓋一級（$' + c1.toLocaleString() +
+                    '）—— 現金不足</button>');
+        }
         if (canAll > 1) html.push('<button class="opt-btn" data-act="buildall">🏭🏭 一次蓋到滿（' +
                   canAll + ' 級，$' + (c1 * canAll).toLocaleString() + '）</button>');
       }
@@ -1288,8 +1323,13 @@
     if (cell.type === 'land' && state.board.owner[me.pos] && state.board.owner[me.pos] !== my.gid &&
         state.cfg && state.cfg.allowMerge) {
       var cur = B.landValue(me.pos, state.board.level[me.pos] || 0);
-      html.push('<button class="opt-btn" data-act="merge">🏢 併購這塊地（$' +
-                (cur * 2).toLocaleString() + '）</button>');
+      if (me.cash + me.bank >= cur * 2) {
+        html.push('<button class="opt-btn" data-act="merge">🏢 併購這塊地（$' +
+                  (cur * 2).toLocaleString() + '）</button>');
+      } else {
+        html.push('<button class="opt-btn cant" disabled>🏢 併購這塊地（$' +
+                  (cur * 2).toLocaleString() + '）—— 現金不足</button>');
+      }
     }
     // 商店
     if (cell.type === 'shop') {
@@ -1337,8 +1377,13 @@
         if (pb.kind === 'buildall') send({ type: 'build', times: 99 });
         if (pb.kind === 'merge') send({ type: 'merge' });
         if (pb.kind === 'shop') send({ type: 'shop', cardId: pb.cardId });
-        // 送出後畫面等下一份狀態回來自然重畫；先給個回饋
         yes.textContent = '⏳ 處理中…';
+        // 保險重畫：成功的話狀態一變畫面自然更新；但被拒絕時狀態「沒有變」，
+        // 沒有這一段畫面就永遠停在「處理中」——看起來像當機（實際發生過）
+        setTimeout(function () {
+          var meNow = state && state.players && state.players[my.gid];
+          if (meNow) renderAction(meNow);
+        }, 1800);
       };
       if (no) no.onclick = function () {
         clearPendingBuy();

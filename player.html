@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b1220">
 <title>科技島大富翁 — 我的平板</title>
-<link rel="stylesheet" href="css/style.css?v=20260824-0025">
+<link rel="stylesheet" href="css/style.css?v=20260824-1047">
 </head>
 <body class="player">
 
@@ -221,14 +221,23 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=20260824-0025"></script>
-<script src="js/sound.js?v=20260824-0025"></script>
-<script src="js/board.js?v=20260824-0025"></script>
-<script src="js/render.js?v=20260824-0025"></script>
-<script src="js/characters.js?v=20260824-0025"></script>
-<script src="js/cards.js?v=20260824-0025"></script>
-<script src="js/engine.js?v=20260824-0025"></script>
-<script src="js/store.js?v=20260824-0025"></script>
-<script src="js/player.js?v=20260824-0025"></script>
+<script>
+// 舊平板救援：上面的 Firebase v9 需要新式瀏覽器，太舊的機器會解析失敗。
+// 偵測到沒載成功就改載 v8（ES5 版，舊瀏覽器吃得下）；兩版 API 相同。
+if (!window.firebase) {
+  document.write('<scr' + 'ipt src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"><\/scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"><\/scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"><\/scr' + 'ipt>');
+}
+</script>
+<script src="js/firebase-config.js?v=20260824-1047"></script>
+<script src="js/sound.js?v=20260824-1047"></script>
+<script src="js/board.js?v=20260824-1047"></script>
+<script src="js/render.js?v=20260824-1047"></script>
+<script src="js/characters.js?v=20260824-1047"></script>
+<script src="js/cards.js?v=20260824-1047"></script>
+<script src="js/engine.js?v=20260824-1047"></script>
+<script src="js/store.js?v=20260824-1047"></script>
+<script src="js/player.js?v=20260824-1047"></script>
 </body>
 </html>

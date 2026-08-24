@@ -9,7 +9,9 @@
   var NS = 'http://www.w3.org/2000/svg';
   var XLINK = 'http://www.w3.org/1999/xlink';
 
-  var SX = 4.0, SQ = 0.60;          // 地圖放大倍率、等距壓扁比例
+  var SX = 8.0, SQ = 0.60;          // 地圖放大倍率、等距壓扁比例
+                                    // （2026-08-24 從 4.0 拉到 8.0：格子大小不變、
+                                    //   間距拉開到相鄰 ≥150，圓圈不再擠在一起）
   var VW = 1920, VH = 1080;         // 邏輯畫布（投影用 16:9）
   var CHAR_H = 260;                 // 角色顯示高度
   var CELL_RX = 68, CELL_RY = 38;   // 格子橢圓
@@ -58,9 +60,32 @@
     probe.style.display = 'none';
     svg.appendChild(probe);
     var L = probe.getTotalLength();
+
+    // 主環 52 格改成「畫面上的實際距離」等距擺放。
+    // 以前按路徑長度比例擺（frac），但地圖上下壓扁 0.6 之後，
+    // 近乎垂直的路段格距被壓縮 —— 最擠的兩格只剩 54，而格子寬 136，疊了一半。
+    // 先密集取樣整條島形路徑、換算成壓扁後的畫面座標，
+    // 量出「畫面周長」，再沿著它等距放 52 格（起點不變，順序不變）。
+    var STEPS = 2600;
+    var pts = [], cum = [0];
+    for (var s = 0; s <= STEPS; s++) {
+      var q = probe.getPointAtLength(L * s / STEPS);
+      pts.push({ x: q.x * SX, y: q.y * SX * SQ });
+      if (s > 0) {
+        cum.push(cum[s - 1] + Math.hypot(pts[s].x - pts[s - 1].x, pts[s].y - pts[s - 1].y));
+      }
+    }
+    var total = cum[STEPS];
+    var k = 1;
     for (var i = 0; i < B.RING; i++) {
-      var p = probe.getPointAtLength(L * frac(i));
-      POS[i] = { x: p.x * SX, y: p.y * SX * SQ };
+      var target = total * i / B.RING;
+      while (k < STEPS && cum[k] < target) k++;
+      var t0 = cum[k - 1], t1 = cum[k];
+      var f = t1 > t0 ? (target - t0) / (t1 - t0) : 0;
+      POS[i] = {
+        x: pts[k - 1].x + (pts[k].x - pts[k - 1].x) * f,
+        y: pts[k - 1].y + (pts[k].y - pts[k - 1].y) * f
+      };
     }
     svg.removeChild(probe);
 
@@ -72,15 +97,15 @@
         POS[pr[0]] = { x: pa.x + (pb.x - pa.x) * t + dx * bg, y: pa.y + (pb.y - pa.y) * t + dy * bg };
       });
     }
-    bridge(9, 44, 55, 56, 56, 0);       // 北橫
-    bridge(22, 41, 57, 58, 56, 0);      // 中橫
-    bridge(32, 38, 59, 60, 104, -150);  // 南橫
+    bridge(9, 44, 55, 56, 130, 0);       // 北橫（鼓出量隨 SX 放大，山路格才不會貼到主環）
+    bridge(22, 41, 57, 58, 130, 0);      // 中橫
+    bridge(32, 38, 59, 60, 330, -470);   // 南橫
 
     // 海外三廠：從桃園機場往島外（左側海上）凸出一小圈
     var a = POS[9];
-    POS[52] = { x: a.x - 300, y: a.y - 40 };
-    POS[53] = { x: a.x - 420, y: a.y - 200 };
-    POS[54] = { x: a.x - 260, y: a.y - 330 };
+    POS[52] = { x: a.x - 450, y: a.y - 60 };
+    POS[53] = { x: a.x - 630, y: a.y - 300 };
+    POS[54] = { x: a.x - 390, y: a.y - 495 };
   }
 
   /** 預先檢查哪些角色有立繪，沒有的用色塊佔位（Codex 還沒交完時也能玩） */

@@ -129,7 +129,11 @@
     if (!firebaseReady()) return Promise.reject(new Error('尚未設定 Firebase（請填 js/firebase-config.js）'));
     if (db) return Promise.resolve(db);
     return new Promise(function (res, rej) {
-      if (!global.firebase) { rej(new Error('Firebase SDK 沒載入，請確認網路正常')); return; }
+      if (!global.firebase) {
+        rej(new Error('這台裝置的瀏覽器太舊，載不進雲端連線元件。' +
+                      '請換一台平板，或到系統設定更新後再試（網路斷線也會出現這個訊息）'));
+        return;
+      }
       try {
         if (!global.firebase.apps.length) global.firebase.initializeApp(cfgOf());
       } catch (e) { rej(e); return; }
