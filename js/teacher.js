@@ -1236,7 +1236,7 @@
         pumpActions();
         renderLights();
         SOUND.play('timeUp');
-        status('全部作答完成，提早揭曉！');
+        // 不用另外顯示文字：燈號全部打勾，全班本來就看得出來大家都答完了
         regTimer(setTimeout(function () {
           if (sessionOver) return;
           pumpActions();
