@@ -1,947 +1,905 @@
 [
-  {
-    "chapter": "9下-2",
-    "section": "2-1",
-    "difficulty": "basic",
-    "question": "把兩根條形磁鐵的 N 極互相靠近，會出現什麼現象？",
-    "options": {
-      "A": "彼此排斥",
-      "B": "彼此吸引",
-      "C": "磁力完全消失",
-      "D": "兩磁鐵立刻斷裂"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_001",
-    "concept_id": "magnetic_pole_interaction",
-    "hints": [
-      "先辨認靠近的是同名磁極還是異名磁極。",
-      "同名磁極相斥，異名磁極相吸。",
-      "兩端標記相同，因此作用方向是互相推開。"
-    ]
+ {
+  "chapter": "9下-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "把兩根條形磁鐵的 N 極互相靠近，會出現什麼現象？",
+  "options": {
+   "A": "彼此排斥",
+   "B": "彼此吸引",
+   "C": "磁力完全消失",
+   "D": "兩磁鐵立刻斷裂"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-1",
-    "difficulty": "basic",
-    "question": "在條形磁鐵外部，磁場線的方向通常如何表示？",
-    "options": {
-      "A": "由 S 極指向 N 極",
-      "B": "由 N 極指向 S 極",
-      "C": "只沿鉛直方向向上",
-      "D": "沒有固定方向"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_002",
-    "concept_id": "magnetic_field_line_direction",
-    "hints": [
-      "磁場方向以小磁針某一端在該處所指的方向定義。",
-      "在磁鐵外部，磁場線從北磁極出發並進入南磁極。",
-      "沿著外部曲線追蹤，方向是從標示 N 的一端走向標示 S 的一端。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_001",
+  "concept_id": "magnetic_pole_interaction",
+  "hints": [
+   "先辨認靠近的是同名磁極還是異名磁極。",
+   "同名磁極相斥，異名磁極相吸。",
+   "兩端標記相同，因此作用方向是互相推開。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "在條形磁鐵外部，磁場線的方向通常如何表示？",
+  "options": {
+   "A": "由 S 極指向 N 極",
+   "B": "由 N 極指向 S 極",
+   "C": "只沿鉛直方向向上",
+   "D": "沒有固定方向"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-1",
-    "difficulty": "basic",
-    "question": "磁場線畫得越密集的區域，通常表示什麼？",
-    "options": {
-      "A": "該處沒有磁場",
-      "B": "該處磁場方向不定",
-      "C": "該處磁場較強",
-      "D": "該處電壓較高"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_003",
-    "concept_id": "magnetic_field_line_density",
-    "hints": [
-      "場線圖除了表示方向，也用線條疏密傳達大小。",
-      "線條越集中，代表單位面積穿過的磁場線越多。",
-      "比較圖上的疏密，較密處代表磁作用較明顯。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_002",
+  "concept_id": "magnetic_field_line_direction",
+  "hints": [
+   "磁場方向以小磁針某一端在該處所指的方向定義。",
+   "在磁鐵外部，磁場線從北磁極出發並進入南磁極。",
+   "沿著外部曲線追蹤，方向是從標示 N 的一端走向標示 S 的一端。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "磁場線畫得越密集的區域，通常表示什麼？",
+  "options": {
+   "A": "該處沒有磁場",
+   "B": "該處磁場方向不定",
+   "C": "該處磁場較強",
+   "D": "該處電壓較高"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-1",
-    "difficulty": "basic",
-    "question": "指南針的 N 極大致指向地理北方，主要與下列何者有關？",
-    "options": {
-      "A": "地球北方沒有磁場",
-      "B": "指南針受到太陽光推動",
-      "C": "地理北方附近是地磁 N 極",
-      "D": "地理北方附近具有相當於地磁 S 極的性質"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_004",
-    "concept_id": "earth_magnetic_field",
-    "hints": [
-      "把指南針視為小磁鐵，利用異名磁極相吸來判斷。",
-      "指南針的北磁極會被地球北方附近的相反磁性吸引。",
-      "能吸引小磁針 N 端的地區，磁性上應相當於南磁極。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_003",
+  "concept_id": "magnetic_field_line_density",
+  "hints": [
+   "場線圖除了表示方向，也用線條疏密傳達大小。",
+   "線條越集中，代表單位面積穿過的磁場線越多。",
+   "比較圖上的疏密，較密處代表磁作用較明顯。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-1",
+  "difficulty": "basic",
+  "question": "指南針的 N 極大致指向地理北方，主要與下列何者有關？",
+  "options": {
+   "A": "地球北方沒有磁場",
+   "B": "指南針受到太陽光推動",
+   "C": "地理北方附近是地磁 N 極",
+   "D": "地理北方附近具有相當於地磁 S 極的性質"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "basic",
-    "question": "通有電流的長直導線周圍，磁場線形狀近似下列何者？",
-    "options": {
-      "A": "以導線為中心的同心圓",
-      "B": "平行於導線的直線",
-      "C": "只分布在導線上方",
-      "D": "由導線一端射出的直線"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_005",
-    "concept_id": "straight_wire_magnetic_field",
-    "hints": [
-      "想像用小磁針繞著導線在同一平面測量方向。",
-      "導線的磁場會環繞電流方向分布。",
-      "從導線截面看，場線是一圈圈包圍導線的封閉曲線。"
-    ]
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d2_004",
+  "concept_id": "earth_magnetic_field",
+  "hints": [
+   "把指南針視為小磁鐵，利用異名磁極相吸來判斷。",
+   "指南針的北磁極會被地球北方附近的相反磁性吸引。",
+   "能吸引小磁針 N 端的地區，磁性上應相當於南磁極。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "通有電流的長直導線周圍，磁場線形狀近似下列何者？",
+  "options": {
+   "A": "以導線為中心的同心圓",
+   "B": "平行於導線的直線",
+   "C": "只分布在導線上方",
+   "D": "由導線一端射出的直線"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "basic",
-    "question": "用安培右手定則判斷長直導線的磁場時，右手拇指代表什麼方向？",
-    "options": {
-      "A": "磁場線方向",
-      "B": "傳統電流方向",
-      "C": "導線受力方向",
-      "D": "電子自轉方向"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_006",
-    "concept_id": "right_hand_rule_straight_wire",
-    "hints": [
-      "回想握住直導線時，拇指與彎曲四指各自代表哪個量。",
-      "拇指沿著正電荷移動的約定方向，四指彎曲方向表示周圍磁場。",
-      "先讓拇指對準導線中由正端流向負端的方向，再看四指。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_005",
+  "concept_id": "straight_wire_magnetic_field",
+  "hints": [
+   "想像用小磁針繞著導線在同一平面測量方向。",
+   "導線的磁場會環繞電流方向分布。",
+   "從導線截面看，場線是一圈圈包圍導線的封閉曲線。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "用安培右手定則判斷長直導線的磁場時，右手拇指代表什麼方向？",
+  "options": {
+   "A": "磁場線方向",
+   "B": "傳統電流方向",
+   "C": "導線受力方向",
+   "D": "電子自轉方向"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "basic",
-    "question": "通電螺線管外部的磁場分布最像哪一種物體？",
-    "options": {
-      "A": "均勻帶電的塑膠棒",
-      "B": "沒有磁性的鐵塊",
-      "C": "條形磁鐵",
-      "D": "平面鏡"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_007",
-    "concept_id": "solenoid_magnetic_field",
-    "hints": [
-      "觀察線圈通電後是否形成兩個可辨認的磁極。",
-      "螺線管一端表現為北磁極，另一端表現為南磁極。",
-      "具有一對磁極且外部場線由一端繞向另一端的物體可作類比。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_006",
+  "concept_id": "right_hand_rule_straight_wire",
+  "hints": [
+   "回想握住直導線時，拇指與彎曲四指各自代表哪個量。",
+   "拇指沿著正電荷移動的約定方向，四指彎曲方向表示周圍磁場。",
+   "先讓拇指對準導線中由正端流向負端的方向，再看四指。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "通電螺線管外部的磁場分布最像哪一種物體？",
+  "options": {
+   "A": "均勻帶電的塑膠棒",
+   "B": "沒有磁性的鐵塊",
+   "C": "條形磁鐵",
+   "D": "平面鏡"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "basic",
-    "question": "製作可快速通斷磁性的電磁鐵時，線圈內通常放入哪種材料作鐵心？",
-    "options": {
-      "A": "玻璃",
-      "B": "塑膠",
-      "C": "永久磁鐵",
-      "D": "軟鐵"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_008",
-    "concept_id": "electromagnet_core_material",
-    "hints": [
-      "所選材料要容易被磁化，也要能在停止供電後迅速失去大部分磁性。",
-      "相較於鋼，低碳且磁滯較小的鐵磁性材料較適合。",
-      "選擇容易暫時磁化、卻不易保留永久磁性的鐵材。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_007",
+  "concept_id": "solenoid_magnetic_field",
+  "hints": [
+   "觀察線圈通電後是否形成兩個可辨認的磁極。",
+   "螺線管一端表現為北磁極，另一端表現為南磁極。",
+   "具有一對磁極且外部場線由一端繞向另一端的物體可作類比。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "製作可快速通斷磁性的電磁鐵時，線圈內通常放入哪種材料作鐵心？",
+  "options": {
+   "A": "玻璃",
+   "B": "塑膠",
+   "C": "永久磁鐵",
+   "D": "軟鐵"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "basic",
-    "question": "在其他條件相同下，要增強電磁鐵的磁力，可採取哪種方法？",
-    "options": {
-      "A": "增加線圈中的電流",
-      "B": "切斷線圈電路",
-      "C": "移除所有線圈",
-      "D": "改用絕緣棒取代鐵心"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_009",
-    "concept_id": "electromagnet_strength",
-    "hints": [
-      "思考造成磁效應的來源變強時，周圍磁場會如何改變。",
-      "線圈的磁場強弱與通過線圈的電流大小有關。",
-      "使每匝導線的磁效應增強，就能讓整體磁力增強。"
-    ]
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d2_008",
+  "concept_id": "electromagnet_core_material",
+  "hints": [
+   "所選材料要容易被磁化，也要能在停止供電後迅速失去大部分磁性。",
+   "相較於鋼，低碳且磁滯較小的鐵磁性材料較適合。",
+   "選擇容易暫時磁化、卻不易保留永久磁性的鐵材。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "在其他條件相同下，要增強電磁鐵的磁力，可採取哪種方法？",
+  "options": {
+   "A": "增加線圈中的電流",
+   "B": "切斷線圈電路",
+   "C": "移除所有線圈",
+   "D": "改用絕緣棒取代鐵心"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "basic",
-    "question": "下列哪一種裝置常利用電磁鐵控制另一個電路的通斷？",
-    "options": {
-      "A": "放大鏡",
-      "B": "電磁繼電器",
-      "C": "溫度計",
-      "D": "三稜鏡"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_010",
-    "concept_id": "electromagnetic_relay",
-    "hints": [
-      "尋找能以小電流吸動開關，進而控制另一條通路的裝置。",
-      "線圈通電後吸引鐵片，可使接點閉合或分離。",
-      "這種以電磁作用遠端控制接點的元件常用於自動控制。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_009",
+  "concept_id": "electromagnet_strength",
+  "hints": [
+   "思考造成磁效應的來源變強時，周圍磁場會如何改變。",
+   "線圈的磁場強弱與通過線圈的電流大小有關。",
+   "使每匝導線的磁效應增強，就能讓整體磁力增強。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "basic",
+  "question": "下列哪一種裝置常利用電磁鐵控制另一個電路的通斷？",
+  "options": {
+   "A": "放大鏡",
+   "B": "電磁繼電器",
+   "C": "溫度計",
+   "D": "三稜鏡"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-3",
-    "difficulty": "basic",
-    "question": "要使直導線受到明顯的磁力，基本條件為何？",
-    "options": {
-      "A": "導線不通電且不在磁場中",
-      "B": "導線只需升高溫度",
-      "C": "通電導線置於適當方向的外加磁場中",
-      "D": "導線必須由塑膠製成"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_011",
-    "concept_id": "force_on_current_carrying_wire",
-    "hints": [
-      "這種作用需要導線中的移動電荷與外界某種場互相作用。",
-      "有電流的導線放入外加磁場，且方向不平行時可受力。",
-      "同時具備電流和外加磁場，才會產生馬達所利用的力。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_010",
+  "concept_id": "electromagnetic_relay",
+  "hints": [
+   "尋找能以小電流吸動開關，進而控制另一條通路的裝置。",
+   "線圈通電後吸引鐵片，可使接點閉合或分離。",
+   "這種以電磁作用遠端控制接點的元件常用於自動控制。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-3",
+  "difficulty": "basic",
+  "question": "要使直導線受到明顯的磁力，基本條件為何？",
+  "options": {
+   "A": "導線不通電且不在磁場中",
+   "B": "導線只需升高溫度",
+   "C": "通電導線置於適當方向的外加磁場中",
+   "D": "導線必須由塑膠製成"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-3",
-    "difficulty": "basic",
-    "question": "電動馬達運轉時，主要進行哪一種能量轉換？",
-    "options": {
-      "A": "機械能轉換成電能",
-      "B": "熱能轉換成核能",
-      "C": "光能轉換成化學能",
-      "D": "電能轉換成機械能"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_012",
-    "concept_id": "motor_energy_conversion",
-    "hints": [
-      "辨認裝置從電源取得的能量，以及轉軸輸出的能量。",
-      "線圈通電受磁力而轉動，轉軸可帶動外部物體。",
-      "輸入來自電路，主要輸出表現在轉動與作功。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_011",
+  "concept_id": "force_on_current_carrying_wire",
+  "hints": [
+   "這種作用需要導線中的移動電荷與外界某種場互相作用。",
+   "有電流的導線放入外加磁場，且方向不平行時可受力。",
+   "同時具備電流和外加磁場，才會產生馬達所利用的力。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-3",
+  "difficulty": "basic",
+  "question": "電動馬達運轉時，主要進行哪一種能量轉換？",
+  "options": {
+   "A": "機械能轉換成電能",
+   "B": "熱能轉換成核能",
+   "C": "光能轉換成化學能",
+   "D": "電能轉換成機械能"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-4",
-    "difficulty": "basic",
-    "question": "法拉第電磁感應實驗顯示，線圈中產生感應電流的關鍵為何？",
-    "options": {
-      "A": "穿過線圈的磁場發生變化",
-      "B": "線圈與磁鐵始終完全靜止",
-      "C": "線圈一定要接上乾電池",
-      "D": "線圈必須保持高溫"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_013",
-    "concept_id": "electromagnetic_induction_condition",
-    "hints": [
-      "不要只看是否存在磁鐵，要注意線圈所處磁環境是否隨時間改變。",
-      "感應現象與穿過線圈的磁通量變化有關。",
-      "讓磁鐵與線圈相對運動，就能改變線圈內的磁通量。"
-    ]
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d2_012",
+  "concept_id": "motor_energy_conversion",
+  "hints": [
+   "辨認裝置從電源取得的能量，以及轉軸輸出的能量。",
+   "線圈通電受磁力而轉動，轉軸可帶動外部物體。",
+   "輸入來自電路，主要輸出表現在轉動與作功。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-4",
+  "difficulty": "basic",
+  "question": "法拉第電磁感應實驗顯示，線圈中產生感應電流的關鍵為何？",
+  "options": {
+   "A": "穿過線圈的磁場發生變化",
+   "B": "線圈與磁鐵始終完全靜止",
+   "C": "線圈一定要接上乾電池",
+   "D": "線圈必須保持高溫"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-4",
-    "difficulty": "basic",
-    "question": "發電機的主要能量轉換為何？",
-    "options": {
-      "A": "電能轉換成內能",
-      "B": "機械能轉換成電能",
-      "C": "電能轉換成化學能",
-      "D": "光能轉換成位能"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_014",
-    "concept_id": "generator_energy_conversion",
-    "hints": [
-      "比較裝置轉軸的輸入與線圈端點的輸出。",
-      "外力使線圈或磁鐵轉動，電磁感應在電路中產生電流。",
-      "輸入是轉動所提供的作功能力，輸出可供電器使用。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_013",
+  "concept_id": "electromagnetic_induction_condition",
+  "hints": [
+   "不要只看是否存在磁鐵，要注意線圈所處磁環境是否隨時間改變。",
+   "感應現象與穿過線圈的磁通量變化有關。",
+   "讓磁鐵與線圈相對運動，就能改變線圈內的磁通量。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-4",
+  "difficulty": "basic",
+  "question": "發電機的主要能量轉換為何？",
+  "options": {
+   "A": "電能轉換成內能",
+   "B": "機械能轉換成電能",
+   "C": "電能轉換成化學能",
+   "D": "光能轉換成位能"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-5",
-    "difficulty": "basic",
-    "question": "一般變壓器必須接交流電才能持續正常作用，主要原因為何？",
-    "options": {
-      "A": "交流電沒有電壓",
-      "B": "交流電不會產生磁場",
-      "C": "交流電能使鐵心中的磁場持續改變",
-      "D": "交流電會讓線圈電阻變成零"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_015",
-    "concept_id": "transformer_ac_requirement",
-    "hints": [
-      "次級線圈要持續感應，鐵心內的磁環境就不能維持不變。",
-      "原線圈電流隨時間改變，會產生隨時間改變的磁通量。",
-      "不斷變化的磁場穿過次級線圈，才能持續產生感應電壓。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_014",
+  "concept_id": "generator_energy_conversion",
+  "hints": [
+   "比較裝置轉軸的輸入與線圈端點的輸出。",
+   "外力使線圈或磁鐵轉動，電磁感應在電路中產生電流。",
+   "輸入是轉動所提供的作功能力，輸出可供電器使用。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-5",
+  "difficulty": "basic",
+  "question": "一般變壓器必須接交流電才能持續正常作用，主要原因為何？",
+  "options": {
+   "A": "交流電沒有電壓",
+   "B": "交流電不會產生磁場",
+   "C": "交流電能使鐵心中的磁場持續改變",
+   "D": "交流電會讓線圈電阻變成零"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-1",
-    "difficulty": "concept",
-    "question": "磁場線在空間中不會彼此相交，最合理的原因為何？",
-    "options": {
-      "A": "磁場只存在於平面上",
-      "B": "磁場線具有實體，會互相碰撞",
-      "C": "相交處的磁場必定為零",
-      "D": "同一位置的磁場方向應是唯一的"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_016",
-    "concept_id": "field_lines_do_not_cross",
-    "hints": [
-      "場線在每一點的切線用來表示該處的方向。",
-      "若兩條場線交叉，同一點便會出現兩個不同的切線方向。",
-      "一個位置不能同時有兩個互相矛盾的磁場方向。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_015",
+  "concept_id": "transformer_ac_requirement",
+  "hints": [
+   "次級線圈要持續感應，鐵心內的磁環境就不能維持不變。",
+   "原線圈電流隨時間改變，會產生隨時間改變的磁通量。",
+   "不斷變化的磁場穿過次級線圈，才能持續產生感應電壓。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "磁場線在空間中不會彼此相交，最合理的原因為何？",
+  "options": {
+   "A": "磁場只存在於平面上",
+   "B": "磁場線具有實體，會互相碰撞",
+   "C": "相交處的磁場必定為零",
+   "D": "同一位置的磁場方向應是唯一的"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-1",
-    "difficulty": "concept",
-    "question": "把一根條形磁鐵從中間折成兩段，所得兩段的磁極如何？",
-    "options": {
-      "A": "每段都各自具有 N 極和 S 極",
-      "B": "一段只有 N 極，另一段只有 S 極",
-      "C": "兩段都只剩 N 極",
-      "D": "兩段都完全失去磁性"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_017",
-    "concept_id": "magnet_breaking_poles",
-    "hints": [
-      "想想磁極是否能藉由切割一般磁鐵而單獨分離。",
-      "一般磁鐵切開後，新斷面會形成相對的磁極。",
-      "每一小段仍是完整的小磁鐵，兩端具有不同磁性。"
-    ]
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d2_016",
+  "concept_id": "field_lines_do_not_cross",
+  "hints": [
+   "場線在每一點的切線用來表示該處的方向。",
+   "若兩條場線交叉，同一點便會出現兩個不同的切線方向。",
+   "一個位置不能同時有兩個互相矛盾的磁場方向。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "把一根條形磁鐵從中間折成兩段，所得兩段的磁極如何？",
+  "options": {
+   "A": "每段都各自具有 N 極和 S 極",
+   "B": "一段只有 N 極，另一段只有 S 極",
+   "C": "兩段都只剩 N 極",
+   "D": "兩段都完全失去磁性"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-1",
-    "difficulty": "concept",
-    "question": "未磁化的鐵釘靠近強磁鐵時也會吸住小迴紋針，主要原因為何？",
-    "options": {
-      "A": "鐵釘產生永久電流",
-      "B": "鐵釘受到磁化而暫時形成磁極",
-      "C": "迴紋針帶有大量靜電",
-      "D": "磁鐵使重力暫時消失"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_018",
-    "concept_id": "magnetic_induction",
-    "hints": [
-      "思考鐵磁性材料在外加磁場中，內部微小磁區會如何排列。",
-      "外加磁場可使原本凌亂的磁區較整齊排列。",
-      "靠近磁鐵後，鐵釘會暫時表現出磁性並吸引鐵製物。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_017",
+  "concept_id": "magnet_breaking_poles",
+  "hints": [
+   "想想磁極是否能藉由切割一般磁鐵而單獨分離。",
+   "一般磁鐵切開後，新斷面會形成相對的磁極。",
+   "每一小段仍是完整的小磁鐵，兩端具有不同磁性。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-1",
+  "difficulty": "concept",
+  "question": "未磁化的鐵釘靠近強磁鐵時也會吸住小迴紋針，主要原因為何？",
+  "options": {
+   "A": "鐵釘產生永久電流",
+   "B": "鐵釘受到磁化而暫時形成磁極",
+   "C": "迴紋針帶有大量靜電",
+   "D": "磁鐵使重力暫時消失"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "concept",
-    "question": "把指南針放在直導線旁，接通電流後指針發生偏轉。這項現象可說明什麼？",
-    "options": {
-      "A": "電流只能產生熱效應",
-      "B": "指南針會使導線帶靜電",
-      "C": "電流周圍會產生磁場",
-      "D": "電流能消除地球磁場"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_019",
-    "concept_id": "oersted_experiment",
-    "hints": [
-      "指針的方向改變，表示附近出現了能對小磁鐵作用的新因素。",
-      "接通與切斷電路是實驗中的主要差異。",
-      "只有導線通電時指針才偏轉，表示通電導線改變了周圍磁環境。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_018",
+  "concept_id": "magnetic_induction",
+  "hints": [
+   "思考鐵磁性材料在外加磁場中，內部微小磁區會如何排列。",
+   "外加磁場可使原本凌亂的磁區較整齊排列。",
+   "靠近磁鐵後，鐵釘會暫時表現出磁性並吸引鐵製物。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "把指南針放在直導線旁，接通電流後指針發生偏轉。這項現象可說明什麼？",
+  "options": {
+   "A": "電流只能產生熱效應",
+   "B": "指南針會使導線帶靜電",
+   "C": "電流周圍會產生磁場",
+   "D": "電流能消除地球磁場"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "concept",
-    "question": "直導線中的電流方向反轉後，導線周圍的磁場會如何改變？",
-    "options": {
-      "A": "磁場一定消失",
-      "B": "磁場方向與強弱都完全不變",
-      "C": "磁場只剩導線內部才有",
-      "D": "磁場環繞方向反轉"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_020",
-    "concept_id": "current_reversal_field_direction",
-    "hints": [
-      "用同一隻手重新比出規則，讓拇指改指相反方向。",
-      "右手拇指代表電流，彎曲四指代表磁場環繞方向。",
-      "拇指轉向後，四指環繞導線的方向也跟著顛倒。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_019",
+  "concept_id": "oersted_experiment",
+  "hints": [
+   "指針的方向改變，表示附近出現了能對小磁鐵作用的新因素。",
+   "接通與切斷電路是實驗中的主要差異。",
+   "只有導線通電時指針才偏轉，表示通電導線改變了周圍磁環境。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "直導線中的電流方向反轉後，導線周圍的磁場會如何改變？",
+  "options": {
+   "A": "磁場一定消失",
+   "B": "磁場方向與強弱都完全不變",
+   "C": "磁場只剩導線內部才有",
+   "D": "磁場環繞方向反轉"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "concept",
-    "question": "從螺線管某端看，若線圈中的傳統電流為逆時針方向，該端為何種磁極？",
-    "options": {
-      "A": "N 極",
-      "B": "S 極",
-      "C": "不具有磁極",
-      "D": "正電極"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_021",
-    "concept_id": "solenoid_right_hand_rule",
-    "hints": [
-      "以右手四指沿線圈中的傳統電流彎曲，觀察拇指方向。",
-      "螺線管右手定則中，拇指指出線圈內部磁場方向與北磁極端。",
-      "四指依題示方向彎曲時，拇指會朝向觀察者。"
-    ]
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d2_020",
+  "concept_id": "current_reversal_field_direction",
+  "hints": [
+   "用同一隻手重新比出規則，讓拇指改指相反方向。",
+   "右手拇指代表電流，彎曲四指代表磁場環繞方向。",
+   "拇指轉向後，四指環繞導線的方向也跟著顛倒。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "從螺線管某端看，若線圈中的傳統電流為逆時針方向，該端為何種磁極？",
+  "options": {
+   "A": "N 極",
+   "B": "S 極",
+   "C": "不具有磁極",
+   "D": "正電極"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "concept",
-    "question": "電流與鐵心都不變時，增加電磁鐵線圈的匝數，通常會有什麼效果？",
-    "options": {
-      "A": "磁場方向必定消失",
-      "B": "磁場通常增強",
-      "C": "線圈不再產生磁場",
-      "D": "鐵心立即變成絕緣體"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_022",
-    "concept_id": "electromagnet_turns_effect",
-    "hints": [
-      "每一圈導線通電後都會貢獻磁效應，考慮這些效果如何疊加。",
-      "在其他條件相同下，螺線管的磁場與單位長度匝數有關。",
-      "更多同方向繞製的線圈會讓各匝磁場共同累積。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_021",
+  "concept_id": "solenoid_right_hand_rule",
+  "hints": [
+   "以右手四指沿線圈中的傳統電流彎曲，觀察拇指方向。",
+   "螺線管右手定則中，拇指指出線圈內部磁場方向與北磁極端。",
+   "四指依題示方向彎曲時，拇指會朝向觀察者。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "電流與鐵心都不變時，增加電磁鐵線圈的匝數，通常會有什麼效果？",
+  "options": {
+   "A": "磁場方向必定消失",
+   "B": "磁場通常增強",
+   "C": "線圈不再產生磁場",
+   "D": "鐵心立即變成絕緣體"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "concept",
-    "question": "起重機電磁鐵通常選用軟鐵心，而不用容易保留磁性的鋼，主要原因為何？",
-    "options": {
-      "A": "軟鐵完全不會被磁化",
-      "B": "鋼無法受到任何磁力",
-      "C": "斷電後軟鐵較易退磁，方便放下物品",
-      "D": "軟鐵能把直流電變成交流電"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_023",
-    "concept_id": "soft_iron_core_advantage",
-    "hints": [
-      "起重設備除了要能吸起物品，也必須能在需要時快速釋放。",
-      "不同鐵磁性材料在外加磁場移除後，保留磁性的程度不同。",
-      "選擇殘留磁性較少的材料，可在切斷電流後讓吸力迅速減弱。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_022",
+  "concept_id": "electromagnet_turns_effect",
+  "hints": [
+   "每一圈導線通電後都會貢獻磁效應，考慮這些效果如何疊加。",
+   "在其他條件相同下，螺線管的磁場與單位長度匝數有關。",
+   "更多同方向繞製的線圈會讓各匝磁場共同累積。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "起重機電磁鐵通常選用軟鐵心，而不用容易保留磁性的鋼，主要原因為何？",
+  "options": {
+   "A": "軟鐵完全不會被磁化",
+   "B": "鋼無法受到任何磁力",
+   "C": "斷電後軟鐵較易退磁，方便放下物品",
+   "D": "軟鐵能把直流電變成交流電"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "concept",
-    "question": "電磁繼電器能以小電流控制另一條大電流電路，主要利用哪個過程？",
-    "options": {
-      "A": "小電流直接供應大功率負載",
-      "B": "永久磁鐵持續產生電能",
-      "C": "線圈把電流完全轉為光",
-      "D": "通電線圈吸動鐵片以改變接點狀態"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_024",
-    "concept_id": "relay_operation",
-    "hints": [
-      "分辨控制端與負載端，它們可透過可動機構連動而不必直接共用電流。",
-      "控制線圈通電後形成電磁鐵，能使鄰近的鐵製構件移動。",
-      "鐵片被吸引後帶動開關接點，負載電路因此接通或斷開。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_023",
+  "concept_id": "soft_iron_core_advantage",
+  "hints": [
+   "起重設備除了要能吸起物品，也必須能在需要時快速釋放。",
+   "不同鐵磁性材料在外加磁場移除後，保留磁性的程度不同。",
+   "選擇殘留磁性較少的材料，可在切斷電流後讓吸力迅速減弱。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "concept",
+  "question": "電磁繼電器能以小電流控制另一條大電流電路，主要利用哪個過程？",
+  "options": {
+   "A": "小電流直接供應大功率負載",
+   "B": "永久磁鐵持續產生電能",
+   "C": "線圈把電流完全轉為光",
+   "D": "通電線圈吸動鐵片以改變接點狀態"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-3",
-    "difficulty": "concept",
-    "question": "保持外加磁場方向不變，只把導線中的電流反向，導線所受磁力方向如何？",
-    "options": {
-      "A": "反向",
-      "B": "不變",
-      "C": "必定向上",
-      "D": "磁力變成零且永不恢復"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_025",
-    "concept_id": "motor_force_reversal",
-    "hints": [
-      "磁力方向由電流與磁場兩個方向共同決定，只改變其中一個。",
-      "載流導線的受力方向會在電流或磁場任一者單獨反轉時改變。",
-      "磁場保持原向而電流顛倒，右手定則判定的受力也會顛倒。"
-    ]
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d2_024",
+  "concept_id": "relay_operation",
+  "hints": [
+   "分辨控制端與負載端，它們可透過可動機構連動而不必直接共用電流。",
+   "控制線圈通電後形成電磁鐵，能使鄰近的鐵製構件移動。",
+   "鐵片被吸引後帶動開關接點，負載電路因此接通或斷開。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-3",
+  "difficulty": "concept",
+  "question": "保持外加磁場方向不變，只把導線中的電流反向，導線所受磁力方向如何？",
+  "options": {
+   "A": "反向",
+   "B": "不變",
+   "C": "必定向上",
+   "D": "磁力變成零且永不恢復"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-3",
-    "difficulty": "concept",
-    "question": "簡易直流馬達中的換向器有何主要功能？",
-    "options": {
-      "A": "讓線圈永遠沒有電流",
-      "B": "每半圈改變線圈電流方向，使轉矩維持同一轉向",
-      "C": "把永久磁鐵完全退磁",
-      "D": "使電源電壓永久變成零"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_026",
-    "concept_id": "motor_commutator",
-    "hints": [
-      "線圈轉過特定位置後，若電流方向不調整，磁力造成的轉動效果會改變。",
-      "換向器會週期性對調線圈與電源的連接。",
-      "在線圈每次越過適當位置時反轉電流，兩側受力便能繼續推動同一旋轉方向。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_025",
+  "concept_id": "motor_force_reversal",
+  "hints": [
+   "磁力方向由電流與磁場兩個方向共同決定，只改變其中一個。",
+   "載流導線的受力方向會在電流或磁場任一者單獨反轉時改變。",
+   "磁場保持原向而電流顛倒，右手定則判定的受力也會顛倒。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-3",
+  "difficulty": "concept",
+  "question": "簡易直流馬達中的換向器有何主要功能？",
+  "options": {
+   "A": "讓線圈永遠沒有電流",
+   "B": "每半圈改變線圈電流方向，使轉矩維持同一轉向",
+   "C": "把永久磁鐵完全退磁",
+   "D": "使電源電壓永久變成零"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-4",
-    "difficulty": "concept",
-    "question": "將磁鐵插入接有檢流計的線圈時指針偏轉；磁鐵停在線圈內後，指針回到零。原因為何？",
-    "options": {
-      "A": "磁鐵進入後立刻失去磁性",
-      "B": "線圈只對高溫有反應",
-      "C": "停止相對運動後，穿過線圈的磁通量不再改變",
-      "D": "檢流計只能量測直流電池"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_027",
-    "concept_id": "induction_requires_flux_change",
-    "hints": [
-      "感應現象關心的是磁環境的變化率，不只是磁場是否存在。",
-      "磁鐵停住後，穿過固定線圈的磁通量維持不變。",
-      "沒有磁通量變化，就不再產生持續的感應電動勢與電流。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_026",
+  "concept_id": "motor_commutator",
+  "hints": [
+   "線圈轉過特定位置後，若電流方向不調整，磁力造成的轉動效果會改變。",
+   "換向器會週期性對調線圈與電源的連接。",
+   "在線圈每次越過適當位置時反轉電流，兩側受力便能繼續推動同一旋轉方向。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-4",
+  "difficulty": "concept",
+  "question": "將磁鐵插入接有檢流計的線圈時指針偏轉；磁鐵停在線圈內後，指針回到零。原因為何？",
+  "options": {
+   "A": "磁鐵進入後立刻失去磁性",
+   "B": "線圈只對高溫有反應",
+   "C": "停止相對運動後，穿過線圈的磁通量不再改變",
+   "D": "檢流計只能量測直流電池"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-4",
-    "difficulty": "concept",
-    "question": "磁鐵與線圈彼此接近時產生感應電流。若改為保持磁鐵不動、移動線圈接近磁鐵，結果如何？",
-    "options": {
-      "A": "一定沒有感應，因為磁鐵沒動",
-      "B": "線圈會自動成為永久磁鐵",
-      "C": "只有線圈升溫，不會有電流",
-      "D": "仍可產生感應，因為兩者有相對運動"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_028",
-    "concept_id": "relative_motion_induction",
-    "hints": [
-      "判斷時應觀察線圈所感受到的磁場是否改變，而不是只盯著某一物體。",
-      "磁鐵與線圈的相對位置改變，穿過線圈的磁通量就會改變。",
-      "無論移動哪一方，只要彼此距離改變，線圈都可能出現感應電流。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_027",
+  "concept_id": "induction_requires_flux_change",
+  "hints": [
+   "感應現象關心的是磁環境的變化率，不只是磁場是否存在。",
+   "磁鐵停住後，穿過固定線圈的磁通量維持不變。",
+   "沒有磁通量變化，就不再產生持續的感應電動勢與電流。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-4",
+  "difficulty": "concept",
+  "question": "其他條件相同時，把磁鐵更快速地插入線圈，檢流計通常如何變化？",
+  "options": {
+   "A": "偏轉幅度較大",
+   "B": "完全不會偏轉",
+   "C": "偏轉方向必與原來無關",
+   "D": "只會顯示線圈溫度"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-4",
-    "difficulty": "concept",
-    "question": "其他條件相同時，把磁鐵更快速地插入線圈，檢流計通常如何變化？",
-    "options": {
-      "A": "偏轉幅度較大",
-      "B": "完全不會偏轉",
-      "C": "偏轉方向必與原來無關",
-      "D": "只會顯示線圈溫度"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_029",
-    "concept_id": "induction_rate_effect",
-    "hints": [
-      "比較相同磁通量改變在較短與較長時間內完成時的差異。",
-      "磁通量變化率越大，產生的感應電動勢通常越大。",
-      "移動更快會讓線圈中的磁通量更迅速改變，因而使瞬間感應效果更明顯。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_029",
+  "concept_id": "induction_rate_effect",
+  "hints": [
+   "比較相同磁通量改變在較短與較長時間內完成時的差異。",
+   "磁通量變化率越大，產生的感應電動勢通常越大。",
+   "移動更快會讓線圈中的磁通量更迅速改變，因而使瞬間感應效果更明顯。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-4",
+  "difficulty": "concept",
+  "question": "磁鐵以某方向穿過線圈時產生感應電流。若只把磁鐵運動方向反轉，感應電流通常如何？",
+  "options": {
+   "A": "大小與方向必定都不變",
+   "B": "方向反轉",
+   "C": "永久消失",
+   "D": "變成不具方向的電流"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-4",
-    "difficulty": "concept",
-    "question": "磁鐵以某方向穿過線圈時產生感應電流。若只把磁鐵運動方向反轉，感應電流通常如何？",
-    "options": {
-      "A": "大小與方向必定都不變",
-      "B": "方向反轉",
-      "C": "永久消失",
-      "D": "變成不具方向的電流"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_030",
-    "concept_id": "induced_current_direction_reversal",
-    "hints": [
-      "移動方向改變後，穿過線圈的磁通量是增加還是減少也會對調。",
-      "感應電流會形成磁場來反抗原本的磁通量變化。",
-      "由接近改成遠離時，線圈反抗變化所需的磁場方向會顛倒。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_030",
+  "concept_id": "induced_current_direction_reversal",
+  "hints": [
+   "移動方向改變後，穿過線圈的磁通量是增加還是減少也會對調。",
+   "感應電流會形成磁場來反抗原本的磁通量變化。",
+   "由接近改成遠離時，線圈反抗變化所需的磁場方向會顛倒。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-5",
+  "difficulty": "concept",
+  "question": "理想升壓變壓器的次級線圈匝數與初級線圈匝數關係為何？",
+  "options": {
+   "A": "次級匝數一定為零",
+   "B": "次級匝數較少",
+   "C": "次級匝數較多",
+   "D": "兩側都不需線圈"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-5",
-    "difficulty": "concept",
-    "question": "理想升壓變壓器的次級線圈匝數與初級線圈匝數關係為何？",
-    "options": {
-      "A": "次級匝數一定為零",
-      "B": "次級匝數較少",
-      "C": "次級匝數較多",
-      "D": "兩側都不需線圈"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_031",
-    "concept_id": "step_up_transformer_turns",
-    "hints": [
-      "把輸出端需要的電壓高低與該端繞線圈數連結。",
-      "理想變壓器兩側電壓比等於匝數比。",
-      "要讓輸出電壓高於輸入，輸出側的匝數比例也須較高。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_031",
+  "concept_id": "step_up_transformer_turns",
+  "hints": [
+   "把輸出端需要的電壓高低與該端繞線圈數連結。",
+   "理想變壓器兩側電壓比等於匝數比。",
+   "要讓輸出電壓高於輸入，輸出側的匝數比例也須較高。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-5",
+  "difficulty": "concept",
+  "question": "理想升壓變壓器在次級接有負載、持續傳輸非零功率且忽略能量損失時，次級電流與初級電流相比如何？",
+  "options": {
+   "A": "比初級電流小",
+   "B": "比初級電流大且功率也無限增加",
+   "C": "必定與初級電流相等",
+   "D": "一定變成零"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-5",
-    "difficulty": "concept",
-    "question": "一般變壓器使用共同鐵心連接初級與次級線圈，鐵心最主要的作用為何？",
-    "options": {
-      "A": "使初級與次級電路直接導通",
-      "B": "在兩組線圈之間儲存大量靜電",
-      "C": "把輸入的交流電直接整流成直流電",
-      "D": "集中並引導變動磁場，使更多磁通量穿過兩組線圈"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_032",
-    "concept_id": "transformer_core_function",
-    "hints": [
-      "先排除整流、儲存電荷或讓兩側直接導通等功能。",
-      "鐵磁性材料可提供低磁阻路徑，使初級產生的變動磁場較集中。",
-      "較多變動磁通量能同時穿過兩組線圈，提升兩側的電磁感應耦合。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_033",
+  "concept_id": "ideal_transformer_current_relation",
+  "hints": [
+   "理想情況下，輸入與輸出的功率可視為相等。",
+   "由 P＝IV，功率不變時，電壓與電流呈反向變化。",
+   "輸出電壓提高後，為維持相同功率，輸出端通過的電流需降低。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "calc",
+  "question": "某電磁鐵線圈有 200 匝，通過 0.5 A 電流。以匝數與電流乘積作為簡化強弱指標，其值為多少安培匝？",
+  "options": {
+   "A": "400 安培匝",
+   "B": "100 安培匝",
+   "C": "200.5 安培匝",
+   "D": "0.0025 安培匝"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-5",
-    "difficulty": "concept",
-    "question": "理想升壓變壓器在次級接有負載、持續傳輸非零功率且忽略能量損失時，次級電流與初級電流相比如何？",
-    "options": {
-      "A": "比初級電流小",
-      "B": "比初級電流大且功率也無限增加",
-      "C": "必定與初級電流相等",
-      "D": "一定變成零"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_033",
-    "concept_id": "ideal_transformer_current_relation",
-    "hints": [
-      "理想情況下，輸入與輸出的功率可視為相等。",
-      "由 P＝IV，功率不變時，電壓與電流呈反向變化。",
-      "輸出電壓提高後，為維持相同功率，輸出端通過的電流需降低。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_034",
+  "concept_id": "electromagnet_ampere_turns",
+  "hints": [
+   "依題目定義，把線圈圈數與通過的電流相乘。",
+   "簡化強弱指標可寫成匝數 N×電流 I。",
+   "代入為 200×0.5，乘積的單位是安培匝。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-2",
+  "difficulty": "calc",
+  "question": "某電磁鐵原有 100 匝線圈，電流為 2 A；改裝後為 200 匝，電流為 1 A。若磁力強弱只比較匝數與電流的乘積，改裝後約為原來的幾倍？",
+  "options": {
+   "A": "2 倍",
+   "B": "0.5 倍",
+   "C": "1 倍",
+   "D": "0 倍"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "calc",
-    "question": "某電磁鐵線圈有 200 匝，通過 0.5 A 電流。以匝數與電流乘積作為簡化強弱指標，其值為多少安培匝？",
-    "options": {
-      "A": "400 安培匝",
-      "B": "100 安培匝",
-      "C": "200.5 安培匝",
-      "D": "0.0025 安培匝"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_034",
-    "concept_id": "electromagnet_ampere_turns",
-    "hints": [
-      "依題目定義，把線圈圈數與通過的電流相乘。",
-      "簡化強弱指標可寫成匝數 N×電流 I。",
-      "代入為 200×0.5，乘積的單位是安培匝。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_035",
+  "concept_id": "electromagnet_strength_comparison",
+  "hints": [
+   "分別求改裝前後的匝數與電流乘積，再取比值。",
+   "比較指標為 NI，倍率＝改裝後 NI÷改裝前 NI。",
+   "原來為 100×2，改裝後為 200×1，兩個乘積再相除。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-3",
+  "difficulty": "calc",
+  "question": "某馬達接在 12 V 電源上，工作電流為 2 A，輸出的機械功率為 18 W。其效率為多少？",
+  "options": {
+   "A": "25％",
+   "B": "50％",
+   "C": "60％",
+   "D": "75％"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-2",
-    "difficulty": "calc",
-    "question": "某電磁鐵原有 100 匝線圈，電流為 2 A；改裝後為 200 匝，電流為 1 A。若磁力強弱只比較匝數與電流的乘積，改裝後約為原來的幾倍？",
-    "options": {
-      "A": "2 倍",
-      "B": "0.5 倍",
-      "C": "1 倍",
-      "D": "0 倍"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_035",
-    "concept_id": "electromagnet_strength_comparison",
-    "hints": [
-      "分別求改裝前後的匝數與電流乘積，再取比值。",
-      "比較指標為 NI，倍率＝改裝後 NI÷改裝前 NI。",
-      "原來為 100×2，改裝後為 200×1，兩個乘積再相除。"
-    ]
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d2_036",
+  "concept_id": "motor_efficiency_calculation",
+  "hints": [
+   "先求裝置從電源取得的功率，再比較有用機械輸出所占比例。",
+   "輸入功率為 P＝IV，效率＝輸出功率÷輸入功率×100％。",
+   "輸入為 12×2 W，再列 18÷（12×2）×100％。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-5",
+  "difficulty": "calc",
+  "question": "理想變壓器初級線圈 100 匝、次級線圈 500 匝，初級接 12 V 交流電，次級電壓為多少？",
+  "options": {
+   "A": "60 V",
+   "B": "2.4 V",
+   "C": "24 V",
+   "D": "600 V"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-3",
-    "difficulty": "calc",
-    "question": "某馬達接在 12 V 電源上，工作電流為 2 A，輸出的機械功率為 18 W。其效率為多少？",
-    "options": {
-      "A": "25％",
-      "B": "50％",
-      "C": "60％",
-      "D": "75％"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_036",
-    "concept_id": "motor_efficiency_calculation",
-    "hints": [
-      "先求裝置從電源取得的功率，再比較有用機械輸出所占比例。",
-      "輸入功率為 P＝IV，效率＝輸出功率÷輸入功率×100％。",
-      "輸入為 12×2 W，再列 18÷（12×2）×100％。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_037",
+  "concept_id": "step_up_voltage_calculation",
+  "hints": [
+   "比較兩側匝數，先判斷輸出電壓應提高還是降低。",
+   "使用 Vs／Vp＝Ns／Np。",
+   "次級匝數是初級的五倍，因此把 12 V 乘以 5。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-4",
+  "difficulty": "calc",
+  "question": "某小型發電機以 500 W 的功率輸出電能，持續運轉 2 分鐘，共供應多少焦耳的電能？",
+  "options": {
+   "A": "1000 J",
+   "B": "60000 J",
+   "C": "250 J",
+   "D": "120000 J"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-5",
-    "difficulty": "calc",
-    "question": "理想變壓器初級線圈 100 匝、次級線圈 500 匝，初級接 12 V 交流電，次級電壓為多少？",
-    "options": {
-      "A": "60 V",
-      "B": "2.4 V",
-      "C": "24 V",
-      "D": "600 V"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_037",
-    "concept_id": "step_up_voltage_calculation",
-    "hints": [
-      "比較兩側匝數，先判斷輸出電壓應提高還是降低。",
-      "使用 Vs／Vp＝Ns／Np。",
-      "次級匝數是初級的五倍，因此把 12 V 乘以 5。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_038",
+  "concept_id": "generator_energy_calculation",
+  "hints": [
+   "先統一功率與時間所搭配的單位，再連結能量與輸出速率。",
+   "能量（J）＝功率（W）×時間（s）。",
+   "把 2 分鐘換成 2×60 秒，再列 500×（2×60）。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-5",
+  "difficulty": "calc",
+  "question": "輸電系統傳送 11000 W 的功率，升壓後線路電壓為 2200 V。忽略損耗，線路電流為多少？",
+  "options": {
+   "A": "0.2 A",
+   "B": "2 A",
+   "C": "5 A",
+   "D": "24.2 A"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-4",
-    "difficulty": "calc",
-    "question": "某小型發電機以 500 W 的功率輸出電能，持續運轉 2 分鐘，共供應多少焦耳的電能？",
-    "options": {
-      "A": "1000 J",
-      "B": "60000 J",
-      "C": "250 J",
-      "D": "120000 J"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_038",
-    "concept_id": "generator_energy_calculation",
-    "hints": [
-      "先統一功率與時間所搭配的單位，再連結能量與輸出速率。",
-      "能量（J）＝功率（W）×時間（s）。",
-      "把 2 分鐘換成 2×60 秒，再列 500×（2×60）。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_039",
+  "concept_id": "transmission_current_calculation",
+  "hints": [
+   "由傳送功率與線路電壓求通過導線的電流。",
+   "電功率滿足 P＝VI，因此 I＝P÷V。",
+   "代入 11000÷2200，計算後保留安培單位。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-5",
+  "difficulty": "calc",
+  "question": "理想變壓器初級電壓 120 V、電流 2 A；次級電壓為 24 V。忽略損耗，次級電流為多少？",
+  "options": {
+   "A": "0.4 A",
+   "B": "2 A",
+   "C": "5 A",
+   "D": "10 A"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-5",
-    "difficulty": "calc",
-    "question": "輸電系統傳送 11000 W 的功率，升壓後線路電壓為 2200 V。忽略損耗，線路電流為多少？",
-    "options": {
-      "A": "0.2 A",
-      "B": "2 A",
-      "C": "5 A",
-      "D": "24.2 A"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_039",
-    "concept_id": "transmission_current_calculation",
-    "hints": [
-      "由傳送功率與線路電壓求通過導線的電流。",
-      "電功率滿足 P＝VI，因此 I＝P÷V。",
-      "代入 11000÷2200，計算後保留安培單位。"
-    ]
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d2_040",
+  "concept_id": "transformer_current_calculation",
+  "hints": [
+   "先求輸入功率，理想情況下把它視為等於輸出功率。",
+   "理想變壓器滿足 VpIp＝VsIs。",
+   "代入 120×2＝24×Is，再解出 Is。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-4",
+  "difficulty": "calc",
+  "question": "某小型發電機輸出電壓為 24 V，供應的電流為 1.5 A，其輸出電功率為多少？",
+  "options": {
+   "A": "36 W",
+   "B": "16 W",
+   "C": "25.5 W",
+   "D": "48 W"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-5",
-    "difficulty": "calc",
-    "question": "理想變壓器初級電壓 120 V、電流 2 A；次級電壓為 24 V。忽略損耗，次級電流為多少？",
-    "options": {
-      "A": "0.4 A",
-      "B": "2 A",
-      "C": "5 A",
-      "D": "10 A"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_040",
-    "concept_id": "transformer_current_calculation",
-    "hints": [
-      "先求輸入功率，理想情況下把它視為等於輸出功率。",
-      "理想變壓器滿足 VpIp＝VsIs。",
-      "代入 120×2＝24×Is，再解出 Is。"
-    ]
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_041",
+  "concept_id": "generator_output_power",
+  "hints": [
+   "由輸出端的電壓與電流求每秒供給外部電路的電能。",
+   "電功率可用 P＝IV 計算。",
+   "將 24 V 乘以 1.5 A，乘積單位為瓦特。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-5",
+  "difficulty": "calc",
+  "question": "理想變壓器的初級與次級匝數比為 4：1，初級接 220 V 交流電，次級電壓為多少？",
+  "options": {
+   "A": "44 V",
+   "B": "55 V",
+   "C": "220 V",
+   "D": "880 V"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-4",
-    "difficulty": "calc",
-    "question": "某小型發電機輸出電壓為 24 V，供應的電流為 1.5 A，其輸出電功率為多少？",
-    "options": {
-      "A": "36 W",
-      "B": "16 W",
-      "C": "25.5 W",
-      "D": "48 W"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_041",
-    "concept_id": "generator_output_power",
-    "hints": [
-      "由輸出端的電壓與電流求每秒供給外部電路的電能。",
-      "電功率可用 P＝IV 計算。",
-      "將 24 V 乘以 1.5 A，乘積單位為瓦特。"
-    ]
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d2_042",
+  "concept_id": "turns_ratio_voltage_calculation",
+  "hints": [
+   "輸出側匝數較少，依匝數比例縮小輸入電壓。",
+   "Vs／Vp＝Ns／Np，題目的 Ns／Np 為四分之一。",
+   "把 220 V 乘以四分之一即可得到輸出電壓。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-4",
+  "difficulty": "calc",
+  "question": "某交流發電機的轉子每秒旋轉 30 圈；若每轉一圈產生一個完整交流週期，輸出頻率為多少？",
+  "options": {
+   "A": "15 Hz",
+   "B": "20 Hz",
+   "C": "30 Hz",
+   "D": "60 Hz"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-5",
-    "difficulty": "calc",
-    "question": "理想變壓器的初級與次級匝數比為 4：1，初級接 220 V 交流電，次級電壓為多少？",
-    "options": {
-      "A": "44 V",
-      "B": "55 V",
-      "C": "220 V",
-      "D": "880 V"
-    },
-    "answer": "B",
-    "imageUrl": null,
-    "id": "q_9d2_042",
-    "concept_id": "turns_ratio_voltage_calculation",
-    "hints": [
-      "輸出側匝數較少，依匝數比例縮小輸入電壓。",
-      "Vs／Vp＝Ns／Np，題目的 Ns／Np 為四分之一。",
-      "把 220 V 乘以四分之一即可得到輸出電壓。"
-    ]
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d2_043",
+  "concept_id": "generator_frequency_calculation",
+  "hints": [
+   "把每秒完成的轉數與每轉包含的交流週期數連結。",
+   "頻率等於每秒完成的週期數。",
+   "題設每轉一圈是一週期，因此每秒週期數等於每秒轉數。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-5",
+  "difficulty": "calc",
+  "question": "某段輸電線的等效電阻為 2 Ω，通過 10 A 電流。若導線發熱功率可用 P損＝I²R 計算，損失功率為多少？",
+  "options": {
+   "A": "20 W",
+   "B": "50 W",
+   "C": "100 W",
+   "D": "200 W"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-4",
-    "difficulty": "calc",
-    "question": "某交流發電機的轉子每秒旋轉 30 圈；若每轉一圈產生一個完整交流週期，輸出頻率為多少？",
-    "options": {
-      "A": "15 Hz",
-      "B": "20 Hz",
-      "C": "30 Hz",
-      "D": "60 Hz"
-    },
-    "answer": "C",
-    "imageUrl": null,
-    "id": "q_9d2_043",
-    "concept_id": "generator_frequency_calculation",
-    "hints": [
-      "把每秒完成的轉數與每轉包含的交流週期數連結。",
-      "頻率等於每秒完成的週期數。",
-      "題設每轉一圈是一週期，因此每秒週期數等於每秒轉數。"
-    ]
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d2_044",
+  "concept_id": "transmission_line_loss_calculation",
+  "hints": [
+   "先選用描述導線發熱速率與電流、電阻的關係。",
+   "線路損失功率可寫成 P損＝I²R。",
+   "代入 10²×2，計算後保留瓦特單位。"
+  ]
+ },
+ {
+  "chapter": "9下-2",
+  "section": "2-3",
+  "difficulty": "calc",
+  "question": "小馬達接在 6 V 電源上，工作電流為 0.5 A，其輸入電功率為多少？",
+  "options": {
+   "A": "3 W",
+   "B": "5.5 W",
+   "C": "6.5 W",
+   "D": "12 W"
   },
-  {
-    "chapter": "9下-2",
-    "section": "2-5",
-    "difficulty": "calc",
-    "question": "某段輸電線的等效電阻為 2 Ω，通過 10 A 電流。若導線發熱功率可用 P損＝I²R 計算，損失功率為多少？",
-    "options": {
-      "A": "20 W",
-      "B": "50 W",
-      "C": "100 W",
-      "D": "200 W"
-    },
-    "answer": "D",
-    "imageUrl": null,
-    "id": "q_9d2_044",
-    "concept_id": "transmission_line_loss_calculation",
-    "hints": [
-      "先選用描述導線發熱速率與電流、電阻的關係。",
-      "線路損失功率可寫成 P損＝I²R。",
-      "代入 10²×2，計算後保留瓦特單位。"
-    ]
-  },
-  {
-    "chapter": "9下-2",
-    "section": "2-3",
-    "difficulty": "calc",
-    "question": "小馬達接在 6 V 電源上，工作電流為 0.5 A，其輸入電功率為多少？",
-    "options": {
-      "A": "3 W",
-      "B": "5.5 W",
-      "C": "6.5 W",
-      "D": "12 W"
-    },
-    "answer": "A",
-    "imageUrl": null,
-    "id": "q_9d2_045",
-    "concept_id": "motor_input_power",
-    "hints": [
-      "由馬達兩端的電壓與通過電流求輸入能量的速率。",
-      "電功率公式為 P＝IV。",
-      "代入可得 P＝6×0.5，計算後保留瓦特單位。"
-    ]
-  }
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d2_045",
+  "concept_id": "motor_input_power",
+  "hints": [
+   "由馬達兩端的電壓與通過電流求輸入能量的速率。",
+   "電功率公式為 P＝IV。",
+   "代入可得 P＝6×0.5，計算後保留瓦特單位。"
+  ]
+ }
 ]
