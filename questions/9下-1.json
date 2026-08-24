@@ -1,0 +1,1022 @@
+[
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "basic",
+  "question": "電器標示的「電功率」主要表示下列何者？",
+  "options": {
+   "A": "每秒消耗或轉換的電能",
+   "B": "電器能使用的總年數",
+   "C": "通過電器的電荷總量",
+   "D": "電器內部儲存的電能"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_001",
+  "concept_id": "electric_power_definition",
+  "hints": [
+   "想想這個物理量是在比較電器使用能量的快慢。",
+   "功率等於能量除以時間。",
+   "比較單位時間內電能的消耗或轉換量即可判斷。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "basic",
+  "question": "電功率的常用單位為何？",
+  "options": {
+   "A": "焦耳（J）",
+   "B": "瓦特（W）",
+   "C": "安培（A）",
+   "D": "伏特（V）"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_002",
+  "concept_id": "electric_power_unit",
+  "hints": [
+   "先分辨各單位分別對應能量、功率、電流與電壓。",
+   "功率的單位等於焦耳除以秒。",
+   "尋找代表每秒一焦耳的那個單位。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "basic",
+  "question": "家庭用電量所稱的「一度電」相當於多少電能？",
+  "options": {
+   "A": "一瓦特",
+   "B": "一焦耳",
+   "C": "一千瓦小時",
+   "D": "一安培小時"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_003",
+  "concept_id": "kilowatt_hour_definition",
+  "hints": [
+   "這是電費帳單使用的能量單位，不是功率或電流單位。",
+   "用電量可由功率乘以使用時間求得。",
+   "以千瓦為功率單位、以小時為時間單位相乘即可。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "下列哪一種電器主要利用電流的熱效應工作？",
+  "options": {
+   "A": "電風扇",
+   "B": "電鈴",
+   "C": "收音機",
+   "D": "電熱水器"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_004",
+  "concept_id": "joule_heating_application",
+  "hints": [
+   "判斷哪項設備的主要目的，是把電能轉換成內能。",
+   "電流通過具有電阻的元件時會發熱。",
+   "找出以加熱液體為主要功能的設備。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "保險絲在電路中的主要作用為何？",
+  "options": {
+   "A": "電流過大時熔斷以切斷電路",
+   "B": "持續提高電器兩端的電壓",
+   "C": "讓所有電器消耗更多電能",
+   "D": "在停電時自動供應電能"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_005",
+  "concept_id": "fuse_function",
+  "hints": [
+   "想想導線異常發熱時，這個元件如何保護其他設備。",
+   "它利用電流熱效應，超過安全範圍便改變自身狀態。",
+   "異常狀況下它會先熔化，使通路中斷。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "家中同時開啟太多高功率電器而「跳電」，通常是哪個裝置動作？",
+  "options": {
+   "A": "電能表",
+   "B": "無熔絲開關",
+   "C": "變壓器",
+   "D": "乾電池"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_006",
+  "concept_id": "circuit_breaker_function",
+  "hints": [
+   "尋找配電箱中能在用電超載時自動切斷通路的裝置。",
+   "這種保護裝置不靠金屬絲熔化，排除故障後可重新開啟。",
+   "它是配電箱內可扳回復位的安全開關。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "為何不可用濕手觸碰插頭或電器開關？",
+  "options": {
+   "A": "會使電器的功率固定變小",
+   "B": "會讓插座完全不再導電",
+   "C": "水分可能降低皮膚電阻而增加觸電風險",
+   "D": "水分會把交流電立即變成直流電"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_007",
+  "concept_id": "wet_hand_electric_shock",
+  "hints": [
+   "從人體是否更容易形成導電通路來思考。",
+   "在相同電壓下，人體電阻變小會使通過人體的電流變大。",
+   "潮濕會使皮膚的絕緣能力下降，因此危險性提高。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "三孔插座中的接地孔最主要的安全功能為何？",
+  "options": {
+   "A": "增加電器的額定功率",
+   "B": "使電器可以儲存更多電荷",
+   "C": "把交流電轉換成直流電",
+   "D": "漏電時提供低電阻路徑導向大地"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_008",
+  "concept_id": "grounding_wire_safety",
+  "hints": [
+   "想想金屬外殼意外帶電時，電流應被引到哪裡才較安全。",
+   "接地線會提供比人體更容易通過的路徑。",
+   "故障電流可經接地線流向大地，降低外殼使人觸電的風險。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "使用延長線時，下列哪一種做法較安全？",
+  "options": {
+   "A": "依額定容量使用並保持電線散熱",
+   "B": "把整捆電線壓在厚地毯下使用",
+   "C": "在同一插座接滿高功率電器",
+   "D": "用膠帶長期包住已裸露的銅線"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_009",
+  "concept_id": "extension_cord_safety",
+  "hints": [
+   "逐項判斷哪些做法可能造成絕緣受損或導線溫度異常升高。",
+   "超載與積熱都可能使絕緣層受損甚至引發火災。",
+   "遵守產品標示的負載上限，並避免覆蓋或纏繞造成積熱。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-3",
+  "difficulty": "basic",
+  "question": "乾電池放電時，主要進行哪一種能量轉換？",
+  "options": {
+   "A": "電能轉換成化學能",
+   "B": "化學能轉換成電能",
+   "C": "光能轉換成電能",
+   "D": "熱能轉換成核能"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_010",
+  "concept_id": "dry_cell_energy_conversion",
+  "hints": [
+   "觀察電池內的物質反應與外部電路得到能量的先後關係。",
+   "放電時，電池內部的反應是能量來源。",
+   "內部反應儲存的能量會轉成外部電路可使用的能量。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-3",
+  "difficulty": "basic",
+  "question": "汽車常用的鉛蓄電池具有下列哪一項特性？",
+  "options": {
+   "A": "只能使用一次，不能充電",
+   "B": "不含任何化學物質",
+   "C": "可經適當充電後重複使用",
+   "D": "不分正極與負極"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_011",
+  "concept_id": "lead_acid_battery_property",
+  "hints": [
+   "從「蓄」字聯想到這類電池能否再次儲存能量。",
+   "其放電反應可在外加電能時大致逆向進行。",
+   "補充電能後能再次放電，因此屬於可重複使用的二次電池。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-3",
+  "difficulty": "basic",
+  "question": "把相同乾電池同方向串聯，最主要的效果為何？",
+  "options": {
+   "A": "總電壓變成零",
+   "B": "總電壓維持不變",
+   "C": "每顆電池都停止供電",
+   "D": "各顆電池的電壓相加"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_012",
+  "concept_id": "battery_series_voltage",
+  "hints": [
+   "沿著電路方向依序經過各電池，思考每次電位改變如何累積。",
+   "同方向串聯時，每顆電池造成的電位升高會累加。",
+   "將所有單顆電池提供的電壓依序加總。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-3",
+  "difficulty": "basic",
+  "question": "把兩顆相同電池正極接正極、負極接負極並聯，總電壓如何？",
+  "options": {
+   "A": "約等於單顆電池的電壓",
+   "B": "變成單顆電池的兩倍",
+   "C": "變成單顆電池的一半",
+   "D": "一定變成零"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_013",
+  "concept_id": "battery_parallel_voltage",
+  "hints": [
+   "觀察兩支路的正端與負端是否分別接在相同的兩個節點。",
+   "並聯元件兩端的電位差相同。",
+   "兩端電位差由每一顆相同電池共同維持，不會彼此累加。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "basic",
+  "question": "家庭中的燈具與插座通常採用並聯，主要原因為何？",
+  "options": {
+   "A": "所有電器只能同時開關",
+   "B": "各電器可獨立使用且承受相同電壓",
+   "C": "任一電器故障就切斷全屋電路",
+   "D": "所有電器的電流必定相同"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_014",
+  "concept_id": "household_parallel_circuit",
+  "hints": [
+   "想想關掉一盞燈時，其他房間的電器是否仍能運作。",
+   "並聯各支路接在相同的兩端，彼此不必共用同一條通路。",
+   "每個支路都得到電源的完整電位差，也能分別控制通斷。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "basic",
+  "question": "住家電能表主要記錄哪一種物理量？",
+  "options": {
+   "A": "瞬間電流",
+   "B": "瞬間電壓",
+   "C": "累積使用的電能",
+   "D": "導線的電阻"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_015",
+  "concept_id": "electricity_meter_reading",
+  "hints": [
+   "想想電力公司如何依一段期間的使用量計費，而非只看某一瞬間。",
+   "計費依據可由各電器功率乘上使用時間後累加。",
+   "表上的讀數代表住家至今累積消耗的能量。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "concept",
+  "question": "兩個電器接在相同電壓的插座上，甲的功率比乙大。使用時通常可推知什麼？",
+  "options": {
+   "A": "甲的電阻必定比乙大",
+   "B": "甲消耗電能的速率較慢",
+   "C": "甲兩端的電壓比乙小",
+   "D": "通過甲的電流通常較大"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_016",
+  "concept_id": "power_current_relation",
+  "hints": [
+   "兩個設備的供電條件相同，可從功率關係式比較另一個量。",
+   "由 P＝IV 可知，V 相同時，P 與 I 成正比。",
+   "功率較大的設備在同一電壓下需要較多電荷於每秒通過。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "concept",
+  "question": "兩臺電器使用時間相同，甲的功率較大。下列敘述何者正確？",
+  "options": {
+   "A": "甲消耗的電能較多",
+   "B": "甲消耗的電能較少",
+   "C": "兩者消耗的電能必相同",
+   "D": "無法由功率與時間判斷"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_017",
+  "concept_id": "power_energy_relation",
+  "hints": [
+   "把功率視為使用能量的快慢，再考慮運轉期間一樣長。",
+   "電能可用 E＝Pt 比較。",
+   "時間相等時，功率越大的設備累積轉換的能量越多。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "concept",
+  "question": "電熱水壺標示「110 V、1200 W」，其中 1200 W 的意義為何？",
+  "options": {
+   "A": "每次使用固定消耗 1200 J",
+   "B": "額定電壓下每秒轉換約 1200 J 電能",
+   "C": "壺內最多只能裝 1200 g 的水",
+   "D": "通過水壺的電流固定為 1200 A"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_018",
+  "concept_id": "rated_power_meaning",
+  "hints": [
+   "把設備銘牌上的功率理解為能量轉換的速率。",
+   "一瓦特等於每秒一焦耳。",
+   "在標示的工作電壓下，將瓦特數解讀成每秒轉換的焦耳數。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "保險絲應如何接入受保護的電路？",
+  "options": {
+   "A": "與電器並聯在插座兩端",
+   "B": "只接在地線且不經用電器",
+   "C": "與電器串聯在供電路徑上",
+   "D": "跨接在電源兩端形成短路"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_019",
+  "concept_id": "fuse_series_connection",
+  "hints": [
+   "它動作時必須能讓流向設備的整條通路中斷。",
+   "保護元件需要讓負載電流全部流經自身。",
+   "把它放在供電路徑中，使熔斷時沒有旁路可繼續供電。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "保險絲熔斷後，若改用很粗的銅線直接代替，最大的危險為何？",
+  "options": {
+   "A": "電器將永遠無法通電",
+   "B": "電路電壓一定降為零",
+   "C": "電能表會停止累積讀數",
+   "D": "過大電流可能無法及時切斷而引發火災"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_020",
+  "concept_id": "fuse_replacement_safety",
+  "hints": [
+   "比較替代材料在異常負載下是否容易先熔化。",
+   "保護元件需在導線過熱前熔斷，粗銅線可承受的電流太大。",
+   "保護路徑若不會先斷開，屋內配線便可能持續升溫。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "電器漏電使部分電流經人體或地面流走時，哪種裝置最能迅速降低危險？",
+  "options": {
+   "A": "漏電斷路器",
+   "B": "電能表",
+   "C": "升壓變壓器",
+   "D": "一般燈泡"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_021",
+  "concept_id": "leakage_breaker_protection",
+  "hints": [
+   "尋找能比較流出與流回電流是否一致的保護設備。",
+   "若火線與中性線的電流不相等，表示有電流從其他路徑流失。",
+   "偵測到不平衡後立即切斷通路，可縮短人體通電時間。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "同一條延長線同時接上吹風機、電暖器與電鍋，最可能造成哪種狀況？",
+  "options": {
+   "A": "各電器的額定電壓自動升高",
+   "B": "總電流過大使導線過熱",
+   "C": "所有電器的電阻同時變成零",
+   "D": "交流電自動轉換為直流電"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_022",
+  "concept_id": "circuit_overload",
+  "hints": [
+   "這些設備都需要快速轉換大量能量，應注意共用導線的負載。",
+   "並聯支路電流會在主線相加，超過額定值會產生過多熱量。",
+   "多臺高功率設備共用細導線時，主線承受的電流可能超過安全範圍。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "小鳥雙腳停在同一條高壓電線上通常不會觸電，主要原因為何？",
+  "options": {
+   "A": "鳥的身體完全不導電",
+   "B": "高壓電線中沒有電流",
+   "C": "雙腳間電位差很小，通過身體的電流很小",
+   "D": "羽毛會把任何電壓都降為零"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_023",
+  "concept_id": "bird_on_wire_safety",
+  "hints": [
+   "先比較小鳥身體兩端是否形成足以造成顯著電流的條件。",
+   "同一段短導線上的兩個接觸點電位通常非常接近。",
+   "身體兩端幾乎沒有電壓，依歐姆定律流經身體的電流也很小。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "要拔除正在使用的電器插頭時，下列何種做法正確？",
+  "options": {
+   "A": "用濕布包住插頭再拔",
+   "B": "直接拉扯電線使插頭脫落",
+   "C": "先剪斷電線再移除插頭",
+   "D": "先關閉電器，再握住插頭本體拔出"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_024",
+  "concept_id": "plug_removal_safety",
+  "hints": [
+   "目標是先降低負載並避免接點或絕緣層受損。",
+   "先停止設備運作，再對堅固的絕緣外殼施力。",
+   "不要拉扯軟線；應以手握住插頭外殼，平穩移出插座。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-3",
+  "difficulty": "concept",
+  "question": "兩顆相同乾電池同方向串聯後接燈泡，燈泡通常比只接一顆時更亮，主要原因為何？",
+  "options": {
+   "A": "串聯後提供的總電壓較高",
+   "B": "燈泡的燈絲立即變得更粗",
+   "C": "每顆電池的電壓都變成零",
+   "D": "燈泡的額定功率必定變小"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_025",
+  "concept_id": "battery_series_effect",
+  "hints": [
+   "比較兩種接法能在燈泡兩端造成多大的電位差。",
+   "同方向串聯時，各電池造成的電位升高會相加。",
+   "燈泡兩端得到較大的電位差，因而通常有較大的電流與功率。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-3",
+  "difficulty": "concept",
+  "question": "理想情況下，將兩顆規格、電量與狀態完全相同的新電池並聯供應同一個小燈泡，相較於單顆電池，主要優點為何？",
+  "options": {
+   "A": "燈泡兩端電壓加倍",
+   "B": "可分擔電流，通常能供電較久",
+   "C": "總電壓一定變成零",
+   "D": "燈泡不再消耗電能"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_026",
+  "concept_id": "battery_parallel_capacity",
+  "hints": [
+   "先判斷兩端的電位差是否增加，再思考負載如何由不同支路共同供應。",
+   "相同電池並聯時電壓不相加，但各支路可共同提供所需電流。",
+   "負載由兩個相同來源分擔，通常可延長整組使用時間。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-3",
+  "difficulty": "concept",
+  "question": "為何不建議把新舊程度不同的電池混合使用？",
+  "options": {
+   "A": "新電池會立刻失去正負極",
+   "B": "所有電器的功率都會變成零",
+   "C": "狀態較差的電池可能過度放電、發熱或漏液",
+   "D": "電池混用會使直流電變成交流電"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_027",
+  "concept_id": "battery_mixing_safety",
+  "hints": [
+   "思考容量與內電阻不同的電源互相連接時，負擔是否均勻。",
+   "較弱的電池可能提早耗盡，之後仍被整組電流強迫工作。",
+   "電池狀態差異會使弱電池承受異常反應，增加溫升與損壞風險。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-3",
+  "difficulty": "concept",
+  "question": "兩顆電壓相同的電池串聯時，若其中一顆方向接反，理想情況下整組電壓會如何？",
+  "options": {
+   "A": "變成單顆電池的四倍",
+   "B": "仍是兩顆電壓直接相加",
+   "C": "固定等於單顆電池電壓",
+   "D": "兩顆電壓互相抵消而接近零"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_028",
+  "concept_id": "reverse_battery_effect",
+  "hints": [
+   "沿同一繞行方向判斷兩個電源造成的是電位升高還是降低。",
+   "方向相反的相同電池，其電壓在代數相加時符號相反。",
+   "大小相等、方向相反的兩個電位變化會彼此抵消。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "concept",
+  "question": "兩個純電阻接在相同電壓下，電阻較小者的電功率如何？",
+  "options": {
+   "A": "較大",
+   "B": "較小",
+   "C": "必為零",
+   "D": "必定相同"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_029",
+  "concept_id": "power_resistance_relation",
+  "hints": [
+   "先把供電條件固定，再由歐姆定律連結電流與電阻。",
+   "由 I＝V／R 與 P＝IV，可得 P＝V²／R。",
+   "電壓固定時，分母越小，單位時間轉換的電能越多。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "電熱器的發熱線通常選用電阻率較高且熔點較高的合金，主要理由為何？",
+  "options": {
+   "A": "讓發熱線完全沒有電阻",
+   "B": "能有效發熱並承受高溫而不易熔斷",
+   "C": "使電流永遠無法通過發熱線",
+   "D": "讓電能全部轉換為磁能"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_030",
+  "concept_id": "heating_wire_material",
+  "hints": [
+   "同時考量元件產熱的能力與長時間工作時的耐熱性。",
+   "電流通過電阻會產熱，而材料熔點高可避免工作時熔化。",
+   "材料須容易把電能轉為熱，又能在高溫下維持形狀。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "理想情況下，電暖器運轉時最主要的能量轉換為何？",
+  "options": {
+   "A": "熱能轉換成電能",
+   "B": "化學能轉換成光能",
+   "C": "電能轉換成內能",
+   "D": "核能轉換成位能"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_031",
+  "concept_id": "heater_energy_conversion",
+  "hints": [
+   "先辨認設備由插座取得的能量形式，以及它要讓環境產生的主要效果。",
+   "發熱元件利用電流熱效應提高自身與周圍物體的溫度。",
+   "輸入來自電路，主要輸出表現在物體微觀運動加劇、溫度升高。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "concept",
+  "question": "電視以遙控器關閉後仍亮著待機燈。下列敘述何者正確？",
+  "options": {
+   "A": "待機時完全不與電路相連",
+   "B": "待機時消耗的功率一定更大",
+   "C": "只要螢幕不亮就不會計入用電量",
+   "D": "待機仍可能持續消耗少量電能"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_032",
+  "concept_id": "standby_power",
+  "hints": [
+   "觀察指示燈與遙控接收器是否仍需能源維持運作。",
+   "只要待機電路有非零功率，經過一段時間就會累積用電量。",
+   "螢幕雖關閉，維持接收與指示功能的電路仍可能取用電能。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-2",
+  "difficulty": "concept",
+  "question": "家中一盞燈泡燒壞後，其他並聯的電器通常仍可使用，原因為何？",
+  "options": {
+   "A": "各支路有各自的通路，單一支路斷路不影響其他支路",
+   "B": "燒壞的燈泡會自動變成導線",
+   "C": "所有支路的電流原本就相同",
+   "D": "電源會把斷路燈泡的電阻變成零"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_033",
+  "concept_id": "household_parallel_advantage",
+  "hints": [
+   "把每個用電器想成連在相同兩端、但彼此分開的路徑。",
+   "並聯電路的一條支路中斷，不會切斷其他支路與電源的連接。",
+   "故障只使該支路無電流，其餘支路仍構成完整迴路。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "某直流電器兩端電壓為 12 V，通過的電流為 2 A，其電功率為多少？",
+  "options": {
+   "A": "6 W",
+   "B": "24 W",
+   "C": "10 W",
+   "D": "14 W"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_034",
+  "concept_id": "power_calculation",
+  "hints": [
+   "先找出題目給的電壓與電流，使用電功率的關係式。",
+   "電功率公式為 P＝IV。",
+   "代入可得 P＝2×12，計算後保留瓦特單位。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "吹風機接在 110 V 電源上，工作電流為 5 A，其功率為多少？",
+  "options": {
+   "A": "22 W",
+   "B": "105 W",
+   "C": "550 W",
+   "D": "2200 W"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_035",
+  "concept_id": "power_calculation",
+  "hints": [
+   "這題要由工作時的電壓與電流求出能量轉換速率。",
+   "使用 P＝IV，功率單位為瓦特。",
+   "把 110 與 5 相乘，即可得到吹風機的功率。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "一臺 1500 W 電暖器連續使用 2 小時，共消耗多少度電？",
+  "options": {
+   "A": "0.75 度",
+   "B": "1.5 度",
+   "C": "2 度",
+   "D": "3 度"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_036",
+  "concept_id": "electric_energy_calculation",
+  "hints": [
+   "先把功率換成帳單常用的單位，再乘上使用時間。",
+   "用電量（度）＝功率（kW）×時間（h）。",
+   "1500 W＝1.5 kW，再計算 1.5×2。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "某家庭一天使用 4 度電，若每度電以 3.5 元估算，當天電費約多少元？",
+  "options": {
+   "A": "14 元",
+   "B": "7.5 元",
+   "C": "11.5 元",
+   "D": "17.5 元"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_037",
+  "concept_id": "electricity_cost_calculation",
+  "hints": [
+   "用電費率表示每單位用電量需付的金額，將它與用量結合。",
+   "電費＝用電度數×每度單價。",
+   "將 4 乘以 3.5，即可估算當天的費用。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "一臺 800 W 電鍋使用 30 分鐘，共消耗多少度電？",
+  "options": {
+   "A": "0.24 度",
+   "B": "0.4 度",
+   "C": "2.4 度",
+   "D": "24 度"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_038",
+  "concept_id": "electric_energy_calculation",
+  "hints": [
+   "先統一功率與時間的單位，再計算兩者乘積。",
+   "把瓦特換成千瓦、分鐘換成小時，再用 E＝Pt。",
+   "800 W＝0.8 kW，30 分鐘＝0.5 小時，計算 0.8×0.5。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "額定功率 660 W 的電器接在 110 V 電源上正常運作，電流約為多少？",
+  "options": {
+   "A": "0.17 A",
+   "B": "5 A",
+   "C": "6 A",
+   "D": "60 A"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_039",
+  "concept_id": "current_calculation",
+  "hints": [
+   "由功率與電壓反求電流，先把基本關係式移項。",
+   "由 P＝IV 可得 I＝P／V。",
+   "將 660 W 除以 110 V，商的單位就是安培。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "一臺 1200 W 快煮壺工作 50 秒，若電能全轉為熱能，共產生多少焦耳的熱？",
+  "options": {
+   "A": "24 J",
+   "B": "1200 J",
+   "C": "6000 J",
+   "D": "60000 J"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_040",
+  "concept_id": "electric_energy_joule_calculation",
+  "hints": [
+   "選用能把能量轉換速率與運轉時間連結起來的關係。",
+   "能量（J）＝功率（W）×時間（s）。",
+   "代入 1200 W×50 s，得到 60000 J。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "五盞 60 W 燈泡同時點亮 4 小時，共消耗多少度電？",
+  "options": {
+   "A": "1.2 度",
+   "B": "0.24 度",
+   "C": "12 度",
+   "D": "1200 度"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_041",
+  "concept_id": "multiple_appliances_energy",
+  "hints": [
+   "先求所有燈泡同時工作的總功率，再乘上點亮時間。",
+   "總用電量＝燈泡數×單盞功率×時間，功率須換成 kW。",
+   "總功率為 5×60 W＝0.3 kW，再計算 0.3×4。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "某冰箱平均每天耗電 1.5 度，連續使用 30 天。若每度電 2.4 元，這段期間電費約多少元？",
+  "options": {
+   "A": "72 元",
+   "B": "108 元",
+   "C": "45 元",
+   "D": "120 元"
+  },
+  "answer": "B",
+  "imageUrl": null,
+  "id": "q_9d1_042",
+  "concept_id": "monthly_electricity_cost",
+  "hints": [
+   "先累計整段期間的用電量，再套用每單位用量的費率。",
+   "總電費＝每日度數×天數×每度單價。",
+   "先算 1.5×30＝45 度，再用 45×2.4 求費用。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-1",
+  "difficulty": "calc",
+  "question": "某電器接在 110 V 電源上連續使用 4 小時，耗電 0.88 度。其平均工作電流為多少？",
+  "options": {
+   "A": "0.5 A",
+   "B": "1 A",
+   "C": "2 A",
+   "D": "8 A"
+  },
+  "answer": "C",
+  "imageUrl": null,
+  "id": "q_9d1_043",
+  "concept_id": "energy_current_calculation",
+  "hints": [
+   "先由用電量與時間求平均功率，再由功率與電壓反求電流。",
+   "P＝E／t，接著使用 I＝P／V；注意千瓦與瓦特的換算。",
+   "0.88 kWh÷4 h＝0.22 kW＝220 W，再計算 220÷110。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-3",
+  "difficulty": "calc",
+  "question": "三顆 1.5 V 乾電池同方向串聯，理想總電壓為多少？",
+  "options": {
+   "A": "0.5 V",
+   "B": "1.5 V",
+   "C": "3.0 V",
+   "D": "4.5 V"
+  },
+  "answer": "D",
+  "imageUrl": null,
+  "id": "q_9d1_044",
+  "concept_id": "battery_series_calculation",
+  "hints": [
+   "同方向串聯時，沿電路經過各電源造成的電位變化會累積。",
+   "理想串聯電池組的總電壓等於各顆電池電壓相加。",
+   "將三個 1.5 V 相加，也就是計算 3×1.5。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "1-3",
+  "difficulty": "calc",
+  "question": "同一個 110 V 插座同時供應 1100 W 電暖器與 550 W 電鍋，忽略其他損耗，總電流為多少？",
+  "options": {
+   "A": "15 A",
+   "B": "5 A",
+   "C": "10 A",
+   "D": "20 A"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "id": "q_9d1_045",
+  "concept_id": "household_total_current_calculation",
+  "hints": [
+   "先合併同時運轉電器的負載，再利用家庭電源條件求電流。",
+   "總功率等於各電器功率相加，且 I＝P÷V。",
+   "先算 1100＋550＝1650 W，再用 1650÷110 得到 15 A。"
+  ]
+ },
+ {
+  "chapter": "9下-1",
+  "section": "2-5",
+  "difficulty": "basic",
+  "question": "保險絲或無熔絲開關的主要功能為何？",
+  "id": "q_9_2_022",
+  "concept_id": "basic_electrical_safety",
+  "hints": [
+   "先找出哪種狀況會讓導線過熱，以及保護裝置應在危險擴大前做什麼。",
+   "過載或短路造成電流超過安全值時，保險裝置會開啟回路以停止電流。",
+   "排除提高功率、升高電壓或維持短路的說法，選擇主動中斷危險者。"
+  ],
+  "options": {
+   "A": "電流過大時切斷電路以降低危險",
+   "B": "提高所有電器功率",
+   "C": "增加供電電壓",
+   "D": "讓短路持續"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 10,
+  "hp": 5,
+  "atk": 2,
+  "def": 1
+ },
+ {
+  "chapter": "9下-1",
+  "section": "2-5",
+  "difficulty": "concept",
+  "question": "發現電器導線破損時，較安全的處理方式為何？",
+  "id": "q_9_2_023",
+  "concept_id": "basic_electrical_safety",
+  "hints": [
+   "把裸露導體、漏電與觸電風險放在第一順位，不要嘗試用身體確認故障。",
+   "破損設備應停止使用並隔離電源，由具資格的人員檢查修復；接地保護不可任意移除。",
+   "逐項排除增加接觸水分、延長帶病運轉或破壞接地的行為。"
+  ],
+  "options": {
+   "A": "停止使用並交由合格人員檢修",
+   "B": "用濕手測試是否漏電",
+   "C": "繼續使用直到完全斷裂",
+   "D": "直接拆除接地線"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ },
+ {
+  "chapter": "9下-1",
+  "section": "2-5",
+  "difficulty": "concept",
+  "question": "下列何者符合基本用電安全？",
+  "id": "q_9_2_024",
+  "concept_id": "basic_electrical_safety",
+  "hints": [
+   "檢查每項行為是否能降低過載、導電接觸與保護裝置失效的風險。",
+   "安全用電應避免插座超過額定負載、保持乾燥並使用合規格的保護元件。",
+   "排除把金屬或水接近帶電設備，以及繞過保險保護的做法。"
+  ],
+  "options": {
+   "A": "避免插座超載並保持手部乾燥",
+   "B": "以金屬物插入插座測試",
+   "C": "用水沖洗通電設備",
+   "D": "以不合規格導線取代保險絲"
+  },
+  "answer": "A",
+  "imageUrl": null,
+  "gold": 14,
+  "hp": 7,
+  "atk": 3,
+  "def": 2
+ }
+]

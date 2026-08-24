@@ -14,18 +14,23 @@
   "8下-6",
   "9-1",
   "9-2",
+  "9-3",
+  "9-4",
+  "9下-1",
+  "9下-2",
+  "9下-3",
   "final-10"
  ],
  "chapters": [
   {
    "chapter": "8-1",
    "file": "8-1.json",
-   "count": 30
+   "count": 45
   },
   {
    "chapter": "8-2",
    "file": "8-2.json",
-   "count": 72
+   "count": 102
   },
   {
    "chapter": "8-3",
@@ -80,12 +85,37 @@
   {
    "chapter": "9-1",
    "file": "9-1.json",
-   "count": 24
+   "count": 45
   },
   {
    "chapter": "9-2",
    "file": "9-2.json",
-   "count": 24
+   "count": 45
+  },
+  {
+   "chapter": "9-3",
+   "file": "9-3.json",
+   "count": 69
+  },
+  {
+   "chapter": "9-4",
+   "file": "9-4.json",
+   "count": 66
+  },
+  {
+   "chapter": "9下-1",
+   "file": "9下-1.json",
+   "count": 48
+  },
+  {
+   "chapter": "9下-2",
+   "file": "9下-2.json",
+   "count": 45
+  },
+  {
+   "chapter": "9下-3",
+   "file": "9下-3.json",
+   "count": 45
   },
   {
    "chapter": "final-10",
@@ -93,5 +123,5 @@
    "count": 39
   }
  ],
- "total": 497
+ "total": 857
 }

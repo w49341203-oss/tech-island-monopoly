@@ -1,5 +1,5 @@
 /* 科技島大富翁 — 22 位科學家角色與專屬卡
- * 每位角色每 5 輪自動獲得一張自己的專屬卡
+ * 每位角色每 10 輪自動獲得一張自己的專屬卡（CFG.charCardEvery）
  */
 (function (global) {
   'use strict';

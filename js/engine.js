@@ -3,7 +3,7 @@
  * 規格：工作紀錄.md　數值：數值設定.md
  *
  * 一輪的流程：
- *   startRound  出題（全班同時作答，10 秒／難題 15 秒）
+ *   startRound  出題（全班同時作答，一般題 15 秒／計算題 20 秒）
  *   submitAnswer 各組送出答案（記錄用時）
  *   reveal      時間到，同時揭曉，決定行動順序（答對且用時最短者先走）
  *   走：nextStep / chooseFork（逐格移動，遇岔路暫停等選擇）
@@ -174,9 +174,19 @@
     // 開局手牌：四大道具中隨機抽 3「種」（每種一張、不重複）+ 1 張自己的專屬卡
     // 用抽走的方式取樣，才不會出現同一種道具好幾張
     var tools = CARD.TOOLS.slice();
+    // 老師關閉破壞類道具時，開局就不發（發了出不了牌、也賣不掉幾點，整場佔手牌）
+    if (state.cfg && state.cfg.allowSabotage === false) {
+      tools = tools.filter(function (t) { return CARD.SABOTAGE.indexOf(t.id) < 0; });
+    }
     var hand = [];
     for (var i = 0; i < 3; i++) {
-      hand.push({ id: tools.splice(Math.floor(rnd(state) * tools.length), 1)[0].id });
+      if (tools.length) {
+        hand.push({ id: tools.splice(Math.floor(rnd(state) * tools.length), 1)[0].id });
+      } else {
+        // 池子不夠（關閉破壞道具時四大道具只剩兩種）：改發一張非破壞的公共卡
+        var cand = CARD.CARDS.filter(function (cd) { return CARD.SABOTAGE.indexOf(cd.id) < 0; });
+        hand.push({ id: cand[Math.floor(rnd(state) * cand.length)].id });
+      }
     }
     hand.push({ id: c.card, char: true });
     state.players[gid].cards = hand;
@@ -762,6 +772,7 @@
     var blk_ = actionBlocked(state, gid);
     if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid], owner = state.board.owner[idx];
+    if (idx !== p.pos) return { ok: false, msg: '要停在那塊地上才能併購' };
     if (!owner || owner === gid) return { ok: false, msg: '不能併購這塊地' };
     var cur = B.landValue(idx, state.board.level[idx] || 0), bid = cur * CFG.mergerMult;
     if (p.cash < bid) return { ok: false, msg: '現金不足（需要 $' + bid.toLocaleString() + '）' };
@@ -842,12 +853,21 @@
   }
 
   function sellCard(state, gid, cardId) {
+    var blk_ = actionBlocked(state, gid);
+    if (blk_) return { ok: false, msg: blk_ };
     var p = state.players[gid];
+    // 專屬卡不能賣：cost 是 0 換不到點數，只會誤觸弄丟招牌卡
+    for (var si = 0; si < p.cards.length; si++) {
+      if (p.cards[si].id === cardId && p.cards[si].char) {
+        return { ok: false, msg: '角色專屬卡不能賣' };
+      }
+    }
     if (!removeCard(p, cardId)) return { ok: false, msg: '手上沒有這張卡' };
     var def = CARD.get(cardId);
     var back = Math.floor((def.cost || 0) / 2);
     p.rp += back;
-    return { ok: true, rp: back };
+    log(state, '💰 ' + p.name + ' 賣出「' + (def.name || cardId) + '」換回 ' + back + ' 點', 'card');
+    return { ok: true, rp: back, name: def.name };
   }
 
   function removeCard(p, cardId, charOnly) {
@@ -997,14 +1017,22 @@
         }
         break;
       }
-      case 'apple': if (tp) tp.buff.halfdice = 1; break;
+      case 'apple': {
+        if (!tp) return { ok: false, msg: '要指定一組' };   // 沒目標就出牌會白白吃掉卡片
+        tp.buff.halfdice = 1;
+        break;
+      }
       case 'blackout': {
         if (!tp) return { ok: false, msg: '要指定一組' };
         if (removeCard(tp, 'pardon')) { r.blocked = true; break; }
         tp.frozen = Math.max(tp.frozen, 1);
         break;
       }
-      case 'brownout': if (tp) tp.buff.brownout = 1; break;
+      case 'brownout': {
+        if (!tp) return { ok: false, msg: '要指定一組' };   // 沒目標就出牌會白白吃掉卡片
+        tp.buff.brownout = 1;
+        break;
+      }
       case 'alliance': {
         if (!tp) return { ok: false, msg: '要指定一組' };
         p.alliance[tp.gid] = 3; tp.alliance[gid] = 3;

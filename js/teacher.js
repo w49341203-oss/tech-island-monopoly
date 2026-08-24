@@ -57,6 +57,7 @@
       // 依冊別上色。十五個一模一樣的方塊很難找，分色之後一眼就看得到
       b.dataset.book = ch.file.indexOf('final') === 0 ? 'all'
                      : ch.file.indexOf('8下') === 0 ? '8d'
+                     : ch.file.indexOf('9下') === 0 ? '9d'
                      : ch.file.indexOf('9') === 0 ? '9' : '8u';
       b.textContent = ch.label;
       b.onclick = function () {
@@ -155,6 +156,16 @@
   function startNew(solo) {
     if (!cfg.chapters.length) { msg('請先勾選這次要考的章節', 'err'); return; }
     if (!Q.size()) { msg('題庫還沒載入完成，請稍候', 'err'); return; }
+    // 設定一律以「畫面此刻顯示的」為準重讀一次，不信快取的 cfg。
+    // 之前讀過存檔會把 cfg.groups 蓋成存檔的組數，下拉選單卻沒跟著變——
+    // 畫面寫 9 組、開出來卻是 5 組（實際發生過）。
+    cfg.groups = +$('groupCount').value;
+    cfg.maxRounds = +$('maxRounds').value;
+    cfg.breakSec = +$('breakSec').value;
+    cfg.speed = +$('animSpeed').value;
+    cfg.allowMerge = $('allowMerge').checked;
+    cfg.allowSabotage = $('allowSabotage').checked;
+    cfg.autoPilot = $('autoPilot').checked;
     cfg.solo = solo;
     msg('正在開新場次…', '');
 
@@ -245,6 +256,9 @@
     // 續玩：組數、角色、資產全部沿用存檔，不用重選。
     // 章節可以換（這次要考哪幾章由老師決定），沒勾就沿用存檔原本的。
     cfg.groups = Object.keys(st.players).length;
+    // 下拉選單也同步成存檔的組數，讓畫面跟實際一致
+    // （不同步的話，之後按「開新遊戲」畫面寫的組數會跟開出來的不一樣）
+    if ($('groupCount')) $('groupCount').value = String(cfg.groups);
     // 單機存的檔要用單機續玩（面板才會回來）；全班的檔照常走連線模式。
     // 以前這裡硬設 false，單機存檔續玩後右側操作面板就消失了（實際發生過）。
     cfg.solo = !!(st.cfg && st.cfg.solo);
@@ -473,7 +487,9 @@
         var cls = 'cpv-card' + (t ? ' taken' : '') + (mine === c.id ? ' mine' : '');
         return '<div class="' + cls + '" data-ch="' + c.id + '">' +
                '<div class="e">' + c.emoji + '</div><div class="n">' + c.name + '</div>' +
-               '<div class="s">' + (t ? '第 ' + t + ' 組' : (mine === c.id ? '目前' : c.cardName || '')) + '</div></div>';
+               '<div class="s">' + (t ? '第 ' + t + ' 組'
+                 : (mine === c.id ? '目前'
+                 : ((CARD.get(c.card, true) || {}).name || ''))) + '</div></div>';
       }).join('') +
       '</div>' +
       '<button id="cpvClose" class="ghost" style="margin-top:12px;width:100%">關閉（不改）</button>' +
@@ -1072,6 +1088,11 @@
         // 放回手牌讓 playCard 正常走一次完整流程（它會再移除）
         p.cards.push({ id: item.cardId, char: item.char });
         var r = E.playCard(state, item.gid, item.cardId, item.target);
+        // 壓縮卡：道具時間出牌也要結算被推到的那一格（過路費、輻射、事件），
+        // 之前只有「直接出牌」的路徑有做，道具時間只推人不結算，同一張卡兩種行為
+        if (r && r.ok && r.landAgainFor && state.players[r.landAgainFor]) {
+          E.landOn(state, r.landAgainFor);
+        }
 
         var tgt = '';
         if (item.target) {
@@ -1357,13 +1378,6 @@
           var mv = state.players[cardResult.landAgainFor];
           toast(mv.num + '組 被推到 ' + B.CELLS[mv.pos].name, 2400);
         }
-        if (cardResult && cardResult.ok && cardResult.landAgain) {
-          // 瞬移卡：傳送過去之後要真的觸發那一格的效果（買地／過路費／事件）
-          var lr = E.landOn(state, a.gid);
-          R.drawBoard(state); R.drawPlayers(state);
-          R.focusOn(a.gid, state);
-          toast(state.players[a.gid].num + '組 瞬移到 ' + B.CELLS[state.players[a.gid].pos].name, 2400);
-        }
         if (cardResult && cardResult.ok && a.cardId === 'quake' && state.board.quakeColor) {
           var qz = B.COLORS[state.board.quakeColor];
           toast('🌊 ' + (qz ? qz.name : '') + '園區地震！這一輪全區停產，踩到不用付過路費', 3600);
@@ -1395,10 +1409,22 @@
         break;
       }
       case 'merge': {
+        // 唯一沒包 reject() 的花錢動作補起來：失敗原因要傳回平板，
+        // 不然學生按了確認卻什麼都沒發生，看起來像當機（掃描發現）
         if (state.cfg.allowMerge) {
-          var rm = E.merge(state, a.gid, state.players[a.gid].pos);
-          if (rm.ok) toast(state.players[a.gid].num + '組 併購了 ' + B.CELLS[state.players[a.gid].pos].name, 2200);
+          var rm = reject(a.gid, E.merge(state, a.gid, state.players[a.gid].pos));
+          if (rm.ok) {
+            SOUND.play('buy');
+            toast(state.players[a.gid].num + '組 併購了 ' + B.CELLS[state.players[a.gid].pos].name, 2200);
+          }
+        } else {
+          reject(a.gid, { ok: false, msg: '這節課老師關閉了併購功能' });
         }
+        break;
+      }
+      case 'sell': {
+        var rs = reject(a.gid, E.sellCard(state, a.gid, a.cardId));
+        if (rs.ok) toast(state.players[a.gid].num + '組 賣出一張卡（+' + rs.rp + ' 點）', 1800);
         break;
       }
       case 'skip': markDecided(a.gid); break;
@@ -1412,7 +1438,6 @@
       case 'loan': reject(a.gid, E.applyLoan(state, a.gid, a.amount)); break;
       case 'repay': reject(a.gid, E.repayLoan(state, a.gid, a.amount)); break;
       case 'shop': reject(a.gid, E.buyFromShop(state, a.gid, a.cardId)); break;   // 買卡不結束決定，可以連買
-      case 'fork': pendingFork = a.cell; break;
       case 'pick': E.pickCharacter(state, a.gid, a.charId); renderLobby(); break;
       case 'hello':
         // 第一次報到時響一聲，老師就知道又有一組平板連進來了
@@ -1473,7 +1498,6 @@
   // ═══════════════════════════════════════
   // 依序移動
   // ═══════════════════════════════════════
-  var pendingFork = null;
   var decision = null;          // { gid: 'g1', done: false } —— 這一組有沒有按「我好了」
   var waitAbort = null;         // 正在等老師按鍵時，用它可以強制結束等待
 
@@ -1680,23 +1704,6 @@
     return stepOnce();
   }
 
-  function askFork(gid, options) {
-    return new Promise(function (res) {
-      pendingFork = null;
-      var names = options.map(function (o) { return B.CELLS[o].name; }).join(' 或 ');
-      toast('⛰️ 岔路口：' + names + '（等該組選擇）', 3200);
-      if (isBot(gid)) { setTimeout(function () { res(options[Math.floor(Math.random() * options.length)]); }, 900); return; }
-      var t0 = Date.now();
-      var iv = setInterval(function () {
-        pumpActions();
-        if (pendingFork != null && options.indexOf(pendingFork) >= 0) {
-          clearInterval(iv); var c = pendingFork; pendingFork = null; res(c);
-        } else if (Date.now() - t0 > 3500) {          // 逾時走主環
-          clearInterval(iv); res(options[0]);
-        }
-      }, 200);
-    });
-  }
 
   /** 踩到格子會發生的事，各配一個聲音 */
   function landingSound(ev) {
@@ -1706,7 +1713,7 @@
       case 'jail': return 'jail';
       case 'hospital': return 'hospital';
       case 'license': case 'pardon': return 'block';
-      case 'god': return (ev.bad ? 'godBad' : 'godGood');
+      case 'god': return (ev.good ? 'godGood' : 'godBad');   // 引擎給的是 good 欄位（之前誤讀 ev.bad，壞神也放好神音效）
       case 'news': return 'card';
       default: return '';
     }
@@ -1769,6 +1776,12 @@
       if (ev.type === 'radiation') lines.push('踩到輻射區，扣 $' + ev.amount.toLocaleString());
       if (ev.type === 'shop') lines.push('進入創投商店（第 ' + p.num + ' 組購買中…）');
       if (ev.type === 'bank') lines.push('來到銀行，可以存提款或申請貸款');
+      // 引擎有做但白板之前沒解釋的事件，補上說明（學生才知道為什麼沒付錢／沒抽到卡）
+      if (ev.type === 'handFull') lines.push('手牌已滿（8 張），專利局的卡沒拿到');
+      if (ev.type === 'ownerFrozen') lines.push('地主停機中（約談／住院），這次不用付過路費');
+      if (ev.type === 'alliance') lines.push('🤝 同盟中，免付過路費');
+      if (ev.type === 'pierce') lines.push('晶片直通卡生效，免付過路費（自動觸發）');
+      if (ev.type === 'godOrder') lines.push('神明保佑（附身效果），免付過路費');
     });
 
     // 有沒有需要這一組自己決定的事？

@@ -331,7 +331,16 @@
     me.buff = me.buff || {};
     if (mine.peek) me.buff.peek = mine.peek;
     st.myHints = mine.hints || [];
+    var hadSpy = !!(state && state.allCards);
     st.allCards = mine.allCards || null;      // 觀測卡：這一輪看得到全部人的手牌
+    if (st.allCards && !hadSpy) {
+      // 剛生效：自動打開「戰況」讓學生馬上看到成果，並提示去哪裡看
+      setTimeout(function () {
+        plToast('🔭 觀測卡生效！戰況面板可以看到全部人的手牌與存款（到本輪結束）');
+        var rb = document.getElementById('btnRankP');
+        if (rb) rb.click();
+      }, 300);
+    }
     st.myReject = mine.reject || null;        // 被拒絕的操作原因（「點數不足」…）
     return st;
   }
@@ -1059,7 +1068,7 @@
       god: '產業風向：神明常出沒的地標（神明會在地圖上移動）', tax: '國稅局：繳總資產 5%',
       pool: '政府補助池：領走累積稅金', audit: '稽查：直接送檢調',
       jail: '檢調約談所：停 1 輪', hosp: '醫院：停 1 輪',
-      airport: '桃園機場：可飛海外廠', fork: '岔路口：隨機決定走哪一條',
+      airport: '桃園機場：岔路可通海外廠（隨機）', fork: '岔路口：隨機決定走哪一條',
       mountain: '山區'
     };
     return m[c.type] || '';
@@ -1323,7 +1332,9 @@
     if (cell.type === 'land' && state.board.owner[me.pos] && state.board.owner[me.pos] !== my.gid &&
         state.cfg && state.cfg.allowMerge) {
       var cur = B.landValue(me.pos, state.board.level[me.pos] || 0);
-      if (me.cash + me.bank >= cur * 2) {
+      // 引擎併購只收「現金」（跟買地蓋廠一樣，存款要先去銀行領出來）。
+      // 之前這裡算現金＋存款，按鈕亮著、引擎卻拒絕，學生以為當機
+      if (me.cash >= cur * 2) {
         html.push('<button class="opt-btn" data-act="merge">🏢 併購這塊地（$' +
                   (cur * 2).toLocaleString() + '）</button>');
       } else {
@@ -1354,9 +1365,6 @@
     }
 
     body.innerHTML = html.join('');
-    body.querySelectorAll('[data-fork]').forEach(function (b) {
-      b.onclick = function () { send({ type: 'fork', cell: +b.dataset.fork }); b.disabled = true; };
-    });
 
     // 確認中：其他按鈕全部鎖住（只留確定／取消能按）。
     // 「我好了」也一起鎖，避免掛著確認框卻叫老師換人。
@@ -1640,11 +1648,22 @@
       if (!def) return;
       var d = document.createElement('div');
       d.className = 'hand-card' + (selectedCard === i ? ' on' : '');
+      var back = Math.floor((def.cost || 0) / 2);
       d.innerHTML = '<div class="e">' + def.emoji + '</div>' +
                     '<div class="n">' + def.name + (c.char ? ' ★' : '') + '</div>' +
                     '<div class="d">' + def.desc + '</div>' +
-                    '<div class="c">' + (def.when || '自己的行動階段') + '</div>';
+                    '<div class="c">' + (def.when || '自己的行動階段') + '</div>' +
+                    // 專屬卡（★）不能賣；其他卡半價回收成研發點數，
+                    // 手牌滿了或拿到用不到的卡（例如老師關閉破壞道具）才有出口
+                    (c.char ? '' : '<button class="sellbtn" data-sell="' + c.id + '">💰 賣出換 ' + back + ' 點</button>');
       d.onclick = function () { selectCard(i, def, c); };
+      var sb = d.querySelector('[data-sell]');
+      if (sb) sb.onclick = function (ev) {
+        ev.stopPropagation();
+        if (!state || state.phase === 'setup') { pmsg('handMsg', '遊戲開始後才能賣卡', 'err'); return; }
+        pmsg('handMsg', '要把「' + def.emoji + ' ' + def.name + '」賣回換 ' + back + ' 點研發點數嗎？（賣掉就沒了）', '');
+        askConfirm(function () { send({ type: 'sell', cardId: c.id }); selectedCard = null; }, '💰 確定賣出');
+      };
       box.appendChild(d);
     });
     if (!me.cards.length) box.innerHTML = '<div class="pl-msg">手上還沒有卡片</div>';
@@ -1749,10 +1768,10 @@
     if (c) c.onclick = function () { box.innerHTML = ''; selectedCard = null; renderHand(state.players[my.gid]); };
   }
 
-  function askConfirm(fn) {
+  function askConfirm(fn, label) {
     var box = $('handMsg');
     var b = document.createElement('button');
-    b.className = 'opt-btn'; b.style.marginTop = '8px'; b.textContent = '確定使用';
+    b.className = 'opt-btn'; b.style.marginTop = '8px'; b.textContent = label || '確定使用';
     b.onclick = function () {
       fn();
       box.innerHTML = state.phase === 'item'

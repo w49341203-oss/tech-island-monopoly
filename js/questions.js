@@ -1,5 +1,5 @@
 /* 科技島大富翁 — 題庫載入與出題
- * 題庫來源：questions/*.json（從一千零一夢同步，共 497 題）
+ * 題庫來源：questions/*.json（八年級從一千零一夢同步；九年級 2026-08 Codex 補完全冊，共 809 題）
  * 欄位：chapter / section / difficulty / question / options{A,B,C,D} / answer / hints[3] / imageUrl
  */
 (function (global) {
@@ -21,6 +21,11 @@
     { file: '8下-6', label: '八下 ch6 力矩與功' },
     { file: '9-1',  label: '九上 ch1 直線運動' },
     { file: '9-2',  label: '九上 ch2 力與運動' },
+    { file: '9-3',  label: '九上 ch3 功與能量' },
+    { file: '9-4',  label: '九上 ch4 基本電學' },
+    { file: '9下-1', label: '九下 ch1 電流的熱效應與生活用電' },
+    { file: '9下-2', label: '九下 ch2 電與磁' },
+    { file: '9下-3', label: '九下 ch3 能源與科技生活' },
     { file: 'final-10', label: '總複習（跨章）' }
   ];
 
@@ -46,6 +51,9 @@
           arr.forEach(function (q) {
             // 防護：舊題庫可能缺欄位
             if (!q || !q.question || !q.options || !q.answer) return;
+            // 帶附圖的題先跳過：圖檔不在本專案（一千零一夢同步殘留的欄位），
+            // 抽到會變成「如圖所示」卻沒有圖，全班無法作答
+            if (q.imageUrl) return;
             q._file = f;
             if (!q.hints) q.hints = [];
             collected.push(q);

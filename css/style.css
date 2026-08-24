@@ -141,6 +141,7 @@ button.big::before{border-radius:17px 17px 46% 46% / 17px 17px 22px 22px}
 .chip[data-book="8u"]{border-color:#8fd0f0;background:linear-gradient(180deg,#ffffff,#e3f4ff)}
 .chip[data-book="8d"]{border-color:#9fe0c8;background:linear-gradient(180deg,#ffffff,#e2f8f0);color:#0d6b57}
 .chip[data-book="9"] {border-color:#ffcf9a;background:linear-gradient(180deg,#fffdf6,#ffefdc);color:#8a5320}
+.chip[data-book="9d"]{border-color:#f6b6c8;background:linear-gradient(180deg,#fffafc,#ffe6ee);color:#96375a}
 .chip[data-book="all"]{border-color:#d6b8f0;background:linear-gradient(180deg,#fffbff,#f2e6ff);color:#5f3a8a}
 .chip.on{border-color:#a35a00;color:#4a2c00;transform:translateY(-1px);
          background:linear-gradient(180deg,#fff3b0,#ffc93c);
@@ -513,6 +514,10 @@ body.player{overflow:auto}
 .cf-no{background:#ffffff;color:#b91c1c;border:2px solid #b91c1c}
 /* 錢不夠的選項：變灰、不能按（亮著會讓學生以為壞掉） */
 .opt-btn.cant{opacity:.45;cursor:not-allowed;background:#e2e8f0;color:#475569}
+/* 手牌上的賣卡鈕（專屬卡沒有）：半價回收成研發點數 */
+.hand-card .sellbtn{display:block;width:100%;margin-top:6px;padding:6px 8px;font-size:13px;
+  font-weight:700;border:1.5px solid #b45309;border-radius:8px;background:#fef3c7;color:#92400e;cursor:pointer}
+.hand-card .sellbtn:active{transform:scale(.97)}
 /* 玩家端浮動提示：不管在哪個分頁都看得到 */
 #plToast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-20px);
   z-index:600;background:#7f1d1d;color:#ffffff;font-size:16px;font-weight:900;
