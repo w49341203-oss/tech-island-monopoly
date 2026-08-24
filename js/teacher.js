@@ -485,11 +485,13 @@
       window.CHARACTERS.map(function (c) {
         var t = taken[c.id];
         var cls = 'cpv-card' + (t ? ' taken' : '') + (mine === c.id ? ' mine' : '');
+        var cd = CARD.get(c.card, true) || {};
         return '<div class="' + cls + '" data-ch="' + c.id + '">' +
                '<div class="e">' + c.emoji + '</div><div class="n">' + c.name + '</div>' +
                '<div class="s">' + (t ? '第 ' + t + ' 組'
-                 : (mine === c.id ? '目前'
-                 : ((CARD.get(c.card, true) || {}).name || ''))) + '</div></div>';
+                 : (mine === c.id ? '目前' : (cd.name || ''))) + '</div>' +
+               // 專屬卡的效果說明也放上來，選角時就能比較（Helen 需求）
+               '<div class="d">' + (cd.desc || '') + '</div></div>';
       }).join('') +
       '</div>' +
       '<button id="cpvClose" class="ghost" style="margin-top:12px;width:100%">關閉（不改）</button>' +

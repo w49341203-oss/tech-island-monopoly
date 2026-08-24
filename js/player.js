@@ -647,6 +647,8 @@
         '<img src="' + url + '" style="display:none" alt="">' +
         '<div class="n">' + c.name + '</div>' +
         '<div class="cd">' + (cd ? cd.emoji + ' ' + cd.name : '') + '</div>' +
+        // 卡片效果直接寫在角色卡上，選角時就能比較（Helen 需求）
+        (cd ? '<div class="cdd">' + cd.desc + '</div>' : '') +
         (isTaken ? '<div class="cd">第 ' + taken[c.id] + ' 組已選</div>' : '');
       var im = card.querySelector('img'), ph = card.querySelector('.ph');
       // 圖片若已在快取中，onload 不會再觸發，要另外檢查 complete
