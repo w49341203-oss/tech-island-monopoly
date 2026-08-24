@@ -25,62 +25,62 @@
   {
    "chapter": "8-1",
    "file": "8-1.json",
-   "count": 35
+   "count": 45
   },
   {
    "chapter": "8-2",
    "file": "8-2.json",
-   "count": 89
+   "count": 102
   },
   {
    "chapter": "8-3",
    "file": "8-3.json",
-   "count": 25
+   "count": 30
   },
   {
    "chapter": "8-4",
    "file": "8-4.json",
-   "count": 27
+   "count": 30
   },
   {
    "chapter": "8-5",
    "file": "8-5.json",
-   "count": 29
+   "count": 38
   },
   {
    "chapter": "8-6",
    "file": "8-6.json",
-   "count": 22
+   "count": 30
   },
   {
    "chapter": "8下-1",
    "file": "8下-1.json",
-   "count": 23
+   "count": 30
   },
   {
    "chapter": "8下-2",
    "file": "8下-2.json",
-   "count": 24
+   "count": 30
   },
   {
    "chapter": "8下-3",
    "file": "8下-3.json",
-   "count": 24
+   "count": 30
   },
   {
    "chapter": "8下-4",
    "file": "8下-4.json",
-   "count": 20
+   "count": 30
   },
   {
    "chapter": "8下-5",
    "file": "8下-5.json",
-   "count": 24
+   "count": 30
   },
   {
    "chapter": "8下-6",
    "file": "8下-6.json",
-   "count": 24
+   "count": 30
   },
   {
    "chapter": "9-1",
@@ -90,7 +90,7 @@
   {
    "chapter": "9-2",
    "file": "9-2.json",
-   "count": 43
+   "count": 45
   },
   {
    "chapter": "9-3",
@@ -100,17 +100,17 @@
   {
    "chapter": "9-4",
    "file": "9-4.json",
-   "count": 63
+   "count": 66
   },
   {
    "chapter": "9下-1",
    "file": "9下-1.json",
-   "count": 47
+   "count": 48
   },
   {
    "chapter": "9下-2",
    "file": "9下-2.json",
-   "count": 43
+   "count": 45
   },
   {
    "chapter": "9下-3",
@@ -123,5 +123,5 @@
    "count": 39
   }
  ],
- "total": 760
+ "total": 857
 }

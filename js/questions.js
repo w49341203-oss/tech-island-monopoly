@@ -1,5 +1,7 @@
 /* 科技島大富翁 — 題庫載入與出題
- * 題庫來源：questions/*.json（八年級從一千零一夢同步；九年級 2026-08 Codex 補完全冊，共 809 題）
+ * 題庫來源：questions/*.json（八年級從一千零一夢同步；九年級 2026-08 Codex 補完全冊）
+ * 題數：現役 760 題；另有 97 題「時限內讀不完」的長題存放在 questions/保留區_太長題（沒有刪除），
+ *       31 題帶附圖的題目載入時自動跳過（圖檔不在本專案）。
  * 欄位：chapter / section / difficulty / question / options{A,B,C,D} / answer / hints[3] / imageUrl
  */
 (function (global) {
@@ -29,8 +31,31 @@
     { file: 'final-10', label: '總複習（跨章）' }
   ];
 
-  // 難度 → 作答秒數（2026-08-22 調整：10 秒太趕，一般題改 15 秒、計算題 20 秒）
-  var SECONDS = { basic: 15, concept: 15, calc: 20 };
+  // 難度 → 基本作答秒數
+  // 2026-08-22：10 秒太趕，一般題改 15 秒。
+  // 2026-08-24：計算題 20→30 秒（Helen：需要計算的也要增加秒數——要留足夠時間列式）。
+  //   秒數可以給得充分，因為白板端「全部組別都作答完就提早揭曉」，不會拖慢節奏。
+  var SECONDS = { basic: 15, concept: 15, calc: 30 };
+
+  /** 題幹＋四個選項的實際閱讀量（去空白後的字數） */
+  function readLoad(q) {
+    var t = String(q.question || '');
+    if (q.options) for (var k in q.options) t += String(q.options[k]);
+    return t.replace(/\s/g, '').length;
+  }
+
+  /**
+   * 依題目長度自動加秒（2026-08-24，Helen 先生實測「讀不完就時間到」）。
+   * 國中生在時間壓力下約每秒讀 4~5 個字：基本秒數已涵蓋約 70 字的閱讀量，
+   * 超過的部分每 4 字加 1 秒，整體上限 60 秒。
+   * 長題因此不必從題庫拿掉——時間跟著題目長度走；
+   * 搭配「全員作答完成就提早揭曉」，給充分時間也不會拖慢整節課。
+   */
+  function secondsFor(q) {
+    var base = SECONDS[q.difficulty] || 15;
+    var extra = Math.ceil(Math.max(0, readLoad(q) - 70) / 4);
+    return Math.min(base + extra, 60);
+  }
 
   var bank = [];        // 已載入的題目
   var loaded = [];      // 已載入哪些章節
@@ -120,7 +145,7 @@
       chapter: q.chapter,
       section: q.section,
       imageUrl: q.imageUrl || null,
-      seconds: SECONDS[q.difficulty] || 15
+      seconds: secondsFor(q)
     };
   }
 
@@ -146,7 +171,7 @@
   }
 
   global.QUESTIONS = {
-    CHAPTERS: CHAPTERS, SECONDS: SECONDS,
+    CHAPTERS: CHAPTERS, SECONDS: SECONDS, secondsFor: secondsFor,
     load: load, size: size, draw: draw,
     difficultyForPrice: difficultyForPrice,
     shuffleOptions: shuffleOptions,

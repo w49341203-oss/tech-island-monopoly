@@ -1228,6 +1228,22 @@
       botAnswer(left, total);
       pumpActions();
       renderLights();
+      // 全部（有平板的）組都按好答案 → 不用把倒數跑完，直接進揭曉。
+      // 因為有這個機制，長題與計算題才能放心給充分的秒數（Helen 需求）。
+      if (left > 0 && allHumansAnswered()) {
+        clearInterval(timer);
+        botAnswer(0, total, true);      // 電腦組此刻一起補答（保持電腦墊底的行動順序）
+        pumpActions();
+        renderLights();
+        SOUND.play('timeUp');
+        status('全部作答完成，提早揭曉！');
+        regTimer(setTimeout(function () {
+          if (sessionOver) return;
+          pumpActions();
+          doReveal();
+        }, 900));
+        return;
+      }
       if (left <= 0) {
         clearInterval(timer);
         SOUND.play('timeUp');
@@ -1254,17 +1270,30 @@
     }).join('');
   }
 
-  /** 沒有平板的組（或單機試玩）由電腦代答，答對率約 70% */
-  function botAnswer(left, total) {
+  /** 真人組（有平板的、或單機模式老師自己玩的）是不是全部都作答完了 */
+  function allHumansAnswered() {
+    var humans = Object.keys(state.players).filter(function (gid) {
+      if (state.players[gid].frozen > 0) return false;   // 停機中的組不作答，不用等
+      // 只等「現在真的有裝置在線上」的組；單機模式老師自己那組一定要等
+      //（不管心跳有沒有剛好斷一下，免得老師還在想就被提早揭曉）
+      return isOnline(gid) || (cfg.solo && everOnline[gid]);
+    });
+    if (!humans.length) return false;    // 一組真人都沒有就照常倒數（不秒揭曉）
+    return humans.every(function (gid) { return !!state.answers[gid]; });
+  }
+
+  /** 沒有平板的組（或單機試玩）由電腦代答，答對率約 70%
+   *  force=true：提早揭曉的當下叫還沒答的電腦組全部立刻補答 */
+  function botAnswer(left, total, force) {
     Object.keys(state.players).forEach(function (gid) {
       if (!isBot(gid)) return;
       if (everOnline[gid]) return;   // 有裝置的組不代答（單機模式老師自己玩的那組也一樣）
       // 只在最後 3 秒才代答：遊戲開始後才連進來的組，第一次心跳還沒到之前
       // 會被誤判成「沒平板」——電腦太早代答會把他們的作答權搶走
       //（一組只能作答一次，電腦答了學生就答不了）。
-      if (!cfg.solo && left > 3) return;
+      if (!force && !cfg.solo && left > 3) return;
       if (state.answers[gid] || state.players[gid].frozen > 0) return;
-      if (Math.random() < 0.28) {
+      if (force || Math.random() < 0.28) {
         var q = state.question;
         var correct = Math.random() < 0.7;
         var choice = correct ? q.answer : q.optionKeys.filter(function (k) { return k !== q.answer; })[0];
