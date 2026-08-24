@@ -514,6 +514,11 @@ body.player{overflow:auto}
 .cf-no{background:#ffffff;color:#b91c1c;border:2px solid #b91c1c}
 /* 錢不夠的選項：變灰、不能按（亮著會讓學生以為壞掉） */
 .opt-btn.cant{opacity:.45;cursor:not-allowed;background:#e2e8f0;color:#475569}
+/* 銀行卡片收合（整張卡會蓋住中間操作區——Helen 實測回報） */
+#btnBankClose{float:right;font-size:13px;font-weight:800;padding:4px 12px;border-radius:8px;
+  border:1.5px solid #94a3b8;background:#f1f5f9;color:#334155;cursor:pointer}
+#btnBankOpen{display:block;width:100%;margin:8px 0;padding:11px;font-size:15px;font-weight:900;
+  border-radius:12px;border:2px solid #0e7490;background:#e0f2fe;color:#0e7490;cursor:pointer}
 /* 手牌上的賣卡鈕（專屬卡沒有）：半價回收成研發點數 */
 .hand-card .sellbtn{display:block;width:100%;margin-top:6px;padding:6px 8px;font-size:13px;
   font-weight:700;border:1.5px solid #b45309;border-radius:8px;background:#fef3c7;color:#92400e;cursor:pointer}
