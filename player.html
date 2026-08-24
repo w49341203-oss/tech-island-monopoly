@@ -10,8 +10,18 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b1220">
+<!-- 安裝成 App（PWA）：從主畫面圖示開啟就是滿版、沒有網址列，也不會滑一下就跑出瀏覽器介面 -->
+<link rel="manifest" href="app.webmanifest">
+<meta name="apple-mobile-web-app-title" content="科技島">
+<link rel="apple-touch-icon" href="images/icons/app-180.png">
 <title>科技島大富翁 — 我的平板</title>
-<link rel="stylesheet" href="css/style.css?v=20260824-1144">
+<link rel="stylesheet" href="css/style.css?v=20260824-1208">
+<script>
+// 註冊最小 service worker（只為了「可安裝」，不做任何快取）
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('sw.js').catch(function () {});
+}
+</script>
 </head>
 <body class="player">
 
@@ -190,9 +200,9 @@
   </div><!-- /pgAssets -->
   <div id="bankCard" class="hidden">
 
-  <!-- 銀行 -->
-  <div class="pl-card">
-    <h3>🏦 銀行</h3>
+  <!-- 銀行（可收合：整張卡會蓋住中間的操作區） -->
+  <div class="pl-card" id="bankBody">
+    <h3>🏦 銀行 <button id="btnBankClose" type="button">✕ 收合</button></h3>
     <div class="pl-msg" id="bankHint">要停在銀行格才能存提款與申請貸款</div>
     <div class="pl-actions">
       <button id="btnDeposit">存款</button>
@@ -201,6 +211,7 @@
       <button id="btnRepay">還款</button>
     </div>
   </div>
+  <button id="btnBankOpen" type="button" class="hidden">🏦 展開銀行選項（存提款、貸款）</button>
   </div><!-- /bankCard -->
 
   <!-- 底部分頁列：功能一頁一頁切，整個畫面不捲動（防下拉誤觸重新整理）。
@@ -230,14 +241,14 @@ if (!window.firebase) {
   document.write('<scr' + 'ipt src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"><\/scr' + 'ipt>');
 }
 </script>
-<script src="js/firebase-config.js?v=20260824-1144"></script>
-<script src="js/sound.js?v=20260824-1144"></script>
-<script src="js/board.js?v=20260824-1144"></script>
-<script src="js/render.js?v=20260824-1144"></script>
-<script src="js/characters.js?v=20260824-1144"></script>
-<script src="js/cards.js?v=20260824-1144"></script>
-<script src="js/engine.js?v=20260824-1144"></script>
-<script src="js/store.js?v=20260824-1144"></script>
-<script src="js/player.js?v=20260824-1144"></script>
+<script src="js/firebase-config.js?v=20260824-1208"></script>
+<script src="js/sound.js?v=20260824-1208"></script>
+<script src="js/board.js?v=20260824-1208"></script>
+<script src="js/render.js?v=20260824-1208"></script>
+<script src="js/characters.js?v=20260824-1208"></script>
+<script src="js/cards.js?v=20260824-1208"></script>
+<script src="js/engine.js?v=20260824-1208"></script>
+<script src="js/store.js?v=20260824-1208"></script>
+<script src="js/player.js?v=20260824-1208"></script>
 </body>
 </html>

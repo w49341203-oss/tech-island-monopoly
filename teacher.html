@@ -6,8 +6,22 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0e7490">
+<!-- 安裝成 App（PWA）：筆電 Chrome/Edge 網址列會出現「安裝」圖示，裝完開啟就是滿版 -->
+<link rel="manifest" href="app-teacher.webmanifest">
+<meta name="apple-mobile-web-app-title" content="科技島老師端">
+<link rel="apple-touch-icon" href="images/icons/app-180.png">
 <title>科技島大富翁 — 老師端</title>
-<link rel="stylesheet" href="css/style.css?v=20260824-1144">
+<link rel="stylesheet" href="css/style.css?v=20260824-1208">
+<script>
+// 註冊最小 service worker（只為了「可安裝」，不做任何快取）
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('sw.js').catch(function () {});
+}
+</script>
 </head>
 <body class="teacher">
 
@@ -237,17 +251,17 @@ if (!window.firebase) {
   document.write('<scr' + 'ipt src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"><\/scr' + 'ipt>');
 }
 </script>
-<script src="js/firebase-config.js?v=20260824-1144"></script>
-<script src="js/sound.js?v=20260824-1144"></script>
-<script src="js/speak.js?v=20260824-1144"></script>
-<script src="js/bgm.js?v=20260824-1144"></script>
-<script src="js/board.js?v=20260824-1144"></script>
-<script src="js/characters.js?v=20260824-1144"></script>
-<script src="js/cards.js?v=20260824-1144"></script>
-<script src="js/questions.js?v=20260824-1144"></script>
-<script src="js/engine.js?v=20260824-1144"></script>
-<script src="js/render.js?v=20260824-1144"></script>
-<script src="js/store.js?v=20260824-1144"></script>
-<script src="js/teacher.js?v=20260824-1144"></script>
+<script src="js/firebase-config.js?v=20260824-1208"></script>
+<script src="js/sound.js?v=20260824-1208"></script>
+<script src="js/speak.js?v=20260824-1208"></script>
+<script src="js/bgm.js?v=20260824-1208"></script>
+<script src="js/board.js?v=20260824-1208"></script>
+<script src="js/characters.js?v=20260824-1208"></script>
+<script src="js/cards.js?v=20260824-1208"></script>
+<script src="js/questions.js?v=20260824-1208"></script>
+<script src="js/engine.js?v=20260824-1208"></script>
+<script src="js/render.js?v=20260824-1208"></script>
+<script src="js/store.js?v=20260824-1208"></script>
+<script src="js/teacher.js?v=20260824-1208"></script>
 </body>
 </html>
