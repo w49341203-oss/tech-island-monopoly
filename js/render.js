@@ -557,6 +557,21 @@
     s.badge.setAttribute('cx', x + s.w / 2 - 8); s.badge.setAttribute('cy', y - CHAR_H + 36 - lift);
     s.num.setAttribute('x', x + s.w / 2 - 8); s.num.setAttribute('y', y - CHAR_H + 46 - lift);
     s.x = x; s.y = y;
+    sortPieces();
+  }
+
+  /**
+   * 偽 3D 的前後關係：畫面上越下面（y 越大）的棋子離觀眾越近，要畫在上層。
+   * SVG 沒有 z-index，畫的順序＝疊的順序；以前照組別順序畫，
+   * 站前面的角色的頭會被站後面角色的腳蓋住（Helen 實測回報）。
+   * 每次有棋子移動就重排一次（連走路動畫的每一步都會經過 setPieceXY）。
+   */
+  function sortPieces() {
+    Object.keys(sprites)
+      .map(function (g) { return sprites[g]; })
+      .filter(function (s) { return s && s.g && s.g.parentNode === layers.pieces; })
+      .sort(function (a, b) { return (a.y || 0) - (b.y || 0); })
+      .forEach(function (s) { layers.pieces.appendChild(s.g); });   // appendChild 會把節點移到最後（最上層）
   }
 
   function setFrame(gid, name) {
