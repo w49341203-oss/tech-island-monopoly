@@ -28,6 +28,21 @@ h1{font-size:clamp(30px,7vw,46px);margin:0 0 6px;letter-spacing:2px;
 .player{background:linear-gradient(180deg,#5eead4,#14b8a6)}
 .note{margin-top:26px;font-size:13px;color:rgba(232,238,247,.62);line-height:1.8}
 .ver{margin-top:18px;font-size:12px;color:rgba(232,238,247,.4);letter-spacing:1px}
+/* 學生掃描用的 QR：平時小張放在按鈕下面，點一下放大成投影用大圖 */
+.qr{margin-top:22px;background:#fff;border-radius:20px;padding:16px 16px 12px;
+    box-shadow:0 6px 0 rgba(0,0,0,.2),0 12px 30px rgba(0,0,0,.28);cursor:pointer}
+.qr img{width:190px;height:190px;display:block;margin:0 auto;image-rendering:pixelated}
+.qr .qt{color:#0f3d5e;font-weight:900;font-size:16px;margin-top:10px}
+.qr .qh{color:#456b8a;font-size:12px;margin-top:4px;line-height:1.6}
+/* 放大檢視：投影到白板讓全班一起掃 */
+#qrBig{position:fixed;inset:0;background:rgba(8,20,34,.94);display:none;
+       align-items:center;justify-content:center;flex-direction:column;z-index:99;padding:20px}
+#qrBig.on{display:flex}
+#qrBig img{width:min(70vh,70vw);height:min(70vh,70vw);background:#fff;
+           border-radius:24px;padding:20px;image-rendering:pixelated}
+#qrBig .bt{color:#fff;font-size:clamp(20px,3.4vw,32px);font-weight:900;margin-top:20px}
+#qrBig .bu{color:#9fd8f5;font-size:clamp(13px,1.8vw,18px);margin-top:8px;word-break:break-all}
+#qrBig .bc{color:rgba(255,255,255,.6);font-size:14px;margin-top:18px}
 </style>
 </head>
 <body>
@@ -45,12 +60,37 @@ h1{font-size:clamp(30px,7vw,46px);margin:0 0 6px;letter-spacing:2px;
     <span class="d">每組一台．在平板上開這個</span>
   </a>
 
+  <div class="qr" id="qrCard" title="點一下放大，投影給全班掃">
+    <img src="images/qr/player_qr.png" alt="掃我加入遊戲的 QR Code">
+    <div class="qt">📷 學生掃這裡加入</div>
+    <div class="qh">用相機掃一下就會打開「各組平板」頁面<br>（點 QR 可放大，投影給全班掃）</div>
+  </div>
+
   <div class="note">
     老師先開「老師端」按下開新遊戲，<br>
     白板上會出現一組 <b>6 位數編號</b>，<br>
     各組用平板開「各組平板」輸入這組編號就能加入。
   </div>
-  <div class="ver">v1.1</div>
+  <div class="ver">v1.2</div>
 </div>
+<div id="qrBig">
+  <img src="images/qr/player_qr.png" alt="加入遊戲的 QR Code（放大）">
+  <div class="bt">📷 用相機掃這個加入遊戲</div>
+  <div class="bu">https://w49341203-oss.github.io/tech-island-monopoly/player.html</div>
+  <div class="bc">點畫面任一處關閉</div>
+</div>
+<script>
+// QR 點一下放大（投影給全班掃），再點一下或按 Esc 關閉
+(function () {
+  var card = document.getElementById('qrCard');
+  var big = document.getElementById('qrBig');
+  if (!card || !big) return;
+  card.addEventListener('click', function () { big.classList.add('on'); });
+  big.addEventListener('click', function () { big.classList.remove('on'); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') big.classList.remove('on');
+  });
+})();
+</script>
 </body>
 </html>
